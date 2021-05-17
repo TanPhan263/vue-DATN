@@ -86,6 +86,7 @@ const baseUrl='https://localhost:44398/api/'
 import TheHeaderDropdownAccnt from '@/containers/TheHeaderDropdownAccnt'
 import Suggest from './Suggest'
 import AuthService from '@/services/AuthService.js';
+import UserService from '@/services/UserService.js';
 export default {
 name: 'navbars',
 components:{
@@ -94,6 +95,7 @@ components:{
 },
 data(){
     return{
+		user: '',
 		provinceSelected: '',
 		avt:'',
 		provinces: '',
@@ -101,22 +103,37 @@ data(){
 		scroll: '',
 		keyword:'',
 		results: [],
-		loading: false
+		loading: false,
+		isLoggedin: false,
     }
 },
-props:{
-	user: String,
-},
+created(){
+	this.check();
+},	
 computed:{
-	isLoggedin: function() {
-		if(localStorage.getItem('isAuthen') == null || localStorage.getItem('isAuthen') == 'Đăng nhập thất bại' || !AuthService.isAuthented(localStorage.getItem('isAuthen'))) return false
-		return true
-	}
+	// isLoggedin: async function() {
+		
+	// }
   },
   methods:{
+	  async check(){
+		if(localStorage.getItem('isAuthen') == null || localStorage.getItem('isAuthen') == 'Đăng nhập thất bại' || !AuthService.isAuthented(localStorage.getItem('isAuthen')))
+		{
+			this.isLoggedin = false;
+			return
+		}
+		this.user = await UserService.getInfo(localStorage.getItem('isAuthen'));
+		let check = this.user[0];
+		console.log(check);
+		if(check == "Bạn cần đăng nhập"){
+			this.isLoggedin = false;
+			return
+		}
+		this.isLoggedin =true;
+	  },
 	  getName(){
 		  try{
-		   	return this.user.userName;
+		   	return this.user[0].userName;
 		  }
 		  catch{
 			  alert("Lỗi rồi")

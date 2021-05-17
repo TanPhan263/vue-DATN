@@ -8,7 +8,8 @@ import { iconsSet as icons } from './assets/icons/icons.js'
 import store from './store'
 import axios from 'axios'
 import babelPolyfill from 'babel-polyfill'
-import * as VueGoogleMaps from "vue2-google-maps";
+import * as VueGoogleMaps from "vue2-google-maps"
+import VueGoogleAutocomplete from 'vue-google-autocomplete'
 import { BFormRating } from 'bootstrap-vue'
 import CommentGrid from 'vue-comment-grid'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -49,7 +50,7 @@ firebase.initializeApp({
 //GoogleMap
 Vue.use(VueGoogleMaps, {
   load: {
-    key: "AIzaSyBIgjnRElmcegKsm6RIORR6_jJRhq7nSSA",
+    key: "AIzaSyDWTx7bREpM5B6JKdbzOvMW-RRlhkukmVE",
     libraries: "places"
   }
 });

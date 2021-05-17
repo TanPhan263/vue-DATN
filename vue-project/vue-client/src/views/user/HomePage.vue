@@ -1,7 +1,7 @@
 <template>
 <div @click="disableDropdown" class="wraper" style="background-color:#f6f6f6;">
   <Header/>
-  <Navbar v-bind:user="user" @dishClicked="dishClicked"  @storeClicked="storeClicked"  :class="scroll" @onkeychange="onkeychange"/>
+  <Navbar @dishClicked="dishClicked"  @storeClicked="storeClicked"  :class="scroll" @onkeychange="onkeychange"/>
   <div class="content-banner">
 			<div class="banner">
 				<img id="banner" style="margin: auto; height: 270px;width: 100%; display: block;">
@@ -36,18 +36,11 @@
 	</div>
 
    <transition v-if="active">
-		<div class="modal-mask">
+		<div class="modal-mask-home">
 			<div class="modal-wrapper">
 				<div class="modal-container">
 						<i v-on:click="active=false" class="fa fa-window-close" style="float: right; font-size: 20px; margin-bottom: 10px;"></i>
-					  <GoogleMap />
-          <div class="modal-body">
-            <p style="font-size: 15px; color:gray;"> <i class="fa fa-location-arrow"  style="margin-left: 20px;color: red; font-size: 15px;"></i> {{ location }}</p>
-            <slot class="form-group" name="body">
-              <input id="new_location" type="text" class="form-control" placeholder="Nhập vị trí của bạn" style="float: right; height: 30px">
-              <button style=" width:20%; height:30px; border-radius: 5px;margin-top: 10px; background-color: red; color: white; border: none; font-size: 15px"> Thay đổi</button>
-            </slot>
-          </div>
+             <GoogleMapHome @send-place="getPlace"/>
 				</div>
 			</div>
 			</div>
@@ -58,7 +51,8 @@
     <Footer/>
   </div>
 </template>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gmap-vue@1.2.2/dist/gmap-vue.min.js"></script>
 <script>
 import Header from './containers/Header'
 import Navbar from './containers/Navbar'
@@ -68,7 +62,7 @@ import CategoryPage from './containers/CategoryPage'
 import SearchPage from './SearchPage'
 import Search from './containers/Search'
 import Footer from './containers/Footer'
-import GoogleMap from './containers/GoogleMap';
+import GoogleMapHome from './containers/GoogleMapHome';
 import ProvinceService from '@/services/ProvinceService.js'
 import FormatWord from '@/services/FormatWord.js'
 import StoreService from '@/services/StoreService.js'
@@ -79,7 +73,7 @@ export default {
       Navbar,
       Search,
       Footer,
-      GoogleMap,
+      GoogleMapHome,
       Suggest,
       CategoryPage
     },
@@ -111,9 +105,6 @@ export default {
       this.provinces= await ProvinceService.getAll();
       var id= localStorage.getItem('provinceId');
       this.stores = await StoreService.getByProvince(id);
-      this.user=localStorage.getItem('userInfor');
-      console.log(this.user);
-      this.user = JSON.parse(this.user);
     },
     storeClicked(item) {
       this.$router.push('/storeDetail/'+ item)
@@ -164,6 +155,10 @@ export default {
           this.scroll= ''
         }
       };
+    },
+    getPlace(place){
+      console.log('place:' + place)
+      this.location = place;
     }
   }
 }
@@ -173,6 +168,17 @@ export default {
 @import url('../../assets/css/style.css');
 @import url('../../assets/css/footer.css');
 @import url('../../assets/css/bootstrap.min.css');
+ .modal-mask-home {
+    position: fixed;
+    z-index: 999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.644);
+    display: table;
+    transition: opacity .3s ease;
+  }
 .dot {
   height: 7px;
   width: 7px;

@@ -1,7 +1,7 @@
 <template>
   <CRow>
     <CCol sm="6" lg="3">
-      <CWidgetDropdown color="primary" :header="user.length" text="Tổng số thành viên">
+      <CWidgetDropdown color="primary" :header="user" text="Tổng số thành viên">
         <template #default>
           <CDropdown
             color="transparent p-0"
@@ -30,7 +30,7 @@
       </CWidgetDropdown>
     </CCol>
     <CCol sm="6" lg="3">
-      <CWidgetDropdown color="info" :header="store.length" text="Tổng số quán">
+      <CWidgetDropdown color="info" :header="store" text="Tổng số quán">
         <template #default>
           <CDropdown
             color="transparent p-0"
@@ -63,8 +63,8 @@
     <CCol sm="6" lg="3">
       <CWidgetDropdown
         color="warning"
-        :header="dishes.length"
-        text="Số quán chờ xác nhận"
+        :header="dishes"
+        text="Tống số món ăn"
       >
         <template #default>
           <CDropdown
@@ -97,7 +97,7 @@
     <CCol sm="6" lg="3">
       <CWidgetDropdown
         color="danger"
-        :header="comments.length"
+        :header="comments"
         text="Tổng số comment"
       >
         <template #default>
@@ -150,10 +150,14 @@ export default {
   },
   methods: {
      async onInit(){
-      this.user = await UserService.getAll(localStorage.getItem('isAuthen')); 
+      this.user = await UserService.getAll(localStorage.getItem('isAuthen'));
+      this.user = this.user.length.toString()
       this.store = await StoreService.getAll(); 
-      this.comments = await CommentService.getAll(); 
+      this.store = this.store.length.toString()
+      this.comments = await CommentService.getAll();
+      this.comments = this.comments.length.toString()
       this.dishes =  await StoreService.getAllDish(); 
+      this.dishes = this.dishes.length.toString()
     },
   },
 }

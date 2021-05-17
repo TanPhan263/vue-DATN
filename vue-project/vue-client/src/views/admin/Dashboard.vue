@@ -113,10 +113,10 @@ export default {
       day: 0,
       month: 0,
       year: 0,
-      user:[],
-      store:[],
-      comments:[],
-      dishes:[]
+      user:'',
+      store:'',
+      comments:'',
+      dishes:''
       // tableItems: [
       //   {
       //     avatar: { url: 'img/avatars/1.jpg', status: 'success' },
@@ -194,8 +194,8 @@ export default {
     getDate(){
       var d = new Date();
       this.day= d.getDate();
-      this.month = d.getMonth();
-      this.year = d.getYear();
+      this.month = d.getMonth() + 1;
+      this.year = d.getFullYear();
     },
     optionChanged(value){
       this.selected=value;

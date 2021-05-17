@@ -268,7 +268,6 @@ export default {
             console.log(this.type); 
             this.nearest = this.stores.slice(0,12);
             this.rates = this.rates.slice(0,12);
-            
           }catch{}
         },
         storeClicked (item) {
@@ -358,7 +357,7 @@ export default {
             else{
             this.loading = false;
             }
-          }, 500);
+          }, 200);
       },
       viewMore(id){
         this.$router.push('/ViewMore?key=' + id).catch(()=>{});

@@ -18,7 +18,7 @@
             <a href="#">
               <img
                 v-lazy="storeOpen[0].storePicture"
-                alt="foody-mobile.jpg"
+                alt="sunnie food finding"
                 style="width: 488px; height: 275px;border-radius: 15px 0px 0px 15px;"
               />
             </a>
@@ -249,7 +249,7 @@
                 <i class="fas fa-directions"></i> Đường đi
               </a>
             </div>
-            <GoogleMap v-bind:storeLat="storeOpen[0].lat" v-bind:storeLong="storeOpen[0].long"/>
+            <GoogleMap v-if="storeOpen[0].lat" v-bind:lat="storeOpen[0].lat" v-bind:lng="storeOpen[0].long"/>
             <div id="map"></div>
         </div>
       </div>
@@ -288,6 +288,7 @@ export default {
         email:'John@gmail.com'
       },
       chat: false,
+      address: '',
       //binding class
       activeClass1: 'active',
       activeClass2: '',
@@ -439,7 +440,8 @@ methods:{
     this.$http.get('https://localhost:44398/api/Store/GetByID?id='+ id).then(response => {
           this.storeOpen = response.data
           console.log(this.storeOpen);
-          this.storeID=this.storeOpen[0].storeID
+          this.storeID=this.storeOpen[0].storeID;
+          this.address=this.storeOpen[0].storeAddress;
           this.$http.get('https://localhost:44398/api/Dish/GetByIDStore?id=' +this.storeID).then(response => {
               this.storeMenu = response.data;
               this.storeMenu.forEach( element => {
