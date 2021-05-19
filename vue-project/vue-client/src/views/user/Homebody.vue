@@ -4,7 +4,7 @@
       style="width: 85%;margin: 0 auto; margin-top:20px;background-color:#f6f6f6;"
       fixed-height="230px"
       class="no-shadow"
-      :visible-slides="3"
+      :visible-slides="4"
       slide-multiple
       :gap="3"
       :bullets="false"
@@ -288,6 +288,17 @@ export default {
           this.$http.get(baseUrl+ 'GetByIDProvince?id=' + index).then(response => {
             this.stores= response.data
           });
+        },
+        async changePlace(lat,long){
+          console.log('ChangePlace')
+           var id= localStorage.getItem('provinceId');
+            this.stores = await StoreService.getByProvince_distance(id, lat,long)
+            this.rates = await StoreService.getByProvince_distance(id,lat,long);
+            this.rates.sort(function compare( a, b ) {
+                return parseFloat(b.ratePoint) - parseFloat(a.ratePoint);
+            });
+            this.nearest = this.stores.slice(0,12);
+            this.rates = this.rates.slice(0,12);
         },
         onChildClick(value){
           this.provinceID = value

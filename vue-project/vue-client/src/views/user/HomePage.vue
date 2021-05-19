@@ -79,7 +79,7 @@ export default {
     },
   data() {
     return {
-      location: 'Số 1, Võ Văn Ngân, TP.Thủ Đức, Việt Nam',
+      location: '1 Võ Văn Ngân, Linh Chiểu, Thủ Đức, Thành phố Hồ Chí Minh, Vietnam',
       active: false,
       nav: '',
       show: true,
@@ -156,9 +156,11 @@ export default {
         }
       };
     },
-    getPlace(place){
+    async getPlace(place,lat,long){
       console.log('place:' + place)
       this.location = place;
+      var id= localStorage.getItem('provinceId');
+      this.stores = await StoreService.getByProvince_distance(id,lat,long);
     }
   }
 }

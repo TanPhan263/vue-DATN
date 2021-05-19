@@ -17,6 +17,9 @@ export default{
     getByProvince(id){
        return axios.get( url+'/GetAllGanToiProvince?id=' + id).then(response => response.data);
     },
+    getByProvince_distance(id, lat, long){
+        return axios.get(url+'/GetAllGanToiProvince?id=' + id + '&Lat='+lat+'&Long='+long).then(response => response.data);
+     },
     getByBussinessType(id){
        return axios.get(url + '/GetByIDBusinessType?id=' +id ).then(response =>response.data);
     },
