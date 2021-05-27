@@ -1,6 +1,6 @@
 import axios from 'axios';
-const url = 'https://localhost:44398/api/User/';
-const url2 = 'https://localhost:44398/api/UserType/';
+const url = 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/User/';
+const url2 = 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/UserType/';
 export default{
     getInfo(token){
         return axios.get(url+ 'GetByID',{ headers: {"Authorization" : `Bearer ${token}`}}).then(respone => respone.data);

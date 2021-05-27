@@ -103,8 +103,6 @@
 <script>
 import AuthService from '@/services/AuthService.js';
 import UserService from '@/services/UserService.js';
-
-const baseUrl ='https://localhost:44398/api/User/';
 export default {
   name: "Login",
   data() {

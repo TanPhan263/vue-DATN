@@ -73,6 +73,7 @@
           </CCardBody>
       </CCard>
     </CCol>
+     
     <CCol md="6">
       <CCard>
         <CCardHeader>
@@ -136,9 +137,65 @@
           </CCardBody>
       </CCard>
     </CCol>
-     <CCol col="12">
-     <MangeMenu v-if="menuID" v-bind:menuID="menuID"/>
+    <CCol md="12">
+      <CCard>
+         <CCardHeader>
+          <div class="row" style="width: 100%">
+                <h2  style="margin-left: 12px; width: 80%">Khuyến mãi</h2>
+          <div class="row" style="float:right;">
+            <CButton color="primary" @click="active=true">Thêm Khuyến mãi</CButton>
+          </div>
+          </div>
+         </CCardHeader>
+         <CCardBody>
+            <div class="res-common-minmaxprice"  style="border-top: 1px solid #888;">
+                  <span style="border: 1px solid red" v-if="discountList"><span v-for="(discount,index) in discountList" v-bind:key="index" class="fa fa-tag" style="font-size: 15px; color: red"> {{getDiscountName(discount.idDiscountType)}}</span>  </span>
+            </div>
+         </CCardBody>
+      </CCard>
      </CCol>
+     <CCol col="12">
+     <MangeMenu v-if="storeID" v-bind:menuID="storeID"/>
+     <CCard class="center_div" style="padding: 20px;">
+       <CCardHeader>
+      <div class="row" style="width: 100%">
+            <h2  style="margin-left: 12px; width: 80%">Comments</h2>
+            <CInput
+                      placeholder="Tìm comment"
+              />
+      </div>
+      </CCardHeader>
+       <CCardBody>
+      <CDataTable
+            style="margin-left: 15px;width: 97%"
+            hover
+            border
+            striped
+            small
+            fixed
+            :items="commentList"
+            :fields="fields"
+            :items-per-page="5"
+            clickable-rows
+            :active-page="activePage"
+            @row-clicked="rowClicked"
+            :pagination="{ doubleArrows: false, align: 'center'}"
+            @page-change="pageChange"
+          >
+            <!-- <template #status="{item}">
+              <td>
+                <CBadge v-if="item.status === '1'" :color="getBadge(item.status)">
+                 OK
+                </CBadge>
+                <CBadge v-else :color="getBadge(item.status)">
+                  Banned
+                </CBadge>
+              </td>
+            </template> -->
+          </CDataTable>
+           </CCardBody>
+     </CCard>
+        </CCol>
   </CRow>
 </template>
 
@@ -146,6 +203,8 @@
 import firebase from 'firebase';
 import MangeMenu from '../manageMenu/MangeMenu'
 import StoreService from '@/services/StoreService.js';
+import CommentService from '@/services/CommentService.js';
+import DiscountService from '@/services/DiscountService.js';
 export default {
   name: 'manageStore',
   components:{
@@ -153,6 +212,16 @@ export default {
   },
   data () {
     return {
+        discountList:[],
+      discountAll:[],
+      commentList: [],
+      fields: [
+        { key: 'commentID', label: 'ID Comment', _classes: 'font-weight-bold' },
+        { key: 'userName', label: 'Người comment', _classes: 'font-weight-bold' },
+        { key: 'content', label: 'Nội dung', _classes: 'font-weight-bold' },
+        { key: 'date', label: 'Ngày', _classes: 'font-weight-bold' },
+      ],
+      activePage: 1,
       check: false,
       type: [],
       status : false,
@@ -177,6 +246,20 @@ export default {
     }
   },
   methods: {
+     pageChange (val) {
+      this.$router.push({ query: { page: val }})
+    },
+     rowClicked (item) {
+      // this.$router.push({path: `store/${item.storeID}`})
+    },
+    async getComments(index){
+			try{
+        console.log(index);
+				this.commentList = await CommentService.getCommentByStore(index);
+        console.log(this.commentList);
+			}
+			catch{}
+		},
     getmenuID(){
       alert(this.menuID);
       return this.menuID;
@@ -198,13 +281,10 @@ export default {
       this.openTime =  this.storeOpened[0].openTime;
       this.closeTime =  this.storeOpened[0].cLoseTime;
       this.storeID =   this.storeOpened[0].storeID;
+      this.storeLat = this.storeOpened[0].lat;
+      this.storeLong = this.storeOpened[0].long;
       if(this.storeOpened[0].status == '1') this.check == false;
               else this.check = true;
-    },
-     async getLatLong(id){
-      const response = await StoreService.getLatLong(id);
-      this.storeLat = response[0].lat;
-      this.storeLong = response[0].long;
     },
     previewImage(event){
           this.imageData= event.target.files[0];
@@ -212,7 +292,7 @@ export default {
     onUpload(){
       if(this.imageData == null)
       {
-         this.updateStore();
+        this.updateStore();
       }
       else{
         const storageRef = firebase.storage().ref(`image/${this.imageData.name}`).put(this.imageData);
@@ -239,23 +319,33 @@ export default {
         provinceID: this.storeProvince,
         businessTypeID: this.storeStype,
         ratePoint: this.storeRate,
-        status: this.status
-      };
-      const latlong = {
-        idStore: id,
+        status: this.status,
         lat: this.storeLat,
         long: this.storeLong
-      }
+      };
       const response = await StoreService.updateStore(id, store, localStorage.getItem('isAuthen'));
-      const response2 = await StoreService.updateLatLong(latlong);
-      alert('LatLong: ' + response2)
       alert(response)
     },
+    async getDisCount(id){
+      this.discountList = await DiscountService.getDiscountbyStore(id);
+      this.discountAll =  await DiscountService.getAll();
+      console.log(this.discountAll)
+    },
+    getDiscountName(id){
+      let temp = ''
+      console.log(id)
+      this.discountAll.forEach(element => {
+        if(element.discountTypeID == id)
+          temp = element.discountTypeName;
+      });
+      return temp;
+    }
   },
   created(){
     const id = this.$route.params.id;
     this.getStore(id);
-    this.getLatLong(id);
+    this.getComments(id);
+    this.getDisCount(id);
   },
    mounted(){
    

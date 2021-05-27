@@ -3,7 +3,7 @@ import axios from 'axios';
 import firebase from 'firebase';
 import router from '../router/index';
 import UserService from '../services/UserService';
-const url = 'https://localhost:44398/api/User/';
+const url = 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/User/';
 export default {
   parseJwt (isAuthen) {
     var base64Url = isAuthen.split('.')[1];

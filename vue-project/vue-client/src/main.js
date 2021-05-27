@@ -50,7 +50,7 @@ firebase.initializeApp({
 //GoogleMap
 Vue.use(VueGoogleMaps, {
   load: {
-    key: "AIzaSyDWTx7bREpM5B6JKdbzOvMW-RRlhkukmVE",
+    key: "AIzaSyA66KwUrjxcFG5u0exynlJ45CrbrNe3hEc",
     libraries: "places"
   }
 });

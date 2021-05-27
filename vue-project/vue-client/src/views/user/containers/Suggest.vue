@@ -26,6 +26,9 @@ export default {
     props: {
         results: Array
     },
+    created(){
+      this.$root.$refs.Suggest = this;
+    },
     methods:{
         storeClicked: function(Id){
             this.$emit('click-store', Id);

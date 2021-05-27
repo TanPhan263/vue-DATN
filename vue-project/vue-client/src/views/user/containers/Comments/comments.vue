@@ -168,11 +168,8 @@
 
 <script>
 import firebase from 'firebase'
-import { freeSet } from '@coreui/icons'
-const baseUrl='https://localhost:44398/api';
 import CommentService from '@/services/CommentService.js';
 import StoreService from '@/services/StoreService.js';
-import UserService from '@/services/UserService.js';
 import AuthService from '@/services/AuthService.js';
 import { loadOptions } from '@babel/core';
 export default {

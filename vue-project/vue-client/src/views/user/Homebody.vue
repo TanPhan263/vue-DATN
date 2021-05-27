@@ -11,13 +11,12 @@
       :slide-ratio="1 / 4"
       :dragging-distance="200"
       :breakpoints="{ 800: { visibleSlides: 2, slideMultiple: 2 } }">
-      <vueper-slide   @click.native="active=true" style="border-radius:10px;" v-for="(slide, i) in banner" :key="i" :image="slide.src" />
+      <vueper-slide style="border-radius:10px;" v-for="(slide, i) in discount" :key="i" :image="slide.discountTypePicture"  @click.native="getDiscountStore(slide.discountTypeID)"  />
     </vueper-slides>
     <transition v-if="active">
 		<div class="modal-mask">
 			<div class="modal-wrapper">
 				<div class="modal-container">
-
 				<div class="modal-header">
 					<slot name="header">
 					<h3>DANH SÁCH QUÁN</h3>
@@ -26,7 +25,24 @@
 
 				<div class="modal-body">
 					<slot name="body">
-					  Danh sách quán
+              <div v-on:click="storeClicked(result.storeID)" href="" class="search_suggest" v-for="result in discountStore" v-bind:key="result.storeID" style="
+                text-align: left; display: flex; border-bottom: 1px solid darkgray;cursor: pointer;padding: 4px 45px 4px 10px;">
+            
+                  <img :src="result.storePicture" class="left-thing" style="border-radius:5px;">
+                  <div class="middle-thing" style="margin-left: 3px; height: 100%">
+                    <p style="margin-top: 0px; height: 15%; font-weight: bold;">{{result.storeName}}</p>
+                    <p style="margin-top: 0px;">{{subString(result.storeAddress)}}...</p>
+                  </div>
+                 <div v-if="getActiveTime(result.openTime,result.cLoseTime)" class="right-thing">
+                    <p style="font-size: 12px;margin-top: 0px; height: 15%; color:green;">Đang hoạt động <span class="dot"></span></p>
+                    <p style="color: #585858;" >{{result.khoangcach}} km</p>
+                  </div>
+                  <div v-else class="right-thing">
+                    <p style=" margin-top: 0px; height: 20%; color:red;">Đóng cửa <span class="dot" style="background-color:#FF0000
+  ;"></span></p>
+                    <p >{{result.khoangcach}} km</p>
+                </div>
+              </div>
 					</slot>
 				</div>
 
@@ -186,7 +202,8 @@ import 'vueperslides/dist/vueperslides.css';
 import StoreService from '@/services/StoreService.js';
 import { loadOptions } from '@babel/core';
 import Area from './containers/Area.vue';
-const baseUrl='https://localhost:44398/api/'
+const baseUrl='http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/'
+import DiscountService from '@/services/DiscountService.js'
 
 export default {
     name: 'Homebody',
@@ -205,41 +222,9 @@ export default {
           type: [],
           loadMoreList: [],
           dishes: [],
-          banner:[
-            {
-              id:1,
-              src: require('../../assets/imgs/banner1.jpg')
-            },
-            {
-              id:2,
-              src: require('../../assets/imgs/banner2.jpg')
-            },
-            {
-              id:3,
-              src: require('../../assets/imgs/banner3.jpg')
-            },
-            {
-              id:4,
-                src: require('../../assets/imgs/banner4.jpg')
-            },
-            {
-              id:5,
-              src: require('../../assets/imgs/banner1.jpg')
-            },
-            {
-              id:6,
-            src: require('../../assets/imgs/banner2.jpg')
-            },
-            {
-              id:7,
-              src: require('../../assets/imgs/banner3.jpg')
-            },
-            {
-              id:8,
-              src: require('../../assets/imgs/banner4.jpg')
-            }
-          ],
-          active:false
+          discount:[],
+          active:false,
+          discountStore: []
         }
       },
       created(){
@@ -258,6 +243,8 @@ export default {
       methods:{
         async onInit(){
           try{
+            this.discount = await DiscountService.getAll();
+            console.log(this.discount);
             var id= localStorage.getItem('provinceId');
             this.stores = await StoreService.getByProvince(id)
             this.rates = await StoreService.getByProvince(id);
@@ -373,8 +360,12 @@ export default {
       viewMore(id){
         this.$router.push('/ViewMore?key=' + id).catch(()=>{});
       },
-      districtClicked(){
-
+      async getDiscountStore(id){
+          this.active=true;
+          this.discountStore = await DiscountService.getStore(id);
+      },
+      getActiveTime(open,close){
+        return this.$root.$refs.Suggest.getActiveTime(open,close);
       }
     },
     updated(){

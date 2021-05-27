@@ -139,7 +139,7 @@ export default {
 			this.show = true;
 			this.type = await StoreService.getAllBussinessType();
 			const key = this.$route.query.key
-			this.$http.get('https://localhost:44398/api/Dish/Search?dishname=' + key).then(response => {
+			this.$http.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Dish/Search?dishname=' + key).then(response => {
 			if(response.data !='Không có kết quả tìm kiếm')
 			{
 				this.stores = response.data;

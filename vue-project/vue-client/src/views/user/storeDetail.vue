@@ -1,14 +1,7 @@
 <template>
 <div style="background-color: #f6f6f6f6"> 
   <Header/>
-  <Navbar v-bind:user="user" @dishClicked="dishClicked" @storeClicked="storeClicked" :class="scroll_nav"/>
-  
-    <!-- <div @click="chat=!chat" class="message"><i class="fa fa-envelope"></i></div>
-    <transition >
-      <div v-show="chat" class="chat">
-        <Chat v-bind:storeID="storeID" v-bind:userInfor="userInfor"/>
-      </div>
-    </transition> -->
+  <Navbar @dishClicked="dishClicked" @storeClicked="storeClicked" :class="scroll_nav"/>
 
   <div class="pn-microsite">
     <div id="storeInfor" class="micro-content">
@@ -59,7 +52,7 @@
                   <span >{{storeOpen[0].openTime}} - {{storeOpen[0].cLoseTime}}</span>
                 </div>
                 <div class="res-common-minmaxprice"  style="border-top: 1px solid #888;">
-                  <span><span class="fa fa-tag" style="font-size: 15px; color: red"></span> Khuyến mãi </span>
+                  <span v-if="discountList"><span v-for="(discount,index) in discountList" v-bind:key="index" class="fa fa-tag" style="font-size: 15px; color: red"> {{getDiscountName(discount.idDiscountType)}}</span>  </span>
                 </div>
               </div>
             </div>
@@ -245,7 +238,7 @@
           <div id="map" class="microsite-gallery" style="margin-top: 15px">
             <div style="margin-bottom: 40px">
               <h4>BẢN ĐỒ</h4>
-               <a class="direction-button" :href="'http://maps.google.com/maps?z=8&t=m&q=loc:' + storeLat + '+' + storeLong" target="_blank" >
+               <a v-if="storeOpen[0].lat" class="direction-button" :href="'http://maps.google.com/maps?z=8&t=m&q=loc:' + storeOpen[0].lat + '+' + storeOpen[0].long" target="_blank" >
                 <i class="fas fa-directions"></i> Đường đi
               </a>
             </div>
@@ -268,7 +261,8 @@ import Comments from './containers/Comments/comments';
 import Footer from './containers/Footer'
 import Chat from '../chat/chatPage'
 import StoreService from '@/services/StoreService.js';
-const baseUrl='https://localhost:44398/api';
+import DiscountService from '@/services/DiscountService.js';
+const baseUrl='http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api';
 
 export default {
   name: 'storeDetail',
@@ -316,8 +310,6 @@ export default {
         ratePoint: String,
         }
       ],
-      storeLat:'',
-      storeLong: '',
       storeMenu:[],
       menuId: '',
       dishType: [],
@@ -328,6 +320,8 @@ export default {
       ratePoint:[],
       totalRate:5,
       commentList:[],
+      discountList:[],
+      discountAll:[]
     }
   },
   components:{
@@ -422,12 +416,19 @@ methods:{
           });
           return temp;
         },
-    view_count(){
-      const credential = {
-        storeID: this.storeID,
-        date: new Date(),
-      }
-      
+    async getDisCount(id){
+      this.discountList = await DiscountService.getDiscountbyStore(id);
+      this.discountAll =  await DiscountService.getAll();
+      console.log(this.discountAll)
+    },
+    getDiscountName(id){
+      let temp = ''
+      console.log(id)
+      this.discountAll.forEach(element => {
+        if(element.discountTypeID == id)
+          temp = element.discountTypeName;
+      });
+      return temp;
     }
 },
   created(){
@@ -437,12 +438,12 @@ methods:{
     this.user=localStorage.getItem('userInfor');
     this.user = JSON.parse(this.user);
     const id = this.$route.params.id;
-    this.$http.get('https://localhost:44398/api/Store/GetByID?id='+ id).then(response => {
+    this.$http.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Store/GetByID?id='+ id).then(response => {
           this.storeOpen = response.data
-          console.log(this.storeOpen);
+          
           this.storeID=this.storeOpen[0].storeID;
           this.address=this.storeOpen[0].storeAddress;
-          this.$http.get('https://localhost:44398/api/Dish/GetByIDStore?id=' +this.storeID).then(response => {
+          this.$http.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Dish/GetByIDStore?id=' +this.storeID).then(response => {
               this.storeMenu = response.data;
               this.storeMenu.forEach( element => {
                 if(!this.dishType.includes(element.dishType_ID))
@@ -451,6 +452,7 @@ methods:{
           });
           this.getType(this.storeOpen[0].businessTypeID);
     });
+    this.getDisCount(id);
     this.onScroll();
   }
 }

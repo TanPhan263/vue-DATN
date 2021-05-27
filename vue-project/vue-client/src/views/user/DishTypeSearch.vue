@@ -25,7 +25,7 @@
 </template>
 
 <script>
-const baseUrl='https://localhost:44398/api/'
+const baseUrl='http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/'
 const customLabels = {
     first: '<<',
     last: '>>',

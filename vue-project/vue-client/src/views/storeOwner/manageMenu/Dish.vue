@@ -24,19 +24,6 @@
                 horizontal
               />
               <div class="row" style="margin-left: 0px;">
-              <p style="margin-right: 45px;">Loại món ăn</p>
-                    <select
-                        style="width:345px;height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-bottom: 10px;"
-                        class="country fl_left"
-                        vertical
-                        v-model="dishType_ID"
-                        placeholder="Loại món ăn"
-                        >
-                        <option >Loại món ăn</option>
-                        <option v-for="dish in dishTypes" v-bind:key="dish.dishType_ID" :value="dish.dishType_ID">
-                            {{dish.dishyTypeName}}
-                        </option>
-                    </select>
               </div>
             </CForm>
           </CCardBody>
@@ -139,7 +126,7 @@ export default {
       
       },
       getType(index){
-        this.$http.get('https://localhost:44398/api/DishType/GetAll').then(response => {this.dishTypes=response.data});
+        this.$http.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/DishType/GetAll').then(response => {this.dishTypes=response.data});
         this.dishTypes.forEach(element => {
           if(element.dishType_ID==index)
           {

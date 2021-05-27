@@ -328,7 +328,6 @@ export default {
             this.getStoreOwner();  
             this.getComments(this.storeID)                
     });
-    this.getLatLong(id);
      this.$http.get('https://localhost:44398/api/BusinessType/GetAll').then(response => {
             this.bussinessType = response.data
     })

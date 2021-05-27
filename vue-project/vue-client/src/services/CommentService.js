@@ -1,5 +1,5 @@
 import axios from 'axios';
-const url='https://localhost:44398/api/Comment';
+const url='http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Comment';
 export default{
     getAll(){
         return axios.get(url +'/GetAll').then(response => response.data);

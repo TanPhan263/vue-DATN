@@ -2,17 +2,18 @@ import axios from 'axios';
 import Vue from 'vue'
 Vue.prototype.$http = axios
 
-const url = 'https://localhost:44398/api/Store';
-const url2 = 'https://localhost:44398/api/BusinessType';
-const url3 = 'https://localhost:44398/api/Dish'
-const url4= 'https://localhost:44398/api/DishType'
-const url5= 'https://localhost:44398/api/Menu'
+const url = 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Store';
+const url2 = 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/BusinessType';
+const url3 = 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Dish';
+const url4= 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/DishType';
+const url5= 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Menu';
+const url6= 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/DiscountType';
 export default{
     getAll(){
-        return axios.get('https://localhost:44398/api/Store/GetAll').then(response => response.data);
+        return axios.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Store/GetAll').then(response => response.data);
     },
     getByID(id){
-        return axios.get('https://localhost:44398/api/Store/GetByID?id='+ id).then(response => response.data);
+        return axios.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Store/GetByID?id='+ id).then(response => response.data);
     },
     getByProvince(id){
        return axios.get( url+'/GetAllGanToiProvince?id=' + id).then(response => response.data);
@@ -74,10 +75,10 @@ export default{
         .then(response => response.data);
     },
     getByBussinessType(id){
-        return axios.get('https://localhost:44398/api/Store/GetByIDBusinessType?id='+ id).then(response => response.data);
+        return axios.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Store/GetByIDBusinessType?id='+ id).then(response => response.data);
     },
     getByDistrict(id){
-        return axios.get('https://localhost:44398/api/Store/GetByIDDistrict?id='+ id).then(response => response.data);
+        return axios.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Store/GetByIDDistrict?id='+ id).then(response => response.data);
     },
     viewCount(view){
         return 
@@ -85,6 +86,11 @@ export default{
     getAllDish(){
         return axios
         .get(url3 + '/GetAll')
+        .then(response => response.data);
+    },
+    getDiscountAll(){
+        return axios
+        .get(url6 + '/GetAll')
         .then(response => response.data);
     }
 }

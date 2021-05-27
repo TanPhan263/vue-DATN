@@ -32,12 +32,11 @@
 </template>
 
 <script>
-import {loaded} from 'vue2-google-maps'
 export default {
   name: "GoogleMap",
   data() {
     return {
-      //mặc định là Montreal
+      //mặc định là UTE
       center: { lat: 10.851170, lng: 106.755493 },
       markers: [],
       places: '',
@@ -47,7 +46,7 @@ export default {
 props:{
     place:String
 },
-  created() {
+  mounted() {
     // this.geolocate();
     this.reserveGeocode();
   },
@@ -56,7 +55,6 @@ props:{
     setPlace(place) {
       this.currentPlace = place;
       console.log(this.currentPlace.formatted_address);
-      
     },
     sendPlace(place) {
       console.log(this.center)

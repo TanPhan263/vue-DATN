@@ -46,7 +46,7 @@ export default [
       },
       {
         _name: 'CSidebarNavItem',
-        name: 'Quản lý Slider',
+        name: 'Quản lý Navbar',
         icon: 'cil-puzzle',
         to: '/manage/store'
       },

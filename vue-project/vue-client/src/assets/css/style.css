@@ -602,12 +602,12 @@
 	background-color:#fff;
 	box-shadow: 2px 2px 2px #AAA;
 }
-.main .ship .sub-menu-ship ul li router-link{
+.main .ship .sub-menu-ship ul li .button{
 	text-decoration:none; 
 	display:block; 
 	white-space:nowrap;  
 	color:#000;
-	
+	border: none;
 }
 .main .ship .sub-menu-ship ul li a div.name-food{
 	font-size:14px;

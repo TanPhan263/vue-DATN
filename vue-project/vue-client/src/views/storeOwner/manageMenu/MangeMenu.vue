@@ -30,20 +30,6 @@
                        label="Giá"
                       v-model="dishPrice"
                     />
-                    <p>Loại món ăn</p>
-                    <select
-                        id="province"
-                        style="width:509px;height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-bottom: 10px;"
-                        class="country fl_left"
-                        vertical
-                        v-model="dishTypeSelected"
-                        placeholder="Loại món ăn"
-                        >
-                        <option >Loại món ăn</option>
-                        <option v-for="dish in dishTypes" v-bind:key="dish.dishType_ID" :value="dish.dishType_ID">
-                            {{dish.dishyTypeName}}
-                        </option>
-                    </select>
                     <div class="row" style="margin-left: 0px;">
                     </div>
                         <p>Hình ảnh món ăn</p>
@@ -130,12 +116,9 @@ export default {
             this.$router.push({path: `manageMenu/${item.dish_ID}`})
         },
         getMenus(id){
-            this.$http.get('https://localhost:44398/api/Dish/GetByIDMenu?id=' + this.menuID).then(response => {
+            this.$http.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Dish/GetByIDStore?id=' + this.menuID).then(response => {
               this.menus = response.data
           });
-        },
-        async getDishType(){
-          this.dishTypes = await StoreService.getDishType();
         },
         previewImage(event){
           this.dishPicture=null;
@@ -180,7 +163,6 @@ export default {
       this.user=localStorage.getItem('userInfor');
       this.user= JSON.parse(this.user);
       this.getMenus(this.user.userID);
-      this.getDishType();
     },
     mounted(){
       

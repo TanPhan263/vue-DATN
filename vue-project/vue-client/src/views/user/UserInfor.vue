@@ -186,7 +186,7 @@ export default {
             userTypeID: this.userTypeID
             };
             localStorage.setItem('userInfor',credentials.toString())
-            axios.post("https://localhost:44398/api/User/EditByID" , credentials ,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{ 
+            axios.post("http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/User/EditByID" , credentials ,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{ 
               this.loading= false;
               alert(respone.data)
             });

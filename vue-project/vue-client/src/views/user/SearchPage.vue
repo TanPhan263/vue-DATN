@@ -153,7 +153,7 @@ export default {
 			}
 			else 
 			{
-				this.$http.get('https://localhost:44398/api/Dish/Search?dishname=' + key).then(response => {
+				this.$http.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Dish/Search?dishname=' + key).then(response => {
 				if(response.data !='Không có kết quả tìm kiếm')
 				{
 					this.lable='';

@@ -55,8 +55,8 @@
 			</div>
 			<div v-else  id="login" class="fl_right">
 				<i  @click="search=true" style="font-size:20px; padding-right: 10px; float:left;color:black; margin-top:8px" class="fa fa-search"/>
-				<router-link style="border-radius: 10px;margin-right: 5px;margin-top: 3px;" to="/login" >Đăng nhập</router-link>
-				<router-link style="border-radius: 10px;margin-right: 5px; width: 90px; text-align:center;" to="/register">Đăng kí</router-link>
+				<a href="http://localhost:8080/login" class="button" style="border-radius: 10px;margin-right: 5px;margin-top: 3px;" >Đăng nhập</a>
+				<a  href="http://localhost:8080/register" class="button" style="border-radius: 10px;margin-right: 5px; width: 90px; text-align:center;">Đăng kí</a>
 			</div>
 		</div>
 		<transition v-if="search">
@@ -82,7 +82,7 @@
 </template>
 
 <script>
-const baseUrl='https://localhost:44398/api/'
+const baseUrl='http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/'
 import TheHeaderDropdownAccnt from '@/containers/TheHeaderDropdownAccnt'
 import Suggest from './Suggest'
 import AuthService from '@/services/AuthService.js';
@@ -175,7 +175,7 @@ computed:{
 		onkeychange(key){
 		this.isDropdown=true;
 		this.loading = true;
-		this.$http.get('https://localhost:44398/api/Dish/Search?dishname=' + key).then(response => {
+		this.$http.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Dish/Search?dishname=' + key).then(response => {
 			if(response.data !='Không có kết quả tìm kiếm')
 			{
 				this.results = response.data;
@@ -187,7 +187,7 @@ computed:{
 		},
 		viewMore_bussinessType(index){
 			this.$root.$refs.Homebody.viewMore(index);
-		}
+		},
   },
   mounted(){
 	this.$http.get(baseUrl + 'Province/GetAll').then(response => {

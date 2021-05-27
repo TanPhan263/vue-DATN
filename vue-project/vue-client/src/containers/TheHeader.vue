@@ -10,9 +10,9 @@
       class="ml-3 d-md-down-none"
       @click="$store.commit('toggleSidebarDesktop')"
     />
-    <!-- <CHeaderBrand class="mx-auto d-lg-none" to="/">
+    <CHeaderBrand class="mx-auto d-lg-none" to="/">
       <CIcon name="logo" height="48" alt="Logo"/>
-    </CHeaderBrand> -->
+    </CHeaderBrand>
     <CHeaderNav class="d-md-down-none mr-auto">
       <CHeaderNavItem class="px-3">
         <CHeaderNavLink to="dashboard">
@@ -56,7 +56,6 @@
 
 <script>
 import TheHeaderDropdownAccnt from './TheHeaderDropdownAccnt'
-const baseUrl = 'https://localhost:44398/api/User/'
 export default {
   name: 'TheHeader',
   data(){

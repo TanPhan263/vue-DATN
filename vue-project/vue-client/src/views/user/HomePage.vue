@@ -157,7 +157,7 @@ export default {
       };
     },
     async getPlace(place,lat,long){
-      console.log('place:' + place)
+      console.log('place:' + place + 'close:'+close)
       this.location = place;
       var id= localStorage.getItem('provinceId');
       this.stores = await StoreService.getByProvince_distance(id,lat,long);

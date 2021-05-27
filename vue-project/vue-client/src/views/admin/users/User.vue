@@ -112,7 +112,6 @@
 <script>
 import axios from 'axios';
 import firebase from 'firebase';
-const url = 'https://localhost:44398/api/User/GetbyId/';
 import UserService from '@/services/UserService.js';
 export default {
   name: 'User',
@@ -200,7 +199,7 @@ export default {
           status : this.status.toString()
           };
           console.log(this.status);
-          axios.post("https://localhost:44398/api/User/EditByID?id=" + id, credentials ,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{ 
+          axios.post("http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/User/EditByID?id=" + id, credentials ,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{ 
             alert(respone.data)})
         }
   },
