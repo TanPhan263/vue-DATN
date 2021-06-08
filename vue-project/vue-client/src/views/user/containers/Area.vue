@@ -1,16 +1,19 @@
 <template>
   <div class="discover">
-              <div class="section">
+              <div style="margin-left: 20px" class="section">
                   <ul> 
                      <li><h1 style="font-size:1.5em; text-align: center">Khu vực</h1></li>
-                     <li  v-for="(district, index) in districts" v-bind:key="index"><a @click=" districtClicked(district.districtID)"> {{district.districtName}}</a></li>
+                     <li  v-for="(district, index) in districts" v-bind:key="index"><a @click=" districtClicked(district.districtID)" :class="[districtID === district.districtID? 'active':'']"> {{district.districtName}}</a></li>
                   </ul>
               </div>
               <div class="artical">
                   <div class="slider">
                     <ul v-if="!show">
-                      <li v-for="(store, index ) in stores" v-bind:key="index"><a v-on:click="storeClicked(store.storeID)">
+                      <li v-for="(store, index ) in stores" v-bind:key="index"> <a :href="'/storeDetail/'+store.storeID">
                           <img v-lazy="store.storePicture"  >
+                            <div class="middle">
+                            <div class="text" style="background: #ff6666 ">Xem quán</div>
+                            </div>
                           <div class="name-food">{{ subStringName(store.storeName)}}...</div>
                           <div class="address-store"><i class="fa fa-map-marker"  style="color: red"></i>  {{ subString(store.storeAddress) }}...
                           <div style="color: black; float:right;">{{store.khoangcach}} km</div></div>
@@ -31,6 +34,7 @@ import StoreService from '@/services/StoreService.js';
 export default {
     data(){
       return{
+        districtID: '-MZDgDz4jgm59Muy9bJ3',
         districts: [],
         stores:[],
         show: false
@@ -65,18 +69,32 @@ export default {
           this.stores = this.stores.slice(0,15);
         },
         async districtClicked(id){
+          this.districtID = id;
           this.show= true;
-            this.stores = await StoreService.getByDistrict(id);
-            this.stores = this.stores.slice(0,15);
-            this.show=false;
-        },
-        storeClicked(id)
-        {
-          this.$emit('storeClicked',id);
+          this.stores = await StoreService.getByDistrict(id);
+          this.stores = this.stores.slice(0,15);
+          this.show=false;
         }
     }
 }
 </script>
 
 <style>
+@import url('../../../assets/css/style.css');
+.middle {
+  transition: .5s ease;
+  opacity: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  text-align: center;
+}
+.text {
+  background-color: #04AA6D;
+  color: white;
+  font-size: 16px;
+  padding: 16px 32px;
+}
 </style>

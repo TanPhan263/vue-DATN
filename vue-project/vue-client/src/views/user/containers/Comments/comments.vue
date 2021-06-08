@@ -1,28 +1,49 @@
 <template>
 <div>
-	 <div class="microsite-gallery">
-          <div class="microsite-professional-photo">
+	<div>
+		<div class="microsite-gallery" style="overflow: visible; min-height: 220px; margin-bottom:15px" >
+		<div class="microsite-professional-photo" style="overflow: visible;">
             <div class="microsite-box-heading">
               <a href="" style="color: #333">HÌNH ẢNH TỪ KHÁCH HÀNG</a>
             </div>
-            <div v-for="(dish,index) in commentList " v-bind:key="index" class="prof-photos-items">
-              <div v-if="dish.image" class="microsite-professional-photo-item">
+            <div v-for="(dish,index) in commentList " v-bind:key="index" class="prof-photos-items" style="overflow: visible;">
+				<div v-if="dish.image" class="microsite-professional-photo-item" style="overflow: visible;">
+					<div  class="popup"> 
+						<img style="width: 225px; height: 150px"
+						:src="dish.image"
+					/>
+					<div @click="openPopup('myPopup'+ index)" class="middle" @mouseleave="closePopup('myPopup'+ index)">
+						<div class="text">View Image</div>
+					</div>
+					<span class="popuptext" style="margin-right: 100px" :id="'myPopup'+ index"><img height="500" width="800"  :src="dish.image" ></span>
+					</div>
+				</div>
+              <!-- <div v-if="dish.image" class="microsite-professional-photo-item">
+				<a >
+                  <img style="width: 200px; height: 150px"
+                    :src="dish.image"
+                  />
+                </a>
+			  </div> -->
+                <!-- <a >
+                  <img style="width: 200px; height: 150px"
+                    :src="dish.image"
+                  />
+                </a>
+              </div>
+			  <div class="zoom" style="z-index: 10">
                 <a >
                   <img
                     :src="dish.image"
                   />
                 </a>
-              </div>
-			  <div class="zoom" style="z-index: 2">
-                <a >
-                  <img
-                    :src="dish.image"
-                  />
-                </a>
-              </div>
+              </div> -->
             </div>
           </div>
         </div>
+	</div>	
+	 <div class="microsite-gallery" >
+          
 		<div id="comment" class="microsite-gallery" style="margin-top: 15px">
 		<div class="microsite-box-heading">
 		</div> 
@@ -115,57 +136,56 @@
 				</div>
 				</div>
 			</transition>
-			<div class="col-sm-12" style="margin-left: 40px;">
+			<div class="col-sm-12" style="padding: 20px;">
 				<div class="review-block">
 					<div v-for="(comment, index) in commentList" :key="index" class="row" style="margin-top:15px;">
-						<div class="row" v-if="comment.parentComment_ID===''">
-							<div class="col-sm-2">
-								<img v-if="comment.userPicture != ''" style="width:55px ; height: 55px;border-radius:50%;" :src="comment.userPicture">
-								<img v-else style="border-radius:50%;" src="http://dummyimage.com/60x60/666/ffffff&text=No+Image" class="img-rounded">
-							</div>
-							<div class="col-sm-9"  style="">
-								<div  class="review-block-rate">
-									<div class="review-block-name"><a>{{comment.userName}}</a> <b-form-rating style="width: 150px; float:right;" inline id="rating-disabled" :value="comment.ratePoint" size="sm" variant="warning" class="mb-2" :readonly="true" no-border></b-form-rating></div>
+						<div style="border: 1px solid #efefef" class="row" v-if="comment.parentComment_ID===''">
+							<div class="col-sm-12">
+								<div class="review-block-rate">
+									<img v-if="comment.userPicture != ''"  class="review-block-name-img" :src="comment.userPicture">
+									<img v-else  class="review-block-name-img" src="http://dummyimage.com/60x60/666/ffffff&text=No+Image" >
+									<div class="review-block-name"><a>{{comment.userName}}</a>
+									<b-form-rating style="width: 150px; float:right" inline id="rating-disabled" :value="comment.ratePoint" size="sm" variant="warning" class="mb-2" :readonly="true" no-border></b-form-rating></div>
 									<div class="review-block-date">{{comment.date}}</div>
 								</div>
-							<div class="review-block-description">{{comment.content}}</div>
-							<div v-if="comment.image != null" class="review-block-description"><img width="100" height="100" :src="comment.image"></div>
-							<div  class="review-block-rate">
-									<div class="review-block-name"><a @click="getParentID(comment.commentID)">Trả lời</a></div>
-							</div>						
+							</div>
+							<div class="col-sm-12" >
+								<div class="review-block-description"><p style="width:auto">{{comment.content}}</p></div>
+								<div v-if="comment.image != null" class="review-block-description-img"><img :src="comment.image"></div>
+								<div class="review-block-rate"  style="margin-top: 5px;">
+									<div class="review-block-rep" style="font-weight: bold"><a @click="getParentID(comment.commentID)"><i class="fas fa-comments"></i>Trả lời</a></div>
+								</div>						
 							</div>
 							<div v-for="(comment2,index2) in commentList" :key="index2" class="row">
-								<div v-if="comment2.parentComment_ID===comment.commentID" class="row" style="margin-top:15px;">
-									<div class="col-sm-2"></div>
-									<div class="col-sm-2">
-										<img  v-if="comment2.userPicture != ''" style="width:55px ; height: 55px;border-radius:50%;" :src="comment2.userPicture" class="img-rounded">
-										<img v-else style="border-radius:50%;" src="http://dummyimage.com/60x60/666/ffffff&text=No+Image" class="img-rounded">
-									</div>
-									<div class="col-sm-8" style=" boder-radius:10px;">
-										<div  class="review-block-rate">
-											<div  class="review-block-name"><a v-if="comment2.userName">{{comment.userName}} </a><b-form-rating style="width: 150px; float:right;" inline id="rating-disabled" :value="comment2.ratePoint" size="sm" variant="warning" class="mb-2" :readonly="true" no-border></b-form-rating></div>
+								<div class="row" v-if="comment2.parentComment_ID===comment.commentID" style="margin-top:15px; margin-left:63px;">
+									
+									<div class="col-sm-11" style="border-left: 3px solid #DCDCDC" >
+										<div  class="review-block-rate" >
+											<img v-if="comment2.userPicture != ''" class="review-block-name-img" :src="comment2.userPicture">
+											<img v-else class="review-block-name-img" src="http://dummyimage.com/60x60/666/ffffff&text=No+Image">
+											<div class="review-block-name-child"><a v-if="comment2.userName">{{comment2.userName}} </a><b-form-rating style="width: 150px; float:right;" inline id="rating-disabled" :value="comment2.ratePoint" size="sm" variant="warning" class="mb-2" :readonly="true" no-border></b-form-rating></div>
 											<div class="review-block-date">{{comment2.date}} {{index2}}</div>
 										</div>
-										<div class="review-block-description">{{comment2.content}}</div>
-										<div v-if="comment2.image != ''" class="review-block-description"><img width="100" height="100" :src="comment2.image"></div>
-										<!-- <div  class="review-block-rate">
-											<div class="review-block-name"><a @click="getParentID(comment.commentID)">Trả lời</a></div>
-										</div>	 -->
+									</div>
+									<div class="col-sm-11" style="border-left: 3px solid #DCDCDC;">
+										<div class="review-block-description"><p style="width:107%">{{comment2.content}}</p></div>
+										<div v-if="comment2.image != ''" class="review-block-description-img"><img :src="comment2.image"></div>
 									</div>
 								</div>
+									
 							</div>
 						</div>
 					</div>
 				</div>
-				<button style=" width:90%; height:40px; border-radius: 5px;margin-top: 30px; background-color: red; color: white; border: none; font-size: 20px" @click="isLoggedin" type="button" data-toggle="modal" data-target="#exampleModal">
+				<button style=" width:100%; height:40px; border-radius: 5px;margin-top: 30px; background-color: red; color: white; border: none; font-size: 20px" @click="isLoggedin" type="button" data-toggle="modal" data-target="#exampleModal">
 						Thêm nhận xét
 					</button>
 			</div>
 		</div>
 		</div>
+	</div>
 </div>
 </template>
-
 <script>
 import firebase from 'firebase'
 import CommentService from '@/services/CommentService.js';
@@ -195,7 +215,8 @@ export default {
 			token:'',
 			commentContent:'',
 			active:false,
-			readonly: false
+			readonly: false,
+			isPopup : false
 		}
 	},
 	props:{
@@ -210,7 +231,21 @@ export default {
 	mounted(){
 	},
 	methods:{
-		async getComments(){
+            openPopup(name) {
+				if(this.isPopup == false){
+				this.isPopup = true;
+				var popup = document.getElementById(name);
+				popup.classList.toggle("show");
+				}
+			},
+			closePopup(name) {
+				if(this.isPopup == true){
+					var popup = document.getElementById(name);
+					popup.classList.toggle("show");
+					this.isPopup = false;
+				}
+			},
+			async getComments(){
 			try{
 				this.commentList = await CommentService.getCommentByStore(this.storeID);
 				let rate = 0;

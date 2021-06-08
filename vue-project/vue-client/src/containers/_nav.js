@@ -7,10 +7,6 @@ export default [
         name: 'Dashboard',
         to: '/manage/dashboard',
         icon: 'cil-speedometer',
-        badge: {
-          color: 'primary',
-          text: 'NEW'
-        }
       },
       {
         _name: 'CSidebarNavTitle',
@@ -20,13 +16,13 @@ export default [
         _name: 'CSidebarNavItem',
         name: 'Cập nhật thông tin',
         to: '/manage/update',
-        icon: 'cil-puzzle'
+        icon: 'cil-pencil'
       },
       {
         _name: 'CSidebarNavItem',
         name: 'Đổi mật khẩu',
         to: '/ForgetPass',
-        icon: 'cil-pencil'
+        icon: 'cil-lock-locked'
       },
       {
         _name: 'CSidebarNavTitle',
@@ -35,7 +31,7 @@ export default [
       {
         _name: 'CSidebarNavItem',
         name: 'Quản lý người dùng',
-        icon: 'cil-puzzle',
+        icon: 'cil-user',
         to: '/manage/users'
       },
       {

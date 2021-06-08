@@ -44,17 +44,37 @@ body {
       border-radius: 10px; 
   }
   .review-block-name{
+      width: 875px;
       font-size:15px;
       font-weight: bold;
-      margin:10px 0;
+      margin:10px;
       cursor: pointer;
+      padding-top: 10px ;
+    
   }
+  .review-block-name-child{
+    padding-top: 10px ;
+    width: 840px;
+    font-size:15px;
+    font-weight: bold;
+    margin:10px 0;
+    cursor: pointer;
+}
+.review-block-name-img{
+  border-radius:50%; float: left ; margin-right:10px; height: 50px; width: 50px;
+}
   .review-block-date{
-      font-size:12px;
+      font-size:13px;
   }
+  .review-block-rep{
+    font-size:13px;
+    padding-bottom:10px;
+    border-bottom: 1px solid #efefef;
+}
   .review-block-rate{
       font-size:13px;
       margin-bottom:15px;
+      margin-left: 10px;
   }
   .review-block-title{
       font-size:15px;
@@ -62,9 +82,17 @@ body {
       margin-bottom:10px;
   }
   .review-block-description{
-      font-size:13px;
-      width: 750px;
+      font-size:14px;
+      padding: 0 10px 10px 0;
   }
+  .review-block-description p{
+   border-top: 1px solid #EFEFEF ;
+   padding: 10px;
+}
+  .review-block-description-img{
+    width: 40%;
+    padding: 10px 0px 10px 10px;
+}
   .modal-mask {
     position: fixed;
     z-index: 9998;
@@ -154,3 +182,89 @@ body {
     background: lightcolor;
   }
   
+  /* Popup container - can be anything you want */
+.popup {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* The actual popup */
+.popup .popuptext {
+  visibility: hidden;
+  width: 500px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: -25%;
+  margin-left: -80px;
+}
+
+/* Popup arrow */
+.popup .popuptext::after {
+  opacity: 1;
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+/* Toggle this class - hide and show the popup */
+.popup .show {
+  visibility: visible;
+  -webkit-animation: fadeIn 1s;
+  animation: fadeIn 1s;
+}
+.popup .hide {
+  visibility: hidden;
+  -webkit-animation: fadeIOut 1s;
+  animation: fadeOut 1s;
+}
+/* hover*/
+.popup:hover .middle {
+  opacity: 1;
+}
+
+/* Add animation (fade in the popup) */
+@-webkit-keyframes fadeIn {
+  from {opacity: 0;} 
+  to {opacity: 1;}
+}
+
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity:1 ;}
+}
+  
+.middle {
+  transition: .5s ease;
+  opacity: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  text-align: center;
+}
+.text {
+  background-color: #04AA6D;
+  color: white;
+  font-size: 16px;
+  padding: 16px 32px;
+  border-radius: 5px;
+}
+
+

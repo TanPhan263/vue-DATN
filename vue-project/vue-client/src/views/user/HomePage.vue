@@ -66,6 +66,7 @@ import GoogleMapHome from './containers/GoogleMapHome';
 import ProvinceService from '@/services/ProvinceService.js'
 import FormatWord from '@/services/FormatWord.js'
 import StoreService from '@/services/StoreService.js'
+import RouterService from '@/services/RouterService.js'
 export default {
   name:'Home',
   components:{
@@ -97,7 +98,7 @@ export default {
     this.onInit();
   },
   mounted(){ 
-      this.onScroll();
+    this.onScroll();
   },
   methods:{
     async onInit(){
@@ -107,7 +108,7 @@ export default {
       this.stores = await StoreService.getByProvince(id);
     },
     storeClicked(item) {
-      this.$router.push('/storeDetail/'+ item)
+      RouterService.storeClicked(item)
     },
     dishClicked(item) {
       this.$router.push('/search?key='+ item)

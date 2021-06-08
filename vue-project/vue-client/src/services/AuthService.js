@@ -1,4 +1,3 @@
-import { faDatabase } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import firebase from 'firebase';
 import router from '../router/index';
@@ -28,7 +27,7 @@ export default {
   logout(){
     localStorage.removeItem("userInfor");
     localStorage.removeItem("isAuthen");
-    router.push('/');
+    router.go();
   },
   login(credentials) {
     return axios
@@ -174,7 +173,12 @@ export default {
   loginSocial(){
 
   },
-  checkUser(){
-
+  checkUser(token){
+    return axios.get(url+ 'GetByID',{ headers: {"Authorization" : `Bearer ${token}`}}).then(respone => 
+      {
+        let user = respone.data
+        if( user[0] == 'Bạn cần đăng nhập') 
+          this.logout()
+      });
   }
 };

@@ -135,10 +135,16 @@
 
 <script>
 import firebase from 'firebase';
+import AuthService from '@/services/AuthService'
 import ProvinceService from '@/services/ProvinceService';
 import StoreService from '@/services/StoreService';
-const url = 'https://localhost:44398/api/Store/GetAllManage'
+const url = 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Store/GetAllManage'
 export default {
+
+  beforeRouteEnter (to, from, next) {
+    AuthService.checkUser(localStorage.getItem('isAuthen'))
+    next();
+  },
   name: 'Stores',
   data () {
     return {
@@ -231,7 +237,7 @@ export default {
       this.businessTypes = await StoreService.getAllBussinessType();
     },
     async addStore(){
-      const token = localStorage.getItem('isAuthen');
+      const token =  Storage.getItem('isAuthen');
       let response = await StoreService.createMenu();
       const store = {
         storeAddress: this.storeAddress,

@@ -142,10 +142,12 @@ export default {
           },error =>{console.log(error.message)},
           ()=> {
             this.uploadValue=100;
-            storageRef.snapshot.ref.getDownloadURL().then((url) => {this.picture=url;})
+            storageRef.snapshot.ref.getDownloadURL().then((url) => {this.picture=url;
+            this.update();
+            })
             }
           )
-          this.update();
+          
         },
         update(){
           console.log(this.picture);

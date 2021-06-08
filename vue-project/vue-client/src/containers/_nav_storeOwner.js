@@ -7,9 +7,6 @@ export default [
         name: 'Dashboard',
         to: '/manage/dashboard',
         icon: 'cil-speedometer',
-        badge: {
-          color: 'primary',
-        }
       },
       {
         _name: 'CSidebarNavTitle',
@@ -19,13 +16,13 @@ export default [
         _name: 'CSidebarNavItem',
         name: 'Cập nhật thông tin',
         to: '/manage/update',
-        icon: 'cil-puzzle'
+        icon: 'cil-pencil'
       },
       {
         _name: 'CSidebarNavItem',
         name: 'Đổi mật khẩu',
         to: '/ForgetPass',
-        icon: 'cil-pencil'
+        icon: 'cil-lock-locked'
       },
       {
         _name: 'CSidebarNavTitle',
@@ -33,21 +30,15 @@ export default [
       },
       {
         _name: 'CSidebarNavItem',
-        name: 'Quản lý quán',
+        name: 'Quán của bạn',
         icon: 'cil-puzzle',
         to: '/manage/manageStores'
       },
       {
         _name: 'CSidebarNavItem',
-        name: 'Quản lý khuyến mãi',
-        icon: 'cil-puzzle',
-        to: '/manage/manageStores'
-      },
-      {
-        _name: 'CSidebarNavItem',
-        name: 'Quản lý Slider',
-        icon: 'cil-puzzle',
-        to: '/manage/manageStores'
+        name: 'Tin nhắn',
+        icon: 'cil-envelope-closed',
+        to: '/manage/message/-M_HoshRYUpgWAIm7Fwa'
       }
     ]
   }

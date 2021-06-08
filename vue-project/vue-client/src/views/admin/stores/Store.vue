@@ -1,5 +1,20 @@
 <template>
   <CRow>
+    <CCol md="12">
+      <CCard>
+         <CCardHeader>
+          <div class="row" style="width: 100%">
+          <h2 style="margin-left: 12px; width: 80%">Xem quán</h2>
+          </div>
+         </CCardHeader>
+         <CCardBody>
+            <a :href="'http://localhost:8080/storeDetail/'+ storeID" target="_blank">
+              <span style="margin-right: 5px; padding: 3px;"><span  class="fa fa-link" style="font-size: 17px; color: blue"> http://localhost:8080/storeDetail/{{storeID}}</span>
+              </span>
+            </a>
+         </CCardBody>
+      </CCard>
+     </CCol>
     <transition v-if="active">
 		<div class="modal-mask">
 			<div class="modal-wrapper">
@@ -17,7 +32,38 @@
 			</div>
 			</div>
 		</transition>
-    <CCol col="12" lg="5">
+
+     <transition v-if="active2">
+		<div class="modal-mask">
+			<div class="modal-wrapper">
+				<div class="modal-container">
+				<div class="modal-header">
+					<slot name="header">
+					<h3>DANH SÁCH KHUYẾN MÃI</h3>
+					</slot>
+				</div>
+
+			<div class="modal-body" style="height:200px;overflow:scroll">
+            <div class="res-common-minmaxprice"  v-if="discounts">
+              <span v-for="(discount,index) in discounts" v-bind:key="index" style="width:100%;border: 1px solid green; margin-right: 5px; padding: 5px;"><span  class="fa fa-tag" style="font-size: 17px; color: red"></span>
+               	{{discount.discountTypeName}}<i @click="addStoreToDiscount(discount.discountTypeID)" class="fa fa-plus-circle" style="font-size: 20px;margin-top: 7px; color:green"></i> <br></span>
+            </div>
+				</div>
+
+				<div class="modal-footer">
+					<slot name="footer">
+					<button class="btn btn-danger" @click="active2=false">
+						Close
+					</button>
+          
+					</slot>
+				</div>
+				</div>
+			</div>
+			</div>
+		</transition>
+
+    <CCol col="12" lg="6">
       <CCard>
         <CCardHeader style="font-weight: bold;">
           THÔNG TIN QUÁN
@@ -36,13 +82,27 @@
                 autocomplete="name"
                 v-model="storeName"
               />
-              <CInput
+              <!-- <CInput
                 label="Chủ quán"
-              disabled
                 horizontal
                 autocomplete="name"
                 v-model="storeOwnerName"
-              />
+              /> -->
+              <div class="row" style="margin-left: 0px;">
+                <p style="margin-right:10px;">Chủ quán</p>
+                <select v-if="users"
+                      id="storeOwner"
+                      style="width:72%;height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-bottom: 10px; margin-left: 48px"
+                      class="country fl_left"
+                      vertical
+                      v-model="storeOwner"
+                      placeholder="Chủ quán"
+                      >
+                      <option v-for="(user, index) in users" v-bind:key="index" :value="user.userID">
+                          {{user.userName}}
+                      </option>
+                </select>
+               </div>
               <CInput
                 label="Địa chỉ"
                 horizontal
@@ -69,7 +129,7 @@
                 <p style="margin-right:42px;"> Loại</p>
                 <select
                       id="storeType"
-                      style="width:275px;height:35px;border-radius:4px;margin-left: 28px; border: 1px solid #D3D3D3; margin-bottom: 10px;"
+                      style="width:72%;height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-bottom: 10px; margin-left: 48px"
                       class="country fl_left"
                       vertical
                       v-model="storeStype"
@@ -108,7 +168,7 @@
           </CCardBody>
       </CCard>
     </CCol>
-    <CCol md="7">
+    <CCol md="6">
       <CCard>
         <CCardHeader style="font-weight: bold;">
           <CIcon name="cil-justify-center"/>
@@ -118,10 +178,10 @@
           <CCarousel
             indicators
             animate
-            height="450px"
+            height="252px"
           >
             <CCarouselItem
-              style="height:450px"
+              style="height:250px"
               :image="storePicture"
              
             />
@@ -139,6 +199,10 @@
               shape="pill"
             />
           </CRow>
+           <div class="row">
+          <label for="files" class="btn">Select Image</label>
+          <input id="files" type="file"  @change="previewImage">
+          </div>
           <CRow form class="form-group" style="float:right;">
             <CButton class="btn_left" color="danger" @click="goBack">Back</CButton>
            </CRow>
@@ -148,6 +212,7 @@
         </CCardFooter>
       </CCard>
     </CCol>
+
     <!-- <CCol col="12" lg="6">
       <CCard>
         <CCardHeader style="margin-top: -50px;font-weight: bold;">
@@ -169,6 +234,36 @@
           </CCardBody>
       </CCard>
     </CCol> -->
+    <CCol md="12">
+      <CCard>
+         <CCardHeader>
+          <div class="row" style="width: 100%">
+          <h2 style="margin-left: 12px; width: 80%">Khuyến mãi</h2>
+          <div class="row" style="float:right;">
+            <CButton color="primary" @click="openAddDiscount">Thêm Khuyến mãi</CButton>
+          </div>
+          </div>
+         </CCardHeader>
+         <CCardBody>
+            <div class="res-common-minmaxprice"  v-if="discountList">
+              <span v-for="(discount,index) in discountList" v-bind:key="index" style="border: 1px solid red; margin-right: 5px; padding: 3px;"><span  class="fa fa-tag" style="font-size: 17px; color: red"> {{getDiscountName(discount.idDiscountType)}}</span>
+               	<i @click="removeStoreToDiscount(discount.idDiscountType)" class="fa fa-window-close" style="font-size: 20px;"></i>  </span>
+            </div>
+         </CCardBody>
+      </CCard>
+     </CCol>
+     <CCol col="12">
+
+     <CCard class="center_div" style="padding: 20px;">
+       <CCardHeader>
+      <div class="row" style="width: 100%">
+            <h2  style="margin-left: 12px; width: 80%">Comments</h2>
+            <CInput
+                      placeholder="Tìm comment"
+              />
+      </div>
+      </CCardHeader>
+      <CCardBody>
     <CDataTable
             style="margin-left: 15px;width: 97%"
             hover
@@ -196,20 +291,32 @@
               </td>
             </template> -->
           </CDataTable>
+          </CCardBody>
+      </CCard>
+     </CCol>
   </CRow>
 </template>
 
 <script>
-import { loadOptions } from '@babel/core'
 import StoreService from '@/services/StoreService'
+import AuthService from '@/services/AuthService'
+import UserService from '@/services/UserService'
 import CommentService from '@/services/CommentService.js';
-import storeData from './StoreData'
+import DiscountService from '@/services/DiscountService.js';
 export default {
+  beforeRouteEnter (to, from, next) {
+    AuthService.checkUser(localStorage.getItem('isAuthen'))
+    next();
+  },
   name: 'Store',
   data () {
     return {
+      discounts:[],
+      discountList:[],
+      discountAll:[],
       bussinessType: '',
       active: false,
+      active2: false,
       check: false,
       status: '',
       storeID: '',
@@ -233,7 +340,8 @@ export default {
         { key: 'content', label: 'Nội dung', _classes: 'font-weight-bold' },
         { key: 'date', label: 'Ngày', _classes: 'font-weight-bold' },
       ],
-      activePage: 1
+      activePage: 1,
+      users: [],
     }
   },
   computed: {
@@ -256,6 +364,26 @@ export default {
     }
   },
   methods: {
+    previewImage(event){
+          this.storePicture=null;
+          this.imageData= event.target.files[0];
+    },
+    async addStoreToDiscount(id){
+          const discount = {
+              iDStore: this.storeID,
+              iDDiscountType: id
+          }
+          const response = await DiscountService.addStoreToDiscount(discount,localStorage.getItem('isAuthen'));
+          alert(response);
+          this.getDisCount(this.storeID)
+        },
+    async removeStoreToDiscount(id){
+          console.log(this.storeID);
+          console.log(id);
+          const response = await DiscountService.removeStoreToDiscount(this.storeID,id,localStorage.getItem('isAuthen'));
+          this.getDisCount(this.storeID);
+          alert(response);
+        },
     goBack() {
       this.usersOpened ? this.$router.go(-1) : this.$router.push({path: '/store'})
     },
@@ -281,36 +409,50 @@ export default {
       alert(response)
     },
     getStoreOwner() {
-      this.$http.get('https://localhost:44398/api/User/GetByID?id='+this.storeOwner,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
+      this.$http.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/User/GetByID?id='+this.storeOwner,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
             this.storeOwnerName = response.data[0].userName;
-            console.log(this.storeOwnerName)
       })
       return this.user
     },
-    // async getLatLong(id){
-    //   const response = await StoreService.getLatLong(id);
-    //   this.storeLat = response[0].lat;
-    //   this.storeLong = response[0].long;
-    //   console.log(response)
-    // },
     async getComments(index){
 			try{
         console.log(index);
 				this.commentList = await CommentService.getCommentByStore(index);
-        console.log(this.commentList);
 			}
 			catch{}
 		},
-     rowClicked (item) {
+    async getDisCount(id){
+      this.discountList = await DiscountService.getDiscountbyStore(id);
+      this.discountAll =  await DiscountService.getAll();
+    },
+    getDiscountName(id){
+      let temp = ''
+      this.discountAll.forEach(element => {
+        if(element.discountTypeID == id)
+          temp = element.discountTypeName;
+      });
+      return temp;
+    },
+    async getDiscounts(){
+      this.discounts = await DiscountService.getAll();
+    },
+    openAddDiscount(){
+      this.active2=true;
+      this.getDiscounts();
+    },
+    rowClicked (item) {
       this.$router.push({path: `store/${item.storeID}`})
     },
     pageChange (val) {
       this.$router.push({ query: { page: val }})
     },
+    async onInit(){
+      this.users = await UserService.getAll(localStorage.getItem('isAuthen')); 
+    }
   },
    mounted(){
       const id = this.$route.params.id
-      this.$http.get('https://localhost:44398/api/Store/GetByIDManage?id='+id,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
+      this.$http.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Store/GetByIDManage?id='+id,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
             this.storeName = response.data[0].storeName;
             this.storeAddress = response.data[0].storeAddress;
             this.storePicture = response.data[0].storePicture;
@@ -328,7 +470,9 @@ export default {
             this.getStoreOwner();  
             this.getComments(this.storeID)                
     });
-     this.$http.get('https://localhost:44398/api/BusinessType/GetAll').then(response => {
+     this.onInit();
+     this.getDisCount(id);
+     this.$http.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/BusinessType/GetAll').then(response => {
             this.bussinessType = response.data
     })
   }

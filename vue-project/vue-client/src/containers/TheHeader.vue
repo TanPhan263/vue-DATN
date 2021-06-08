@@ -60,11 +60,10 @@ export default {
   name: 'TheHeader',
   data(){
     return{
-    
     }
   },
   props:{
-    userName: String
+    userName: String,
   },
   components: {
     TheHeaderDropdownAccnt

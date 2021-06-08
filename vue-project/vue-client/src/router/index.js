@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import AuthService from '@/services/AuthService.js';
+import UserService from '@/services/UserService.js';
 
 // Containers
 const TheContainer = () => import('@/containers/TheContainer')
@@ -16,7 +17,7 @@ const Page500 = () => import('@/views/admin/pages/Page500')
 const Login = () => import('@/views/admin/pages/Login')
 const Register = () => import('@/views/admin/pages/Register')
 const RegisterStore = () => import('@/views/admin/pages/RegisterStore')
-
+const Chat = () => import('@/views/admin/pages/Chat')
 // Users
 const Users = () => import('@/views/admin/users/Users')
 const User = () => import('@/views/admin/users/User')
@@ -51,12 +52,10 @@ Vue.use(Router)
 
 const isAuthen = (to, from, next) => {
   var isAuthen = localStorage.getItem('isAuthen');
-  console.log(isAuthen);
   if(isAuthen != null){
+    AuthService.checkUser(localStorage.getItem('isAuthen'))
     var expireTime = AuthService.parseJwt(isAuthen);
-    console.log(expireTime.exp);
     var timeStamp = Math.floor(Date.now() / 1000);
-    console.log(timeStamp);
     var timeCheck =  expireTime.exp - timeStamp;
     console.log(timeCheck)
     if(timeCheck > 0){
@@ -243,7 +242,12 @@ function configRoutes () {
           path:'discount',
           name: 'Discount',
           component: Discount
-        }
+        },
+        {
+          path: 'message/:id',
+          name: 'Message',
+          component: Chat,
+        },
       ]
     },
     {

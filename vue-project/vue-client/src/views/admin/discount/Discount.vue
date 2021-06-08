@@ -79,7 +79,7 @@
               </div>
             </div>
       </transition>
-      <transition v-if="active3">
+  <transition v-if="active3">
 		<div class="modal-mask">
 			<div class="modal-wrapper">
 				<div class="modal-container">

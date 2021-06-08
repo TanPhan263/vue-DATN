@@ -28,8 +28,8 @@ export default {
   data(){
     return {
       user:[],
-      userType:'',
-      userName:''
+      userType:'unknow',
+      userName:'unknow'
     }
   },
   mounted() {
@@ -39,9 +39,12 @@ export default {
     async getUser(){
       try{
         const token = localStorage.getItem('isAuthen')
-        console.log(token);
         this.user = await UserService.getInfo(token);
-        console.log(this.user);
+        console.log(this.user[0]);
+        if(this.user[0] == 'Bạn cần đăng nhập'){
+          AuthService.logout();
+          return;
+        }
         this.userName=this.user[0].userName;
         console.log(this.userName);
         const role = await AuthService.getRole(token);

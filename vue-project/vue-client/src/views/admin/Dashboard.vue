@@ -28,7 +28,7 @@
         <MainChartExample style="height:300px;margin-top:40px;" v-bind:data="data" v-bind:lable="lable"/>
       </CCardBody>
       <CCardFooter>
-        <CRow class="text-center">
+        <!-- <CRow class="text-center">
           <CCol md sm="12" class="mb-sm-2 mb-0">
             <div class="text-muted">Visits</div>
             <strong>29.703 Users (40%)</strong>
@@ -78,7 +78,7 @@
               :value="40"
             />
           </CCol>
-        </CRow>
+        </CRow> -->
       </CCardFooter>
     </CCard>
     <WidgetsBrand/>

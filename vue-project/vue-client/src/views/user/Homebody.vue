@@ -11,7 +11,7 @@
       :slide-ratio="1 / 4"
       :dragging-distance="200"
       :breakpoints="{ 800: { visibleSlides: 2, slideMultiple: 2 } }">
-      <vueper-slide style="border-radius:10px;" v-for="(slide, i) in discount" :key="i" :image="slide.discountTypePicture"  @click.native="getDiscountStore(slide.discountTypeID)"  />
+      <vueper-slide style="border-radius:10px;" v-for="(slide, i) in discount" :key="i" :image="slide.discountTypePicture"  @click.native="getDiscountStore(slide.discountTypeID,slide.discountTypeName)"  />
     </vueper-slides>
     <transition v-if="active">
 		<div class="modal-mask">
@@ -19,7 +19,7 @@
 				<div class="modal-container">
 				<div class="modal-header">
 					<slot name="header">
-					<h3>DANH SÁCH QUÁN</h3>
+					<h3>{{discountName}}</h3>
 					</slot>
 				</div>
 
@@ -27,8 +27,7 @@
 					<slot name="body">
               <div v-on:click="storeClicked(result.storeID)" href="" class="search_suggest" v-for="result in discountStore" v-bind:key="result.storeID" style="
                 text-align: left; display: flex; border-bottom: 1px solid darkgray;cursor: pointer;padding: 4px 45px 4px 10px;">
-            
-                  <img :src="result.storePicture" class="left-thing" style="border-radius:5px;">
+                  <img v-lazy="result.storePicture" class="left-thing" style="border-radius:5px;">
                   <div class="middle-thing" style="margin-left: 3px; height: 100%">
                     <p style="margin-top: 0px; height: 15%; font-weight: bold;">{{result.storeName}}</p>
                     <p style="margin-top: 0px;">{{subString(result.storeAddress)}}...</p>
@@ -74,7 +73,7 @@
     <div class="sub-menu-ship">
         <ul>
           <li v-for="(dish, index) in dishes" v-bind:key="index" style="height:90px;width:100px;"  @click="dishClicked(dish.dishName)">
-             <a>
+          <a :href="'/search?key='+ dish.dishName">
               <img v-lazy="dish.dishPicture" style="border-radius:10px 10px 10px 10px; width:102px; height:90px;cursor: pointer;"/>
           </a>
           <div @click="dishClicked(dish.dishName)" style="margin: 0 auto;text-align:center; background-color:#f6f6f6; width: 80px; padding-bottom: 20px;"> 
@@ -85,7 +84,7 @@
     <div>
           <div class="ship">
             <div class="menu-ship">
-              <div class="hero" style="width:100%">
+              <div class="hero" style="width:100%;">
                 <p @click="dishViewMore" >XEM THÊM <i class="fa fa-chevron-right" style="font-size: 16px;"></i></p>
               </div>
             </div>
@@ -95,14 +94,21 @@
     <div class="ship" style="width:88%;">
       <div class="menu-ship">
         <div class="hero">
-          <h4>ĐƯỢC ĐÁNH GIÁ CAO</h4>
+          <h4 >ĐƯỢC ĐÁNH GIÁ CAO</h4>
         </div>
       </div>
       <div id="Giaotannoi" class="sub-menu-ship" >
-        <ul>
-          <li v-for="(store, index ) in rates" v-bind:key="index">
-            <a v-on:click="storeClicked(store.storeID)">
-              <img v-lazy="store.storePicture"/>
+        <ul v-if="!show">
+          <li v-for="(store, index ) in rates" v-bind:key="index"  style="position: relative">
+           
+            <!-- <a v-on:click="storeClicked(store.storeID)">
+              href="/Homepage/" -->
+            <a class="image" :href="'/storeDetail/'+store.storeID" >
+             <img v-lazy="store.storePicture"/>
+              <div class="middle">
+              <div class="text" style="background: #ff6666 ">Xem quán</div>
+              </div>
+             
               <div class="name-food">{{ subStringName(store.storeName)}}...</div>
               <div class="address-store"><i class="fa fa-map-marker" style="color: red"></i>{{ subString(store.storeAddress) }}...
               <div style="color: black; float:right;">{{store.khoangcach}} km</div>
@@ -114,6 +120,7 @@
             </a>
           </li>
         </ul>
+          <div v-show="show" style="margin: 0 auto" class="loader"></div>
       </div>
       <div>
           <div class="ship">
@@ -132,10 +139,13 @@
         </div>
       </div>
       <div id="Giaotannoi" class="sub-menu-ship" >
-        <ul>
-          <li v-for="(store, index) in nearest" v-bind:key="index">
-            <a v-on:click="storeClicked(store.storeID)">
+        <ul v-if="!show">
+          <li vi v-for="(store, index) in nearest" v-bind:key="index">
+            <a :href="'/storeDetail/'+store.storeID">
               <img v-if="store.storePicture" v-lazy="store.storePicture" />
+              <div class="middle">
+              <div class="text" style="background: #ff6666 ">Xem quán</div>
+              </div>
               <div class="name-food"> {{ subStringName(store.storeName)}}...</div>
               <div class="address-store"><i class="fa fa-map-marker"  style="color: red"></i>  {{ subString(store.storeAddress) }}...
               <div style="color: black; float:right;">{{store.khoangcach}} km</div></div>
@@ -146,6 +156,7 @@
             </a>
           </li>
         </ul>
+        <div v-show="show" style="margin: 0 auto;" class="loader"></div>
       </div>
       <div>
           <div class="ship">
@@ -157,7 +168,7 @@
           </div>  
       </div>
     </div>
-     <Area @storeClicked="storeClicked" v-bind:type="type"/>
+     <Area v-if="provinceID === '-MO5b_1K2_tF_C4GVDo3'" v-bind:type="type"/>
     <div v-infinite-scroll="loadMore" infinite-scroll-disabled="disabled"  infinite-scroll-distance="100" style="margin-top: 20px;">
       <div v-for="(list, index) in loadMoreList" v-bind:key="index" class="ship">
         <div class="menu-ship">
@@ -168,8 +179,11 @@
         <div v-if="list" class="sub-menu-ship">
           <ul>
             <li v-for="(store,index) in list" v-bind:key="index">
-              <a v-on:click="storeClicked(store.storeID)">
+              <a :href="'/storeDetail/'+store.storeID">
                 <img v-lazy="store.storePicture"/>
+              <div class="middle">
+              <div class="text" style="background: #ff6666 ">Xem quán</div>
+              </div>
                 <div class="name-food">{{ subStringName(store.storeName) }}...</div>
                 <div class="address-store"> <i class="fa fa-map-marker"  style="color: red"></i> {{ subString(store.storeAddress) }}...
                   <div style="color: #585858; float:right;">{{store.khoangcach}} km</div>
@@ -216,6 +230,7 @@ export default {
           loading: false,
           index: 0,
           stores: [],
+          provinceID: '',
           //Search data
           nearest: [],
           rates: [],
@@ -224,7 +239,9 @@ export default {
           dishes: [],
           discount:[],
           active:false,
-          discountStore: []
+          discountStore: [],
+          show: true,
+          discountName:'',
         }
       },
       created(){
@@ -246,6 +263,7 @@ export default {
             this.discount = await DiscountService.getAll();
             console.log(this.discount);
             var id= localStorage.getItem('provinceId');
+            this.provinceID = id;
             this.stores = await StoreService.getByProvince(id)
             this.rates = await StoreService.getByProvince(id);
             this.rates.sort(function compare( a, b ) {
@@ -255,15 +273,16 @@ export default {
             console.log(this.type); 
             this.nearest = this.stores.slice(0,12);
             this.rates = this.rates.slice(0,12);
+            this.show = false;
           }catch{}
         },
-        storeClicked (item) {
-          this.$router.push('/storeDetail/' + item)
+        storeClicked(item) {
+          this.$router.push({path: `/storeDetail/${item}`})
         },
         dishClicked (item) {
           localStorage.setItem("keyword", item);
           console.log(localStorage.getItem("keyword"));
-          this.$router.push('/search?key='+ item)
+          // this.$router.push('/search?key='+ item)
         },
         dishViewMore(){
            this.$router.push('/DishType')
@@ -278,7 +297,7 @@ export default {
         },
         async changePlace(lat,long){
           console.log('ChangePlace')
-           var id= localStorage.getItem('provinceId');
+            var id= localStorage.getItem('provinceId');
             this.stores = await StoreService.getByProvince_distance(id, lat,long)
             this.rates = await StoreService.getByProvince_distance(id,lat,long);
             this.rates.sort(function compare( a, b ) {
@@ -287,9 +306,9 @@ export default {
             this.nearest = this.stores.slice(0,12);
             this.rates = this.rates.slice(0,12);
         },
-        onChildClick(value){
-          this.provinceID = value
-        },
+        // onChildClick(value){
+        //   this.provinceID = value
+        // },
         getType(index){
           var temp='Unknown'
           this.type.forEach(element => {
@@ -360,12 +379,28 @@ export default {
       viewMore(id){
         this.$router.push('/ViewMore?key=' + id).catch(()=>{});
       },
-      async getDiscountStore(id){
+      async getDiscountStore(id,name){
+          this.discountName = name;
           this.active=true;
           this.discountStore = await DiscountService.getStore(id);
+          
       },
       getActiveTime(open,close){
-        return this.$root.$refs.Suggest.getActiveTime(open,close);
+        // return this.$root.$refs.Suggest.getActiveTime(open,close);
+        const today = new Date();
+        const hour = today.getHours();
+        const min = today.getMinutes();
+        let openHour = parseInt((open+'').substring(0,2));
+        let openMin = parseInt((open+'').substring(3,5));
+        let closeHour = parseInt((close+'').substring(0,2));
+        let closeMin = parseInt((close+'').substring(3,5));
+        if( openHour < hour && hour < closeHour)
+            return true;
+        else if( hour == closeHour && min < closeMin)
+            return true;
+        else if(hour == openHour && min >= openMin)
+            return true;
+        else return false;
       }
     },
     updated(){
@@ -378,4 +413,10 @@ export default {
   .center_div{
    text-align: center;
 } 
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 </style>

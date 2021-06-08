@@ -19,10 +19,12 @@ import firebase from 'firebase'
 import VueLazyload from 'vue-lazyload'
  
 // lazyload image with options
+const loadimage = require('./assets/imgs/loading.gif')
+const errorimage = require('./assets/imgs/error.png')
 Vue.use(VueLazyload, {
   preLoad: 1.3,
-  error: 'assets/imgs/error.png',
-  loading: 'assets/imgs/loading.gif',
+  error: errorimage ,
+  loading:  loadimage,
   attempt: 3,
   listenEvents: [ 'scroll' ]
 })
@@ -50,25 +52,25 @@ firebase.initializeApp({
 //GoogleMap
 Vue.use(VueGoogleMaps, {
   load: {
-    key: "AIzaSyA66KwUrjxcFG5u0exynlJ45CrbrNe3hEc",
+    key: "AIzaSyDWTx7bREpM5B6JKdbzOvMW-RRlhkukmVE",
     libraries: "places"
   }
 });
 
 //firebase notification
-var messaging = firebase.messaging();
-messaging.requestPermission().then(function() {
-  console.log('Have permission');
-  return messaging.getToken({vapidKey: 'BEupx02HLRNfvTuJmMrksken3ZOqWA-Adz6tig2KaPP_EtuCvcYOcJVERk3KoTVeRreVI65HCUQhCge70HyJTsE'});
-}).then(function(token){
-  console.log(token);
-})
-.catch(function(err){
-  console.log(err);
-})
-messaging.onMessage(function(payload){
-console.log('onMessage: ', payload);
-})
+// var messaging = firebase.messaging();
+// messaging.requestPermission().then(function() {
+//   console.log('Have permission');
+//   return messaging.getToken({vapidKey: 'BEupx02HLRNfvTuJmMrksken3ZOqWA-Adz6tig2KaPP_EtuCvcYOcJVERk3KoTVeRreVI65HCUQhCge70HyJTsE'});
+// }).then(function(token){
+//   console.log(token);
+// })
+// .catch(function(err){
+//   console.log(err);
+// })
+// messaging.onMessage(function(payload){
+// console.log('onMessage: ', payload);
+// })
 //add firestore
 var db = firebase.firestore();
 window.db = db;

@@ -1,7 +1,7 @@
 <template>
   <CRow>
     <CCol sm="6" lg="3">
-      <CWidgetDropdown color="primary" :header="user" text="Tổng số thành viên">
+      <CWidgetDropdown v-if="ready" color="primary" :header="user" text="Tổng số thành viên">
         <template #default>
           <CDropdown
             color="transparent p-0"
@@ -30,7 +30,7 @@
       </CWidgetDropdown>
     </CCol>
     <CCol sm="6" lg="3">
-      <CWidgetDropdown color="info" :header="store" text="Tổng số quán">
+      <CWidgetDropdown v-if="ready" color="info" :header="store" text="Tổng số quán">
         <template #default>
           <CDropdown
             color="transparent p-0"
@@ -62,6 +62,7 @@
     </CCol>
     <CCol sm="6" lg="3">
       <CWidgetDropdown
+        v-if="ready"
         color="warning"
         :header="dishes"
         text="Tống số món ăn"
@@ -96,6 +97,7 @@
     </CCol>
     <CCol sm="6" lg="3">
       <CWidgetDropdown
+        v-if="ready"
         color="danger"
         :header="comments"
         text="Tổng số comment"
@@ -142,7 +144,8 @@ export default {
       user: [],
       store:[],
       comments:[],
-      dishes:[]
+      dishes:[],
+      ready: false,
     }
   },
   created(){
@@ -157,7 +160,8 @@ export default {
       this.comments = await CommentService.getAll();
       this.comments = this.comments.length.toString()
       this.dishes =  await StoreService.getAllDish(); 
-      this.dishes = this.dishes.length.toString()
+      this.dishes = this.dishes.length.toString();
+      this.ready = true;
     },
   },
 }

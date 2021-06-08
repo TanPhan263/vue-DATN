@@ -1,5 +1,20 @@
 <template>
   <CRow>
+    <CCol md="12">
+      <CCard>
+         <CCardHeader>
+          <div class="row" style="width: 100%">
+          <h2 style="margin-left: 12px; width: 80%">Xem quán</h2>
+          </div>
+         </CCardHeader>
+         <CCardBody>
+            <a :href="'http://localhost:8080/storeDetail/'+ storeID" target="_blank">
+              <span style="margin-right: 5px; padding: 3px;"><span  class="fa fa-link" style="font-size: 17px; color: blue"> http://localhost:8080/storeDetail/{{storeID}}</span>
+              </span>
+            </a>
+         </CCardBody>
+      </CCard>
+     </CCol>
     <transition v-if="active">
 		<div class="modal-mask">
 			<div class="modal-wrapper">
@@ -17,10 +32,41 @@
 			</div>
 			</div>
 		</transition>
+
+     <transition v-if="active2">
+		<div class="modal-mask">
+			<div class="modal-wrapper">
+				<div class="modal-container">
+				<div class="modal-header">
+					<slot name="header">
+					<h3>DANH SÁCH KHUYẾN MÃI</h3>
+					</slot>
+				</div>
+
+			<div class="modal-body" style="height:200px;overflow:scroll">
+            <div class="res-common-minmaxprice"  v-if="discounts">
+              <span v-for="(discount,index) in discounts" v-bind:key="index" style="width:100%;border: 1px solid green; margin-right: 5px; padding: 5px;"><span  class="fa fa-tag" style="font-size: 17px; color: red"></span>
+               	{{discount.discountTypeName}}<i @click="addStoreToDiscount(discount.discountTypeID)" class="fa fa-plus-circle" style="font-size: 20px;margin-top: 7px; color:green"></i> <br></span>
+            </div>
+				</div>
+
+				<div class="modal-footer">
+					<slot name="footer">
+					<button class="btn btn-danger" @click="active2=false">
+						Close
+					</button>
+          
+					</slot>
+				</div>
+				</div>
+			</div>
+			</div>
+		</transition>
+
     <CCol col="12" lg="6">
       <CCard>
         <CCardHeader>
-          THÔNG TIN QUÁN
+         <strong>THÔNG TIN QUÁN</strong> 
         </CCardHeader>
          <CCardBody>
             <CForm>
@@ -69,6 +115,12 @@
                         </option>
                     </select>
               </div>
+                 <CInput
+              disabled
+                label="Rating"
+                horizontal
+               v-model="storeRate"
+              />
             </CForm>
           </CCardBody>
       </CCard>
@@ -141,15 +193,16 @@
       <CCard>
          <CCardHeader>
           <div class="row" style="width: 100%">
-                <h2  style="margin-left: 12px; width: 80%">Khuyến mãi</h2>
+          <h2 style="margin-left: 12px; width: 80%">Khuyến mãi</h2>
           <div class="row" style="float:right;">
-            <CButton color="primary" @click="active=true">Thêm Khuyến mãi</CButton>
+            <CButton color="primary" @click="openAddDiscount">Thêm Khuyến mãi</CButton>
           </div>
           </div>
          </CCardHeader>
          <CCardBody>
-            <div class="res-common-minmaxprice"  style="border-top: 1px solid #888;">
-                  <span style="border: 1px solid red" v-if="discountList"><span v-for="(discount,index) in discountList" v-bind:key="index" class="fa fa-tag" style="font-size: 15px; color: red"> {{getDiscountName(discount.idDiscountType)}}</span>  </span>
+            <div class="res-common-minmaxprice"  v-if="discountList">
+              <span v-for="(discount,index) in discountList" v-bind:key="index" style="border: 1px solid red; margin-right: 5px; padding: 3px;"><span  class="fa fa-tag" style="font-size: 17px; color: red"> {{getDiscountName(discount.idDiscountType)}}</span>
+               	<i @click="removeStoreToDiscount(discount.idDiscountType)" class="fa fa-window-close" style="font-size: 20px;"></i>  </span>
             </div>
          </CCardBody>
       </CCard>
@@ -212,7 +265,8 @@ export default {
   },
   data () {
     return {
-        discountList:[],
+      discounts:[],
+      discountList:[],
       discountAll:[],
       commentList: [],
       fields: [
@@ -226,6 +280,7 @@ export default {
       type: [],
       status : false,
       active: false,
+      active2: false,
       user: '',
       menuID: '',
       storeOpened:[],
@@ -246,6 +301,20 @@ export default {
     }
   },
   methods: {
+    async addStoreToDiscount(id){
+          const discount = {
+              iDStore: this.storeID,
+              iDDiscountType: id
+          }
+          const response = await DiscountService.addStoreToDiscount(discount,localStorage.getItem('isAuthen'));
+          alert(response);
+          this.getDisCount(this.storeID);
+        },
+    async removeStoreToDiscount(id){
+          const response = await DiscountService.removeStoreToDiscount(this.storeID,id,localStorage.getItem('isAuthen'));
+          this.getDisCount(this.storeID);
+          alert(response);
+        },
      pageChange (val) {
       this.$router.push({ query: { page: val }})
     },
@@ -339,6 +408,13 @@ export default {
           temp = element.discountTypeName;
       });
       return temp;
+    },
+    async getDiscounts(){
+      this.discounts = await DiscountService.getAll();
+    },
+    openAddDiscount(){
+      this.active2=true;
+      this.getDiscounts();
     }
   },
   created(){

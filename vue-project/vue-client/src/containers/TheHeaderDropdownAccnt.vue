@@ -15,10 +15,11 @@
         </div>
       </CHeaderNavLink>
     </template>
+      <div v-if="user">
     <CDropdownHeader tag="div" class="text-center" color="light">
-      <strong>{{user.userName}}</strong>
+      <strong>{{user[0].userName}}</strong>
     </CDropdownHeader>
-    <CDropdownItem v-if="getRole(user.userTypeID) === true" @click="gotoProfile()">
+    <CDropdownItem v-if="getRole() === true" @click="gotoProfile()">
       <CIcon name="cil-user" /> Profile
     </CDropdownItem>
      <CDropdownItem v-else to="/UserInformation">
@@ -27,11 +28,13 @@
     <CDropdownItem @click="logout">
       <CIcon name="cil-lock-locked" /> Logout
     </CDropdownItem>
+    </div>
   </CDropdown>
 </template>
 
 <script>
 import AuthService from '@/services/AuthService.js';
+import UserService from '@/services/UserService.js';
 export default {
   name: 'TheHeaderDropdownAccnt',
   data() {
@@ -46,24 +49,28 @@ export default {
     avt:''
   },
   mounted(){
-    this.user=localStorage.getItem('userInfor');
-    this.user=JSON.parse(this.user)
-    if(this.user.picture != '')
-      this.picture = this.user.picture 
+   this.getUser();
   },
   methods: {
+    async getUser(){
+        const token = localStorage.getItem('isAuthen')
+        this.user = await UserService.getInfo(token);
+        if(this.user[0].picture != '')
+          this.picture = this.user[0].picture;
+    },
     logout() {
       localStorage.removeItem("userInfor");
       localStorage.removeItem("isAuthen");
-      this.$router.go();
+      this.$router.push('/');
     },
     async created() {
     if (!this.$store.getters.isLoggedIn) {
       this.$router.push('/login');
     }
   },
-  getRole(index){
-    if(index == '-MO5VBnzdGsuypsTzHaV' || index == '-MO5VWchsca2XwktyNAw'   )
+  getRole(){
+    console.log(this.user[0].userTypeID)
+    if(this.user[0].userTypeID == '-MO5VBnzdGsuypsTzHaV' || this.user[0].userTypeID == '-MO5VWchsca2XwktyNAw'   )
       return true;
     else return false;
     },

@@ -553,22 +553,22 @@ header.header .header-wrapper{
 	width: 1020px;
 }
 .pn-microsite .micro-right .micro-main-content .microsite-gallery .microsite-professional-photo-item{
-	width: 180px;
-    height: 100px;
     float: left;
     margin: 0 15px 15px 0;
-    overflow: hidden;
+	overflow: hidden;
 }
 .zoom{
 	display: none;
-	width: 300px;
+	width: 500px;
     height: auto;
     float: left;
     margin: 0 15px 15px 0;
     overflow: hidden;
+    left: -80px;
+    top: -22px;
 }
 .pn-microsite .micro-right .micro-main-content .microsite-gallery .microsite-professional-photo-item:hover + .zoom{
-	display: block;
+	display: inherit;
 	background-color: #fff;
 	padding: 5px;
 	border: 1px solid rgb(66, 64, 64);

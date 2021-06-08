@@ -40,8 +40,11 @@
         <div v-if="!show" class="slider" style="width:100%">
           <ul v-if="pageOfItems && pageOfItems.length> 0">
 			<li v-for="(store, index ) in pageOfItems" v-bind:key="index">
-				<a v-on:click="storeClicked(store.storeID)">
+				<a :href="'/storeDetail/' + store.storeID">
 				<img :src="store.storePicture"/>
+				<div class="middle">
+                    <div class="text" style="background: #ff6666 ">Xem quán</div>
+                </div>
 				<div class="name-food"> {{ subString(store.storeName)}}...</div>
 				<div class="address-store"><i class="fa fa-map-marker"></i>  {{ subString_address(store.storeAddress) }}...
 				<div style="color: #585858; float:right;">{{store.khoangcach}} km</div></div>
@@ -162,9 +165,6 @@ export default {
 					this.show = false;
 				}});
 			}
-		},
-		storeClicked (item) {
-			this.$router.push('/storeDetail/' + item)
 		},
 		subString(index){
 		return index.toString().substring(0,20);

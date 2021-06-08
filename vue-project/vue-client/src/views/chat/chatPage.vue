@@ -1,270 +1,155 @@
 <template>
   <div class="container">
-
-  <div class="messaging">
-      <div class="inbox_msg">
-            <h4 class="recent_heading">Chat box</h4>
-        <div class="inbox_people">
-          <div class="inbox_chat">
-            <div  v-for="cuss,index in customers" v-bind:key="index" class="chat_list active_chat">
-              <div class="chat_people">
-                <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                <div class="chat_ib">
-                  <h5>{{cuss}} <span class="chat_date">Dec 25</span></h5>
-                  <p>Test, which is a new approach to have all solutions 
-                    astrology under one roof.</p>
-                </div>
-              </div>
-            </div>
-            <!-- <div class="chat_list">
-              <div class="chat_people">
-                <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                <div class="chat_ib">
-                  <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>
-                  <p>Test, which is a new approach to have all solutions 
-                    astrology under one roof.</p>
-                </div>
-              </div>
-            </div>
-            <div class="chat_list">
-              <div class="chat_people">
-                <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                <div class="chat_ib">
-                  <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>
-                  <p>Test, which is a new approach to have all solutions 
-                    astrology under one roof.</p>
-                </div>
-              </div>
-            </div>
-            <div class="chat_list">
-              <div class="chat_people">
-                <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                <div class="chat_ib">
-                  <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>
-                  <p>Test, which is a new approach to have all solutions 
-                    astrology under one roof.</p>
-                </div>
-              </div>
-            </div>
-            <div class="chat_list">
-              <div class="chat_people">
-                <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                <div class="chat_ib">
-                  <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>
-                  <p>Test, which is a new approach to have all solutions 
-                    astrology under one roof.</p>
-                </div>
-              </div>
-            </div>
-            <div class="chat_list">
-              <div class="chat_people">
-                <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                <div class="chat_ib">
-                  <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>
-                  <p>Test, which is a new approach to have all solutions 
-                    astrology under one roof.</p>
-                </div>
-              </div>
-            </div>
-            <div class="chat_list">
-              <div class="chat_people">
-                <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                <div class="chat_ib">
-                  <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>
-                  <p>Test, which is a new approach to have all solutions 
-                    astrology under one roof.</p>
-                </div>
-              </div>
-            </div> -->
-          </div>
+  <div  class="messaging" >
+     <div v-if="!show" class="mesgs" style=" height: 400px; position: relative;">
+       <div class="msg_history">
+         <div class="form-outline">
+          <input v-model="email"  type="text" placeholder="Please enter your email" id="formControlLg" class="form-control form-control-lg center" style="height: 40px;width: 80%" />
         </div>
-        <div class="mesgs">
-            <!-- <div class="headind_srch" style="background: white;">
+        
+       </div>
+       <button class="center" style="margin-top: 60px" @click="openChat" type="button">Chat</button>
+    </div>
+      <div v-if="show" class="mesgs">
+          <div class="headind_srch">
             <div class="recent_heading">
-              <h4 v-if="messages.length > 0" style="margin-bottom: 5px;">{{messages[0].author}}</h4>
+              <h4>Chat bot</h4>
             </div>
-            </div> -->
-          <div class="msg_history">
-            <div v-for="(mess,index) in messages" v-bind:key="index" :class="[mess.author === authUser.displayName? 'outgoing_msg':'incoming_msg']">
-              <div v-if="mess.author !== authUser.displayName" class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-              <div v-if="mess.author !== authUser.displayName" class="received_msg">
-                <div class="received_withd_msg">
-                  <p>{{ mess.message }}</p>
-                  <span class="time_date"> {{ toDateTime(mess.date) }}</span></div>
-              </div>
-              <div v-else :class="[mess.author === authUser.displayName? 'sent_msg':'received_withd_msg']">
-                  <p>{{ mess.message }}</p>
-                  <span class="time_date"> {{ toDateTime(mess.date.seconds) }}</span></div>
           </div>
-            <!-- <div class="outgoing_msg">
-              <div class="sent_msg">
-                <p>Test which is a new approach to have all
-                  solutions</p>
-                <span class="time_date"> 11:01 AM    |    June 9</span> </div>
+          <div class="msg_history">
+            <div v-for="(mess,index) in messages" v-bind:key="index">
+            <div v-if="mess.storename" class="incoming_msg" >
+              <div class="incoming_msg_img"> 
+                <img src="../../assets/imgs/userPic.png" alt="sunil"> 
+              </div>
+                <div  class="received_msg">
+                    <div class="received_withd_msg">
+                      <p>{{ mess.text}}</p>
+                      <span v-if="mess.date" class="time_date"> {{ toDateTime(mess.date)}}</span>
+                    </div>
+                </div>
             </div>
-            <div class="incoming_msg">
-              <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-              <div class="received_msg">
-                <div class="received_withd_msg">
-                  <p>Test, which is a new approach to have</p>
-                  <span class="time_date"> 11:01 AM    |    Yesterday</span></div>
+            <div v-else class="outgoing_msg">
+              <div class="sent_msg">
+                <p>{{ mess.text}}</p>
+                <span v-if="mess.date" class="time_date"> {{ toDateTime(mess.date)}}</span> 
               </div>
             </div>
-            <div class="outgoing_msg">
-              <div class="sent_msg">
-                <p>Apollo University, Delhi, India Test</p>
-                <span class="time_date"> 11:01 AM    |    Today</span> </div>
-            </div>
-            <div class="incoming_msg">
-              <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-              <div class="received_msg">
-                <div class="received_withd_msg">
-                  <p>We work directly with our designers and suppliers,
-                    and sell direct to you, which means quality, exclusive
-                    products, at a price anyone can afford.</p>
-                  <span class="time_date"> 11:01 AM    |    Today</span></div>
-              </div>
-            </div> -->
+          </div>
           </div>
           <div class="type_msg">
             <div class="input_msg_write">
               <input @keyup.enter="saveMessage" v-model="message" type="text" class="write_msg" placeholder="Type a message" />
-              <button class="msg_send_btn" type="button"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
+              <button class="msg_send_btn" type="button"><i class="fas fa-paper-plane" aria-hidden="true"></i></button>
             </div>
           </div>
         </div>
       </div>
-    </div></div>
+
+    </div>
 </template>
+
 
 <script>
 import firebase from 'firebase';
+import UserService from '@/services/UserService.js'
 export default {
     data(){
         return{
+            user:'',
             message: null,
-            authUser: null,
+            name: '',
+            email:'',
             messages: [],
-            storeId: 1234,
-            customers: [],
+            show : false,
         }
-    },
-    methods:{
-        toDateTime(secs) {
-            var t = new Date(Date.UTC(1970, 0, 1)); // Epoch
-            t.setUTCSeconds(secs);
-            return t.toString().slice(0,21);
-        },
-        saveMessage(){
-            db.collection("chat").doc(""+ this.storeID).collection(""+ this.userInfor.phone).add({
-            message: this.message,
-            author: this.userInfor.name,
-            image: this.userInfor.picture,
-            date: new Date(),
-            })
-            .then((docRef) => {
-                console.log("Document written with ID: ", docRef.id);
-            })
-            .catch((error) => {
-                console.error("Error adding document: ", error);
-            });
-            //save user
-            db.collection("chat").doc(""+ this.storeID).collection(""+ this.userInfor.phone).add({
-            message: this.message,
-            author: this.userInfor.name,
-            image: this.userInfor.picture,
-            date: new Date(),
-            })
-            .then((docRef) => {
-                console.log("Document written with ID: ", docRef.id);
-            })
-            .catch((error) => {
-                console.error("Error adding document: ", error);
-            });
-            this.message=null;
-            // this.fetchMessage();
-            // firebase.database().ref('chat/' + this.storeId).set({
-            // message: this.message,
-            // author: this.authUser.displayName,
-            // date: new Date(),
-            // }, (error) => {
-            //     if (error) {
-            //         console.error("Error adding document: ", error);
-            //     } else {
-            //         console.log("Document written successfully ");
-            //     }
-            // });
-        },
-        fetchMessage(){
-            db.collection("chat").doc(""+ this.storeID).collection(""+ this.userInfor.phone).orderBy('date').onSnapshot((querySnapshot) => {
-                let allMess = [];
-                querySnapshot.forEach((doc) => {
-                    allMess.push(doc.data());
-                });
-                console.log(allMess);
-                this.messages=allMess;
-            });
-            db.collection("chat").get().then((querySnapshot) => {
-                let allCuss = [];
-                querySnapshot.forEach((doc) => {
-                    allCuss.push(doc.data());
-                });
-                console.log(allCuss);
-                this.customers=allCuss;
-            });
-        },
-        
-        saveUser(){
-          db.collection("user").doc("123").collection("Cus1").add({
-            message: this.message,
-            author: this.authUser.displayName,
-            date: new Date(),
-            })
-            .then((docRef) => {
-                console.log("Document written with ID: ", docRef.id);
-            })
-            .catch((error) => {
-                console.error("Error adding document: ", error);
-            });
-        }
-
     },
     props:{
-		  storeID: String,
-      userInfor: {
-        phone: String,
-        name: String,
-        picture: String,
-        email: String
-      },
-	  },
-    created(){
-          firebase.auth().onAuthStateChanged(user => {
-                console.log(user);
-                        if(user)
-                        {
-                            this.authUser= user;
-                        }
-                        else{
-                            this.authUser={};
-                        }
-                    })
-        this.fetchMessage();
+      storeID: String,
     },
-    beforeRouteEnter (to, from, next) {
-        next( vm =>{
-            firebase.auth().onAuthStateChanged(user => {
-                console.log(user);
-                        if(user)
-                        {
-                            next();
-                        }
-                        else{
-                            this.$router.push('/login');
-                        }
-                    })
-        })
-    }
+    methods:{
+      openChat(){
+        if(this.email){
+          this.name = this.email.slice(0,this.email.indexOf('@'));
+          this.sayWelcome();
+          this.show = true;
+          this.fetchMessage();
+        }
+        else alert('please enter your email')
+      },  
+        toDateTime(secs) {
+            return secs.toString().slice(0,21);
+        },
+        sayWelcome(){
+          var today = new Date();
+          const mess = {
+            text: "Xin chào, tôi có thể giúp gì cho bạn???",
+            storename: this.name,
+            date: today.toString()
+          };
+          firebase
+            .database()
+            .ref("Messages/store/"+this.storeID+'/'+ this.name +'/')
+            .push(mess);
+           firebase
+            .database()
+            .ref("Messages/store/"+this.storeID+'/' + this.name +'/')
+            .child('lastmess').set("Xin chào, tôi có thể giúp gì cho bạn???");
+        },
+        saveMessage(){
+          if(this.message == '') return;
+          var today = new Date();
+          const mess = {
+            text: this.message,
+            username: this.name,
+            date: today.toString()
+          };
+          firebase
+            .database()
+            .ref("Messages/store/"+this.storeID+'/'+ this.name +'/')
+            .push(mess);
+          firebase
+            .database()
+            .ref("Messages/store/"+this.storeID+'/' + this.name +'/')
+            .child('lastmess').set(this.message);
+          this.message = "";
+        },
+         fetchMessage(){
+          firebase.database().ref("Messages/store/").child(this.storeID).child(this.name).on("value", snapshot => {
+            let data = snapshot.val();
+            let messages = [];
+            Object.keys(data).forEach(key => {
+              messages.push({
+                id: key,
+                storename: data[key].storename,
+                username: data[key].username,
+                text: data[key].text,
+                date: data[key].date
+              });
+            });
+            this.messages = messages;
+            this.messages.pop();
+          }); 
+        },
+        async checkLogin(){
+          const token = localStorage.getItem('isAuthen')
+          this.user = await UserService.getInfo(token);
+          console.log(this.user[0]);
+          if(this.user[0] != 'Bạn cần đăng nhập'){
+            this.email = this.user[0].email;
+            this.name = this.email.slice(0,this.email.indexOf('@'));
+            this.show = true;
+            this.sayWelcome();
+            this.fetchMessage();
+          }
+        }
+    },
+    created(){
+    },
+    mounted(){
+      this.checkLogin();
+      this.fetchMessage();
+    },
 }
 </script>
 
@@ -276,30 +161,25 @@ img{ max-width:100%;}
   float: left;
   overflow: hidden;
   width: 40%; border-right:1px solid #c4c4c4;
-  border-top:1px solid  #f76242;
-  border-radius: 15px 0 0 0;
 }
 .inbox_msg {
   border: 2px solid #f76242;
-  border-radius: 15px;
   clear: both;
   overflow: hidden;
-  background: #f76242;
 }
 .top_spac{ margin: 20px 0 0;}
 
-
-.recent_heading {float: left; width:100%; color: white;; background:  #f76242;  padding: 5px; }
+.recent_heading {float: left; width:100%; color: black;  padding: 5px; }
 .srch_bar {
   display: inline-block;
   text-align: right;
   width: 60%;
 }
-.headind_srch{ padding:10px 29px 10px 20px; overflow:hidden; border-bottom:1px solid #c4c4c4;}
+.headind_srch{  border-radius: 15px 15px 0 0; background: blue; padding:10px 20px 10px 20px; overflow:hidden; border-bottom:1px solid #c4c4c4;}
 
 .recent_heading h4 {
-  color: #388285;
-  font-size: 21px;
+  color: #fff;
+  font-size: 18px;
   margin: auto;
 }
 .srch_bar input{ border:1px solid #cdcdcd; border-width:0 0 1px 0; width:80%; padding:2px 0 4px 6px; background:none;}
@@ -338,6 +218,7 @@ img{ max-width:100%;}
 .incoming_msg_img {
   display: inline-block;
   width: 6%;
+  margin-bottom: 10px;
 }
 .received_msg {
   display: inline-block;
@@ -346,35 +227,35 @@ img{ max-width:100%;}
   width: 92%;
  }
  .received_withd_msg p {
-  background: white none repeat scroll 0 0;
-  border-radius: 10px;
+  background: #efefef none repeat scroll 0 0;
+  border-radius: 5px;
   color: #646464;
   font-size: 14px;
   margin: 0;
-  padding: 5px 10px 5px 12px;
+  padding: 10px 10px 10px 12px;
   width: 100%;
 }
 .time_date {
   color: #747474;
   display: block;
   font-size: 12px;
-  margin: 8px 0 0;
+  margin: 2px 0 8px 8px;
 }
 .received_withd_msg { width: 57%;}
 .mesgs {
   float: left;
-  padding-top: 10px;
-  width: 60%;
+  width: 100%;
   background: white;
-  border-top: 1px solid #f76242; border-radius: 0 15px 0 0;
+  border-radius: 15px 15px 0 0;
+  border: 2px solid #ebebeb
 }
 
  .sent_msg p {
-  background: #f76242 none repeat scroll 0 0;
-  border-radius: 10px;
+  background: blue none repeat scroll 0 0;
+  border-radius: 5px;
   font-size: 14px;
   margin: 0; color:#fff;
-  padding: 5px 10px 5px 12px;
+  padding: 10px 10px 10px 12px;
   width:100%;
 }
 .outgoing_msg{ overflow:hidden; margin:26px 0 26px;}
@@ -393,18 +274,18 @@ img{ max-width:100%;}
 
 .type_msg { background: white;border-top: 1px solid #c4c4c4;position: relative;}
 .msg_send_btn {
-  background: white none repeat scroll 0 0;
+  background: blue none repeat scroll 0 0;
   border: medium none;
   border-radius: 50%;
-  color: #f76242;
+  color: white;
   cursor: pointer;
   font-size: 25px;
-  height: 33px;
+  height: 35px;
   position: absolute;
   right: 0;
   top: 5px;
   right: 10px;
-  width: 33px;
+  width: 35px;
 }
 .messaging { padding: 0 0 50px 0;}
 .msg_history {
@@ -414,5 +295,19 @@ img{ max-width:100%;}
 }
 .write_msg{
     padding: 0 0 0 0px;
+}
+.center {
+  border: none;
+  height: 40px;
+  border-radius: 5px;
+  color: white;
+  background: red;
+  padding: 10px;
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
 }
 </style>

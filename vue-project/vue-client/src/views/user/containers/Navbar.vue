@@ -55,8 +55,8 @@
 			</div>
 			<div v-else  id="login" class="fl_right">
 				<i  @click="search=true" style="font-size:20px; padding-right: 10px; float:left;color:black; margin-top:8px" class="fa fa-search"/>
-				<a href="http://localhost:8080/login" class="button" style="border-radius: 10px;margin-right: 5px;margin-top: 3px;" >Đăng nhập</a>
-				<a  href="http://localhost:8080/register" class="button" style="border-radius: 10px;margin-right: 5px; width: 90px; text-align:center;">Đăng kí</a>
+				<a href="/login" class="button" style="border-radius: 10px;margin-right: 5px;margin-top: 3px;" >Đăng nhập</a>
+				<a  href="/register" class="button" style="border-radius: 10px;margin-right: 5px; width: 90px; text-align:center;">Đăng kí</a>
 			</div>
 		</div>
 		<transition v-if="search">
@@ -127,7 +127,8 @@ computed:{
 		console.log(check);
 		if(check == "Bạn cần đăng nhập"){
 			this.isLoggedin = false;
-			return
+			AuthService.logout();
+			return;
 		}
 		this.isLoggedin =true;
 	  },

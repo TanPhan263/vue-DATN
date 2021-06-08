@@ -1,8 +1,13 @@
 <template>
 <div style="background-color: #f6f6f6f6"> 
+   <div @click="chat=!chat" class="message"><i class="fa fa-envelope"></i></div>
+    <transition >
+      <div v-show="chat" class="chat">
+        <Chat v-bind:storeID="storeID"/>
+      </div>
+    </transition>
   <Header/>
   <Navbar @dishClicked="dishClicked" @storeClicked="storeClicked" :class="scroll_nav"/>
-
   <div class="pn-microsite">
     <div id="storeInfor" class="micro-content">
       <div class="micro-header clearfix">
@@ -52,20 +57,21 @@
                   <span >{{storeOpen[0].openTime}} - {{storeOpen[0].cLoseTime}}</span>
                 </div>
                 <div class="res-common-minmaxprice"  style="border-top: 1px solid #888;">
-                  <span v-if="discountList"><span v-for="(discount,index) in discountList" v-bind:key="index" class="fa fa-tag" style="font-size: 15px; color: red"> {{getDiscountName(discount.idDiscountType)}}</span>  </span>
+                  <span v-if="discountList"><span v-for="(discount,index) in discountList" v-bind:key="index" class="fa fa-tag" style="font-size: 15px; color: red; border: 1px solid red; padding: 2px;"> {{getDiscountName(discount.idDiscountType)}}</span>  </span>
                 </div>
+                
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-
+    
     <div :class="'micro-main-menu fl_left ' + scroll">
       <div class="tool-bar">
         <ul class="list-tool" >
           <li style="border: none;">
-            <a href="#storeInfor" v-bind:class="activeClass1" @click="changeActive('Thông tin quán')"
+            <a href="#storeInfor" v-bind:class="[activeClass === 'Thông tin quán' ? 'active': '']" @click="changeActive('Thông tin quán')"
               >
               <i class="fa fa-info-circle" aria-hidden="true"></i>  THÔNG TIN QUÁN
               <span
@@ -75,7 +81,7 @@
             </a>
           </li>
           <li>
-            <a href="#menu" v-bind:class="activeClass2" @click="changeActive('Thực đơn')"
+            <a href="#menu" v-bind:class="[activeClass === 'Thực đơn' ? 'active': '']" @click="changeActive('Thực đơn')"
               >
               <i class="fa fa-list" aria-hidden="true"></i>  THỰC ĐƠN
               <span
@@ -85,7 +91,7 @@
             </a>
           </li>
           <li>
-            <a href="#comment" v-bind:class="activeClass3" @click="changeActive('Comments')"
+            <a href="#comment" v-bind:class="[activeClass === 'Bình luận' ? 'active': '']" @click="changeActive('Bình luận')"
               >
               <i class="fa fa-comment" aria-hidden="true"></i>  COMMENTS
               <span
@@ -95,7 +101,7 @@
             </a>
           </li>
           <li>
-            <a href="#map" v-bind:class="activeClass4" @click="changeActive('Xem trên Map')"
+            <a href="#map" v-bind:class="[activeClass === 'Xem trên Map' ? 'active': '']" @click="changeActive('Xem trên Map')"
               > <i class="fa fa-location-arrow"></i>  BẢN ĐỒ
               <span
                 class="fa fa-angle-right"
@@ -106,52 +112,6 @@
         </ul>
       </div>
     </div>
-    
-    <!-- <div :class="'micro-main-menu fl_right ' + scroll">
-      <div class="tool-bar">
-        <ul class="list-tool">
-          <li style="border: none;">
-            <a href="#storeInfor" v-bind:class="activeClass1" @click="changeActive('Thông tin quán')"
-              >
-              <i class="fa fa-info-circle" aria-hidden="true"></i> THÔNG TIN QUÁN
-              <span
-                class="fa fa-angle-right"
-                style="float: right; font-size: 14px"
-              ></span>
-            </a>
-          </li>
-          <li>
-            <a href="#menu" v-bind:class="activeClass2" @click="changeActive('Thực đơn')"
-              >
-              <i class="fa fa-list" aria-hidden="true"></i> THỰC ĐƠN
-              <span
-                class="fa fa-angle-right"
-                style="float: right; font-size: 14px ;"
-              ></span>
-            </a>
-          </li>
-          <li>
-            <a href="#comment" v-bind:class="activeClass3" @click="changeActive('Comments')"
-              >
-              <i class="fa fa-comment-o" aria-hidden="true"></i> COMMENTS
-              <span
-                class="fa fa-angle-right"
-                style="float: right; font-size: 14px"
-              ></span>
-            </a>
-          </li>
-          <li>
-            <a href="#map" v-bind:class="activeClass4" @click="changeActive('Xem trên Map')"
-              > <i class="fa fa-location-arrow"></i> BẢN ĐỒ
-              <span
-                class="fa fa-angle-right"
-                style="float: right; font-size: 14px"
-              ></span>
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div> -->
   
     <div class="micro-right fl_right">
       <div class="micro-main-content"
@@ -172,7 +132,7 @@
             <div class="tb-content">
               <div v-for="dish in storeMenu" v-bind:key="dish.dish_ID" class="tb-offer-item">
                 <div @click="showDishChoosed(dish)" class="tb-item-left" style="margin-left: 20px;">
-                  <img :src="dish.dishPicture" style="width: 120px; height: 110px; border-radius:10px; cursor:pointer;" />
+                  <img v-lazy="dish.dishPicture" style="width: 120px; height: 110px; border-radius:10px; cursor:pointer;" />
                 </div>
                 <div class="tb-item-mid" style="">
                   <a @click="showDishChoosed(dish)" style="color: #000" class="tb-oi-time">
@@ -210,7 +170,7 @@
                 <slot name="body">
                   <div class="row">
                   <div class="tb-item-left col-sm-6">
-                  <img :src="dishChoosed.dishPicture" style="width: 300px; height: 200px; border-radius:3px" />
+                  <img v-lazy="dishChoosed.dishPicture" style="width: 300px; height: 200px; border-radius:3px" />
                   </div>
                   <div class="tb-item-mid col-sm-4">
                     <a class="tb-shorttitle">
@@ -249,6 +209,7 @@
     </div>
   </div>
   <Footer style="margin-top: 150px;"/>
+  
 </div>
 </template>
 
@@ -274,20 +235,10 @@ export default {
   },
   data(){
     return{
-      user: '',
-      userInfor: {
-        phone:'0123456789',
-        name: 'John',
-        picture: '',
-        email:'John@gmail.com'
-      },
       chat: false,
       address: '',
       //binding class
-      activeClass1: 'active',
-      activeClass2: '',
-      activeClass3: '',
-      activeClass4: '',
+      activeClass: 'Thông tin quán',
       scroll: '',
       scroll_nav:'',
       nav: '',
@@ -343,32 +294,7 @@ methods:{
       this.dishChoosed = index;
     },
     changeActive(tab){
-      switch(tab){
-              case 'Thông tin quán' : 
-                this.activeClass1 = 'active';
-                this.activeClass2 = '';
-                this.activeClass3 = '';
-                this.activeClass4 = '';
-                break;
-              case 'Thực đơn' : 
-                this.activeClass1 = '';
-                this.activeClass2 = 'active';
-                this.activeClass3 = '';
-                this.activeClass4 = '';
-                break;
-              case 'Comments' : 
-                this.activeClass1 = '';
-                this.activeClass2 = '';
-                this.activeClass3 = 'active';
-                this.activeClass4 = '';
-                break;
-              case 'Xem trên Map' : 
-                this.activeClass1 = '';
-                this.activeClass2 = '';
-                this.activeClass3 = '';
-                this.activeClass4 = 'active';
-                break;
-            }
+      this.activeClass = tab;
     },
     getActiveTime(open,close){
 		  const today = new Date();
@@ -435,8 +361,6 @@ methods:{
     this.storeID=this.$route.params.id;
   },
   mounted(){
-    this.user=localStorage.getItem('userInfor');
-    this.user = JSON.parse(this.user);
     const id = this.$route.params.id;
     this.$http.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Store/GetByID?id='+ id).then(response => {
           this.storeOpen = response.data
@@ -454,6 +378,7 @@ methods:{
     });
     this.getDisCount(id);
     this.onScroll();
+   
   }
 }
 </script>
@@ -483,7 +408,7 @@ html {
   bottom: 0;
   right: 0;
   text-align: center;
-  background: #f76242;
+  background: blue;
   height: 60px;
   width: 60px;
   border-radius: 50%;
