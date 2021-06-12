@@ -31,10 +31,10 @@ export default {
     },
     methods:{
         storeClicked: function(Id){
-            this.$emit('click-store', Id);
+          this.$emit('click-store', Id);
         },
         subString(index){
-        return index.toString().substring(0,20);
+          return index.toString().substring(0,20);
         },
         getActiveTime(open,close){
 		    const today = new Date();

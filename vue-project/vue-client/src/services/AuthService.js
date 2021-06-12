@@ -2,7 +2,8 @@ import axios from 'axios';
 import firebase from 'firebase';
 import router from '../router/index';
 import UserService from '../services/UserService';
-const url = 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/User/';
+const url = 'http://KLTN.somee.com/api/User/';
+const url2 = 'http://KLTN.somee.com/api/Store/';
 export default {
   parseJwt (isAuthen) {
     var base64Url = isAuthen.split('.')[1];
@@ -49,7 +50,7 @@ export default {
   },
   registerOwner(credentials){
     return axios
-      .post(url + 'RegisterOwner', credentials)
+      .post('http://KLTN.somee.com/api/User/RegisterOwner', credentials)
       .then(response => response.data);
   },
   loginGoogle(){
@@ -70,7 +71,7 @@ export default {
             console.log(user_result);
             localStorage.setItem('isAuthen',result.data.token);
             localStorage.setItem('userInfor',JSON.stringify(user_result[0]));
-            router.push('/Homepage')
+            router.push('/')
           });
         }
         else {
@@ -126,7 +127,6 @@ export default {
             console.log(user_result);
             localStorage.setItem('isAuthen',result.data.token);
             localStorage.setItem('userInfor',JSON.stringify(user_result[0]));
-            router.push('/Homepage')
           });
         }
         else {
@@ -152,19 +152,13 @@ export default {
                   console.log(user_result);
                   localStorage.setItem('isAuthen',result.data.token);
                   localStorage.setItem('userInfor',JSON.stringify(user_result[0]));
-                  router.push('/Homepage')
                 });
               })
         }
       });
     }).catch((error) => {
         // Handle Errors here.
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        // The email of the user's account used.
-        var email = error.email;
-        // The firebase.auth.AuthCredential type that was used.
-        var credential = error.credential;
+        console.log(err);
     });
   },
   signupSocial(){
@@ -179,6 +173,24 @@ export default {
         let user = respone.data
         if( user[0] == 'Bạn cần đăng nhập') 
           this.logout()
+      });
+  },
+  checkAdmin(){
+    if(!localStorage.getItem('isAuthen')) return;
+    return axios
+    .get(url + 'GetRole',{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}})
+    .then(response => {
+      if(response.data != '-MO5VBnzdGsuypsTzHaV')
+      router.push('/pages/404')
+    });
+  },
+  checkStoreOwner(){
+    if(!localStorage.getItem('isAuthen')) return;
+    return axios
+      .get(url + 'GetRole',{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}})
+      .then(response => {
+        if(response.data != '-MO5VWchsca2XwktyNAw')
+        router.push('/pages/404')
       });
   }
 };

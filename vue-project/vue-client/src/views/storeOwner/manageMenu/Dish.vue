@@ -60,7 +60,13 @@
 <script>
 import firebase from 'firebase'
 import StoreService from '@/services/StoreService.js';
+import AuthService from '@/services/AuthService.js';
 export default {
+   beforeRouteEnter (to, from, next) {
+    AuthService.checkUser(localStorage.getItem('isAuthen'));
+    AuthService.checkStoreOwner(localStorage.getItem('isAuthen'));
+    next();
+  },
   data(){
     return{
       dishTypes:[],
@@ -91,6 +97,7 @@ export default {
     },
     async updateDish()
     {
+      try{
         const dish = {
           dishID : this.dish_ID,
           dishName : this.dishName,
@@ -101,6 +108,10 @@ export default {
         }
         const response = await StoreService.updateDish(this.$route.params.id, dish, localStorage.getItem('isAuthen'))
         alert(response)
+      }
+      catch(err){
+        console.log(err)
+      }
     },
     async deleteDish(){
        if(confirm("Do you really want to delete?")){
@@ -111,22 +122,27 @@ export default {
     },
       previewImage(event){
         this.dishPicture=null;
-          this.imageData= event.target.files[0];
+        this.imageData= event.target.files[0];
       },
       onUpload(){
-        this.dishPicture= null;
-        const storageRef = firebase.storage().ref(`image/${this.imageData.name}`).put(this.imageData);
-        storageRef.on(`state_change`, snapshot => {
-        },error =>{console.log(error.message)},
-        ()=> {
-          storageRef.snapshot.ref.getDownloadURL().then((url) => {this.dishPicture=url;
-            this.updateDish();})
-          }
-        )
+        try{
+          this.dishPicture= null;
+          const storageRef = firebase.storage().ref(`image/${this.imageData.name}`).put(this.imageData);
+          storageRef.on(`state_change`, snapshot => {
+          },error =>{console.log(error.message)},
+          ()=> {
+            storageRef.snapshot.ref.getDownloadURL().then((url) => {this.dishPicture=url;
+              this.updateDish();})
+            }
+          )
+        }
+        catch(err){
+          console.log(err);
+        }
       
       },
       getType(index){
-        this.$http.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/DishType/GetAll').then(response => {this.dishTypes=response.data});
+        this.$http.get('http://KLTN.somee.com/api/DishType/GetAll').then(response => {this.dishTypes=response.data});
         this.dishTypes.forEach(element => {
           if(element.dishType_ID==index)
           {

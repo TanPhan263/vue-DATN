@@ -1,5 +1,16 @@
 <template>
 <CRow>
+    <CCol md="12">
+    <div v-if="status === '-1'" class="alert-red" >
+            <div class="row">
+              <div style="width: 100%">
+              <h4>Tài khoản chưa được kích hoạt</h4> <p>Nhấn để kích hoạt </p>
+                <CButton style="margin-right: 20px"  @click="blockAccount()" class="btn_left" type="submit" size="sm" color="warning"><CIcon name="cil-check-circle"/> Kích hoạt</CButton>
+                 <CButton  @click="deleteAccount" class="btn_left" type="reset" size="sm" color="danger"><CIcon name="cil-ban"/> Xóa</CButton>
+            </div>
+          </div>
+        </div>
+    </CCol>
        <CCol md="6">
         <CCard>
           <CCardHeader>
@@ -35,7 +46,7 @@
              
                 label="Ngày sinh"
                 horizontal
-              v-model="birthday"
+                v-model="birthday"
               />
               <div class="row">
               <p style="margin-left: 15px;">Quyền</p>
@@ -95,7 +106,7 @@
            <CSwitch  
               class="mr-1"
               color="danger"
-              :checked="status"
+              :checked="check"
               shape="pill"
             /></CRow>
             </CForm>
@@ -113,10 +124,18 @@
 import axios from 'axios';
 import firebase from 'firebase';
 import UserService from '@/services/UserService.js';
+import AuthService from '@/services/AuthService.js';
 export default {
+  beforeRouteEnter (to, from, next) {
+    AuthService.checkUser(localStorage.getItem('isAuthen'));
+    AuthService.checkAdmin(localStorage.getItem('isAuthen'));
+    next();
+  },
   name: 'User',
   beforeRouteEnter(to, from, next) {
     next(vm => {
+      AuthService.checkUser(localStorage.getItem('isAuthen'))
+      next();
       vm.usersOpened = from.fullPath.includes('users')
     })
   },
@@ -135,7 +154,8 @@ export default {
         sex: '',
         birthday: '',
         userTypeID: '',
-        status: false
+        status: '',
+        check: false
     };
   },
   computed: {
@@ -156,13 +176,23 @@ export default {
       this.sex = userData[0].sex;
       this.birthday = userData[0].birthday;
       this.userTypeID = userData[0].userTypeID;
-      if(userData[0].status == '1') this.status == false;
-      else this.status = true;
+      // if(userData[0].status == '1') this.status == false;
+      // else this.status = true;
+      this.status = userData[0].status;
+      this.checkStatus();
     },
     goBack() {
       this.usersOpened ? this.$router.go(-1) : this.$router.push({path: '/users'})
       },
-     previewImage(event){
+      checkStatus(){
+        switch(this.status){
+          case '1': this.check = false; break;
+          case '2': this.check = true; break;
+          case '3': this.check = true; break;
+          case '-1':this.check =true; break;
+        }
+      },
+      previewImage(event){
           this.picture=null;
           this.imageData= event.target.files[0];
         },
@@ -184,7 +214,7 @@ export default {
           else{ this.update();}
         },
         update(){
-          if(this.status == true) this.status = '2';
+          if(this.check == true) this.status = '2';
           else this.status = '1';
           const id = this.$route.params.id;
           const credentials = {
@@ -199,11 +229,19 @@ export default {
           status : this.status.toString()
           };
           console.log(this.status);
-          axios.post("http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/User/EditByID?id=" + id, credentials ,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{ 
+          axios.post("http://KLTN.somee.com/api/User/EditByID?id=" + id, credentials ,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{ 
             alert(respone.data)})
-        }
+        },
+        async deleteAccount(){
+          const response = await UserService.delete(this.userID,localStorage.getItem('isAuthen'))
+          alert(response);
+        },
+        async blockAccount(){
+        const id = this.$route.params.id;
+        const response =  await UserService.block(localStorage.getItem('isAuthen'), id, '1');
+        alert(response);
+      },
   },
-   
    mounted(){
       this.onInit();
   }
@@ -227,5 +265,9 @@ export default {
   padding-top: 30px;
   margin-bottom: -40px;
 }
-
+.alert-red {
+    padding: 20px;
+    background-color:#CD5C5C;
+    color: white;
+  }
 </style>

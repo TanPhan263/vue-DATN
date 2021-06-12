@@ -9,7 +9,7 @@
               <div class="artical">
                   <div class="slider">
                     <ul v-if="!show">
-                      <li v-for="(store, index ) in stores" v-bind:key="index"> <a :href="'/storeDetail/'+store.storeID">
+                      <li v-for="(store, index ) in stores" v-bind:key="index"> <a :href="'/'+store.storeID">
                           <img v-lazy="store.storePicture"  >
                             <div class="middle">
                             <div class="text" style="background: #ff6666 ">Xem quán</div>
@@ -23,6 +23,11 @@
                       </a></li>
                     </ul>
                      <div v-show="show" style="margin: 0 auto; margin-top: 150px; margin-left: 340px" class="loader"></div>
+                        <div>
+                          <div class="hero" style="width:100%; text-align:center; font-weight: bold;font-size: 16px;cursor:pointer">
+                            <a :href="'/district/'+ this.districtID">XEM THÊM <i class="fa fa-chevron-right"></i></a>
+                          </div>
+                        </div> 
                   </div>
               </div>
          </div> 
@@ -62,18 +67,23 @@ export default {
           return temp;
         },
         async onInit(){
-          this.districts = await ProvinceService.getAllDistrict();
-          console.log(this.districts[0].districtID);
-          this.stores = await StoreService.getByDistrict(this.districts[0].districtID)
-          this.districts = this.districts.slice(0,19);
-          this.stores = this.stores.slice(0,15);
+          try{
+            this.districts = await ProvinceService.getAllDistrict();
+            this.stores = await StoreService.getByDistrict(this.districts[0].districtID)
+            this.districts = this.districts.slice(0,19);
+            this.stores = this.stores.slice(0,15);
+          }
+          catch(err){console.log(err)}
         },
         async districtClicked(id){
+          try{
           this.districtID = id;
           this.show= true;
           this.stores = await StoreService.getByDistrict(id);
           this.stores = this.stores.slice(0,15);
           this.show=false;
+          }
+          catch(err){console.log(err)}
         }
     }
 }

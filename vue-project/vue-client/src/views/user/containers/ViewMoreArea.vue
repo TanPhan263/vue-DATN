@@ -55,11 +55,10 @@
 				</a>
 			</li>
           </ul>
-		  <ul v-else><img src="../../assets/imgs/wrong.jpg" alt=""></ul>
+		  <ul v-else><img src="../../../assets/imgs/wrong.jpg" alt=""></ul>
         </div>
-	
 			<div class="text-center pb-0 pt-3" style="font-weight: bold;">
-				<jw-pagination :items="stores" @changePage="onChangePage" :labels="customLabels"></jw-pagination>
+				<jw-pagination :items="stores" @changePage="onChangePage" v-bind:pageSize="pageSize" :labels="customLabels"></jw-pagination>
 			</div>
 		 <div  v-show="show" style="margin: 0 auto;" class="loader"></div>
       </div>
@@ -77,6 +76,7 @@
 
 <script>
 import StoreService from '@/services/StoreService.js';
+import RouterService from '@/services/RouterService.js';
 const customLabels = {
     first: '<<',
     last: '>>',
@@ -84,24 +84,18 @@ const customLabels = {
     next: '>'
 };
 export default {
-	watch: {
-      '$route' (to, from) {
-        if (to.path === '/view-more') {
-         this.onInit();
-        }
-      }
-    },
 	data(){
 		return{
-		active: false,
-		stores:[],
-		type: [],
-		sortmode: 'Gần tôi',
-		checked1: 'checked',
-		checked2: '',
-		show:true,
-		pageOfItems: [],
-		customLabels
+            active: false,
+            stores:[],
+            type: [],
+            sortmode: 'Gần tôi',
+            checked1: 'checked',
+            checked2: '',
+            show:true,
+            pageOfItems: [],
+            pageSize: 18,
+            customLabels
 		}
 	},
 	created(){
@@ -115,6 +109,7 @@ export default {
 			this.pageOfItems = pageOfItems;
 		},
 		sort(index){
+            try{
 			this.show = true;
 			console.log(this.stores)
 			switch(index){
@@ -136,36 +131,36 @@ export default {
 					}, 1000);
 					console.log(this.stores)
 					break;
-			}
+			    }
+            }
+            catch(err){console.log(err)}
 		},
 		async onInit(){
-			this.show = true;
 			this.type = await StoreService.getAllBussinessType();
-			const key = this.$route.query.key
-			this.$http.get('http://KLTN.somee.com/api/Dish/Search?dishname=' + key).then(response => {
-			if(response.data !='Không có kết quả tìm kiếm')
-			{
-				this.stores = response.data;
-				this.stores = this.stores.filter(this.sortProvince)
-				this.show = false;
-			}});
+			const id = this.$route.params.id;
+            this.stores = await StoreService.getByDistrict(id);
+            console.log(this.stores)
+			this.show = false;
 		},
 		storeClicked (item) {
-			this.$router.push('/' + item)
+			RouterService.storeClicked (item);
 		},
 		subString(index){
-		return index.toString().substring(0,20);
+		    return index.toString().substring(0,20);
 		},
 		subString_address(index){
-		return index.toString().substring(0,12);
+		    return index.toString().substring(0,12);
 		},
 		getType(index){
-		var temp='Unknown'
-		this.type.forEach(element => {
-				if(element.businessTypeID == index)
-				temp = element.businessTypeName;
-		});
-		return temp;
+        try{
+            var temp='Unknown'
+            this.type.forEach(element => {
+                    if(element.businessTypeID == index)
+                    temp = element.businessTypeName;
+            });
+            return temp;
+        }
+        catch(err){console.log(err)}
 		},
 		sortDistance(a,b){
 			return parseFloat(a.khoangcach) - parseFloat(b.khoangcach);
@@ -181,7 +176,7 @@ export default {
 </script>
 
 <style>
-@import url('../../assets/css/style.css');
+@import url('../../../assets/css/style.css');
 .pagination{
 	margin: 0 auto;
 }

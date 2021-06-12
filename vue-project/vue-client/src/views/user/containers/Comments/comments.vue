@@ -247,6 +247,7 @@ export default {
 			},
 			async getComments(){
 			try{
+				this.rate1 = 0; this.rate2 = 0; this.rate3 = 0; this.rate4=0; this.rate5 = 0;
 				this.commentList = await CommentService.getCommentByStore(this.storeID);
 				let rate = 0;
 				this.commentList.forEach(element => {
@@ -260,6 +261,8 @@ export default {
 						}
 						});
 				this.averageRate=rate/this.commentList.length;
+				const response3 = await StoreService.updateRate(this.storeID,this.averageRate);
+				console.log(response3);
 				// this.commentList.forEach( element =>{
 				// 	UserService.getUserbyIDnoToken_pic(element.userID).then(x =>
 				// 	{
@@ -273,7 +276,7 @@ export default {
 				// });
 				// console.log(this.userCommentParent[0])
 			}
-			catch{}
+			catch(err){console.log(err)}
 		},
 		responseComment(){
 			this.active=true;
@@ -285,48 +288,45 @@ export default {
 			this.imageData= event.target.files[0];
 		},
 		onUpload(){
-			if(this.imageData == null) this.submitRateComment();
-			else{
-				const storageRef = firebase.storage().ref(`image/comment/${this.imageData.name}`).put(this.imageData);
-				storageRef.on(`state_change`, snapshot => {
-				},error =>{console.log(error.message)},
-				()=> {
-					storageRef.snapshot.ref.getDownloadURL().then((url) => {
-						this.commentPicture = url;
-						this.submitRateComment();
-						})
-					}
-				)
+			try{
+				if(this.imageData == null) this.submitRateComment();
+				else{
+					const storageRef = firebase.storage().ref(`image/comment/${this.imageData.name}`).put(this.imageData);
+					storageRef.on(`state_change`, snapshot => {
+					},error =>{console.log(error.message)},
+					()=> {
+						storageRef.snapshot.ref.getDownloadURL().then((url) => {
+							this.commentPicture = url;
+							this.submitRateComment();
+							})
+						}
+					)
+				}
 			}
+			catch(err){ console.log(err)}
 		},
 		async submitRateComment(){
-			this.active=false;
-			var date = new Date();
-			const comment =  {
-				content: this.commentContent,
-				date: date.toString().slice(4,15),
-				image: this.commentPicture,
-				userID: this.user.userID,
-				storeID:  this.storeID,
-				parentComment_ID: this.parentCommentID,
-				userName: this.user.userName,
-				userPicture: this.user.picture,
-				ratePoint: this.rateSubmit.toString(),
-			};
-			const response = await CommentService.submitComment(this.token,comment);
-			console.log(response)
-			// const rate=  {
-			// 	ratePoint: this.rateSubmit.toString(),
-			// 	storeID: this.storeID,
-			// 	userID: this.user.userID,
-			// 	CommentID: response.toString()
-			// };
-			// const respone2 = await CommentService.submitRate(this.token,rate);
-			// console.log(respone2);
-			// this.getRate();
-			this.getComments();
-			const response3 = await StoreService.updateRate(this.storeID,this.getAverageRate(this.rateSubmit));
-			console.log(response3);
+			try{
+				this.active=false;
+				var date = new Date();
+				const comment =  {
+					content: this.commentContent,
+					date: date.toString().slice(4,15),
+					image: this.commentPicture,
+					userID: this.user.userID,
+					storeID:  this.storeID,
+					parentComment_ID: this.parentCommentID,
+					userName: this.user.userName,
+					userPicture: this.user.picture,
+					ratePoint: this.rateSubmit.toString(),
+				};
+				const response = await CommentService.submitComment(this.token,comment);
+				console.log(response)
+				this.getComments();
+			}
+			catch(err){
+				console.log(err)
+			}
 		},
 		// async getRate(){
 		// 	try{
@@ -366,14 +366,14 @@ export default {
 			}
 			this.active=true;
 		},
-		getAverageRate(rate){
-			var total = 0;
-			this.commentList.forEach(element => {
-						total+=parseInt(element.ratePoint);
-			});
-			console.log(total);
-			return (total+ parseInt(rate))/(this.commentList.length + 1);
-		},
+		// getAverageRate(rate){
+		// 	var total = 0;
+		// 	this.commentList.forEach(element => {
+		// 				total+=parseInt(element.ratePoint);
+		// 	});
+		// 	console.log(total);
+		// 	return (total+ parseInt(rate))/(this.commentList.length + 1);
+		// },
 		// getName(index){
 		// 	var temp = 'unknow'
 		// 	this.userCommentParent.forEach(element => {

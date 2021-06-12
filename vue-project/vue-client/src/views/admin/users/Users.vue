@@ -116,7 +116,7 @@
           >
             <template #status="{item}">
               <td>
-                <CBadge v-if="item.status === '1'" :color="getBadge(item.status)">
+                <CBadge v-if="item.status === '1' || item.status === '3'" :color="getBadge(item.status)">
                  OK
                 </CBadge>
                 <CBadge v-else :color="getBadge(item.status)">
@@ -137,6 +137,11 @@ import usersData from './UsersData'
 import UserService from '@/services/UserService';
 import AuthService from '@/services/AuthService';
 export default {
+   beforeRouteEnter (to, from, next) {
+    AuthService.checkUser(localStorage.getItem('isAuthen'));
+    AuthService.checkAdmin(localStorage.getItem('isAuthen'));
+    next();
+  },
   name: 'Users',
   data () {
     return {
@@ -186,8 +191,10 @@ export default {
     },
     getBadge(status) {
       switch (status) {
+        case '3': return 'success'
         case '2': return 'danger'
         case '1': return 'primary'
+        case '-1': return 'warning'
       }
     },
     rowClicked (item) {

@@ -19,13 +19,14 @@
     </div>
 </div>
 <div class="text-center pb-0 pt-3" style="margin-top:100px;font-weight: bold;">
-		<jw-pagination :items="dishes" @changePage="onChangePage" :pageSize="pageSize" :labels="customLabels"></jw-pagination>
+		<jw-pagination :items="dishes" @changePage="onChangePage" :pageSize="pageSize" :styles="customStyles" :labels="customLabels"></jw-pagination>
 	</div>
 </div>
 </template>
 
 <script>
-const baseUrl='http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/'
+import RouterService from '@/services/RouterService.js'
+const baseUrl='http://KLTN.somee.com/api/'
 const customLabels = {
     first: '<<',
     last: '>>',
@@ -38,17 +39,17 @@ const customStyles = {
     },
     a: {
         color: 'black'
-    }
+    },
 };
 export default {
 	name:'DishType',
 	data(){
 		return{
-        dishes:[],
-		pageOfItems: [],
-		customLabels,
-		customStyles,
-		pageSize: 40
+            dishes:[],
+            pageOfItems: [],
+            customLabels,
+            customStyles,
+            pageSize: 40
 		}
 	},
 	mounted(){
@@ -61,7 +62,7 @@ export default {
 			this.pageOfItems = pageOfItems;
 		},
 		dishClicked(name){
-			this.$root.$refs.Homebody.dishClicked(name);
+			RouterService.dishClicked(name);
 		}
 	}
 }

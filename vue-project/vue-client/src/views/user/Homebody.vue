@@ -103,7 +103,7 @@
            
             <!-- <a v-on:click="storeClicked(store.storeID)">
               href="/Homepage/" -->
-            <a class="image" :href="'/storeDetail/'+store.storeID" >
+            <a class="image" :href="'/'+store.storeID" >
              <img v-lazy="store.storePicture"/>
               <div class="middle">
               <div class="text" style="background: #ff6666 ">Xem quán</div>
@@ -141,8 +141,8 @@
       <div id="Giaotannoi" class="sub-menu-ship" >
         <ul v-if="!show">
           <li vi v-for="(store, index) in nearest" v-bind:key="index">
-            <a :href="'/storeDetail/'+store.storeID">
-              <img v-if="store.storePicture" v-lazy="store.storePicture" />
+            <a :href="'/'+store.storeID">
+              <img v-lazy="store.storePicture" />
               <div class="middle">
               <div class="text" style="background: #ff6666 ">Xem quán</div>
               </div>
@@ -168,7 +168,7 @@
           </div>  
       </div>
     </div>
-     <Area v-if="provinceID === '-MO5b_1K2_tF_C4GVDo3'" v-bind:type="type"/>
+    <Area v-if="provinceID === '-MO5b_1K2_tF_C4GVDo3'" v-bind:type="type"/>
     <div v-infinite-scroll="loadMore" infinite-scroll-disabled="disabled"  infinite-scroll-distance="100" style="margin-top: 20px;">
       <div v-for="(list, index) in loadMoreList" v-bind:key="index" class="ship">
         <div class="menu-ship">
@@ -179,7 +179,7 @@
         <div v-if="list" class="sub-menu-ship">
           <ul>
             <li v-for="(store,index) in list" v-bind:key="index">
-              <a :href="'/storeDetail/'+store.storeID">
+              <a :href="'/'+store.storeID">
                 <img v-lazy="store.storePicture"/>
               <div class="middle">
               <div class="text" style="background: #ff6666 ">Xem quán</div>
@@ -214,9 +214,10 @@
 import { VueperSlides, VueperSlide } from 'vueperslides';
 import 'vueperslides/dist/vueperslides.css';
 import StoreService from '@/services/StoreService.js';
+import RouterService from '@/services/RouterService.js';
 import { loadOptions } from '@babel/core';
 import Area from './containers/Area.vue';
-const baseUrl='http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/'
+const baseUrl='http://KLTN.somee.com/api/'
 import DiscountService from '@/services/DiscountService.js'
 
 export default {
@@ -274,21 +275,20 @@ export default {
             this.nearest = this.stores.slice(0,12);
             this.rates = this.rates.slice(0,12);
             this.show = false;
-          }catch{}
+          }catch(err){console.log(err)}
         },
         storeClicked(item) {
-          this.$router.push({path: `/storeDetail/${item}`})
+          RouterService.storeClicked(item);
         },
         dishClicked (item) {
           localStorage.setItem("keyword", item);
-          console.log(localStorage.getItem("keyword"));
-          // this.$router.push('/search?key='+ item)
+          RouterService.dishClicked(item);
         },
         dishViewMore(){
-           this.$router.push('/DishType')
+           RouterService.dishViewMore();
         },
         viewMore_Search(index){
-          this.$router.push('/search?key=' + index).catch(()=>{});
+          RouterService.viewMore_Search(index)
         },
         changeProvince(index){
           this.$http.get(baseUrl+ 'GetByIDProvince?id=' + index).then(response => {
@@ -296,7 +296,8 @@ export default {
           });
         },
         async changePlace(lat,long){
-          console.log('ChangePlace')
+          try{
+            console.log('ChangePlace')
             var id= localStorage.getItem('provinceId');
             this.stores = await StoreService.getByProvince_distance(id, lat,long)
             this.rates = await StoreService.getByProvince_distance(id,lat,long);
@@ -305,17 +306,21 @@ export default {
             });
             this.nearest = this.stores.slice(0,12);
             this.rates = this.rates.slice(0,12);
+          }
+          catch(err){
+            console.log(err);
+          }
         },
-        // onChildClick(value){
-        //   this.provinceID = value
-        // },
         getType(index){
+          try{
           var temp='Unknown'
           this.type.forEach(element => {
               if(element.businessTypeID == index)
                 temp = element.businessTypeName;
           });
           return temp;
+          }
+          catch(err){console.log(err)}
         },
         subString(index){
           return index.toString().substring(0,13);
@@ -356,34 +361,36 @@ export default {
       //   };
       // },
       loadMore(){
-        this.loading = false;
-        setTimeout(() =>{
-          if(this.index < this.type.length){
-              console.log(this.type[this.index]);
-              let id = this.type[this.index].businessTypeID;
-              var store = this.stores.filter(function(store) {
-                  return store.businessTypeID === id });
-              if(store.length > 5){
-                if(store.length > 12)
-                  store = store.slice(0,12);
-                this.loadMoreList.push(store);}
-              this.index = this.index + 1;
+        try{
+          this.loading = false;
+          setTimeout(() =>{
+            if(this.index < this.type.length){
+                console.log(this.type[this.index]);
+                let id = this.type[this.index].businessTypeID;
+                var store = this.stores.filter(function(store) {
+                    return store.businessTypeID === id });
+                if(store.length > 5){
+                  if(store.length > 12)
+                    store = store.slice(0,12);
+                  this.loadMoreList.push(store);}
+                this.index = this.index + 1;
+                this.loading = false;
+                this.margin = 150;
+              }
+              else{
               this.loading = false;
-              this.margin = 150;
-            }
-            else{
-            this.loading = false;
-            }
-          }, 200);
+              }
+            }, 200);
+        }
+        catch(err){console.log(err)}
       },
       viewMore(id){
-        this.$router.push('/ViewMore?key=' + id).catch(()=>{});
+        this.$router.push('/viewmore?key=' + id).catch(()=>{});
       },
       async getDiscountStore(id,name){
           this.discountName = name;
           this.active=true;
           this.discountStore = await DiscountService.getStore(id);
-          
       },
       getActiveTime(open,close){
         // return this.$root.$refs.Suggest.getActiveTime(open,close);

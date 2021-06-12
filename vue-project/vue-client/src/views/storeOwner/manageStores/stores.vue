@@ -131,7 +131,13 @@
 import firebase from 'firebase';
 import ProvinceService from '@/services/ProvinceService';
 import StoreService from '@/services/StoreService';
+import AuthService from '@/services/AuthService.js';
 export default {
+   beforeRouteEnter (to, from, next) {
+    AuthService.checkUser(localStorage.getItem('isAuthen'));
+    AuthService.checkStoreOwner(localStorage.getItem('isAuthen'));
+    next();
+  },
   name: 'OwnerStores',
   data () {
     return {
@@ -204,7 +210,7 @@ export default {
       }
     },
     rowClicked (item) {
-      this.$router.push({path: `manageStores/${item.storeID}`})
+      this.$router.push({path: `managestores/${item.storeID}`})
     },
     pageChange (val) {
       this.$router.push({ query: { page: val }})

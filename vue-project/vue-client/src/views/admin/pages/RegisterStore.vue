@@ -1,58 +1,51 @@
 <template>
- <div class="d-flex align-items-center min-vh-100" style="background-image: url('https://wallpaperaccess.com/full/1631410.jpg');">
-  <CContainer fluid v-if="next===false">
-      <CRow class="justify-content-center">
-        <CCol md="6">
+ <div class="d-flex align-items-center min-vh-100">
+   
+  <CContainer >
+    <div v-if="registered" class="alert-green">
+      <div class="row">
+      <i style="font-size: 70px; margin: 0px 20px 0 20px" class="fas fa-check"></i>
+      <div style="width: 88%">
+      <span class="closebtn" style="float: right; font-size: 20px" @click="registered=false">&times;</span> 
+      <h4>Thông tin quán đã được ghi nhận</h4> <p>Bạn vui lòng đợi admin xác nhận thông tin. <br>Cám ơn bạn đãn chọn chúng tôi!!!</p>
+    </div>
+    </div>
+  </div>
+      <h2 style="text-align: center;">ĐĂNG KÍ QUÁN</h2>
+      <CRow  fluid v-if="page1" class="justify-content-center animation">
+        <CCol md="7">
           <CCard class="mx-4 mb-0">
             <CCardBody class="p-4">
               <CForm>
-                <h1> Store Register</h1>
+                <h1>Thông tin của bạn</h1>
                 <p class="text-muted">Create your account to manage your store</p>
                 <CInput
                   placeholder="Username"
                   autocomplete="username"
                   v-model ="name"
+                > </CInput>
+                <CInput
+                  placeholder="Phone number"
+                  autocomplete="phone"
+                  v-model ="phone"
                 >
-                  <template #prepend-content><CIcon name="cil-user"/></template>
                 </CInput>
                 <CInput
                   placeholder="Email"
                   autocomplete="email"
-                  prepend="@"
                   v-model="mail"
                 />
-                <CInput
-                  placeholder="Password"
-                  type="password"
-                  autocomplete="new-password"
-                  v-model="pass"
-                >
-                  <template #prepend-content><CIcon name="cil-lock-locked"/></template>
-                </CInput>
-                <CInput
-                  placeholder="Repeat password"
-                  type="password"
-                  invalid-feedback="Your password is not correct"
-                  autocomplete="new-password"
-                  class="mb-4"
-                  v-model="pass2"
-                  :is-valid="checkPass"
-                >
-                  <template #prepend-content><CIcon name="cil-lock-locked"/></template>
-                </CInput>
-                <CButton v-on:click="next=true" color="success" block>Tiếp theo</CButton>
-
+                <CButton class="btn_right" v-on:click="page1 = false, page2 = true, page3= false" block>Tiếp theo <i class="fas fa-arrow-right"></i></CButton>
               </CForm>
             </CCardBody>
           </CCard>
         </CCol>
       </CRow>
-    </CContainer>
-  <CRow v-if="next===true" style="margin: 0 auto;">
-    <CCol col="12" lg="6">
+  <CRow   class="justify-content-center">
+    <CCol v-if="page2" col="12" lg="6" class="animation">
       <CCard>
         <CCardHeader>
-          THÔNG TIN QUÁN
+          <strong>THÔNG TIN QUÁN</strong>
         </CCardHeader>
          <CCardBody>
             <CForm>
@@ -64,17 +57,16 @@
                
               />
               <div class="row" style="margin-left: 0px;">
-                <p>Tỉnh</p>
+                <p class="lable-select">Khu vực</p>
                 <select
                     id="province"
-                    style="width:185px;height:35px;border-radius:4px;margin-left: 40px; border: 1px solid #D3D3D3; margin-bottom: 10px;"
-                    class="country fl_left"
+                    class="country fl_left select-template"
                     vertical
-                    v-model="provinceSelected"
+                    v-model="districtSelected"
                     placeholder="Địa điểm"
                     >
-                    <option v-for="pro in provinces" v-bind:key="pro.provinceID" :value="pro.provinceID">
-                        {{pro.provinceName}}
+                    <option v-for="(district,index) in districts" v-bind:key="index" :value="district.provinceID">
+                        {{district.districtName}}
                     </option>
                 </select>
                 </div>
@@ -84,7 +76,6 @@
                 v-model="Store_address"
               ></CInput>
               <CInput
-              
                 label="Giờ mở"
                 horizontal
                 v-model="openTime"
@@ -96,11 +87,10 @@
                 v-model="closeTime"
               />
              <div class="row" style="margin-left: 0px;">
-                <p>Loại</p>
+                <p class="lable-select">Loại</p>
                 <select
                     id="province"
-                    style="width:185px;height:35px;border-radius:4px;margin-left: 40px; border: 1px solid #D3D3D3; margin-bottom: 10px;"
-                    class="country fl_left"
+                    class="country fl_right select-template"
                     vertical
                     v-model="bussinessTypeSelected"
                     placeholder="Địa điểm"
@@ -112,9 +102,13 @@
                 </div>            
             </CForm>
           </CCardBody>
+            <CCardFooter>
+              <CButton  class="btn_left" @click="page1 = true, page2 = false, page3 = false"  block> <i class="fas fa-arrow-left"></i> Trở lại </CButton>
+              <CButton  class="btn_right" @click="page1 = false, page2 = false, page3 = true" block>Tiếp theo <i class="fas fa-arrow-right"></i></CButton>
+      </CCardFooter>
       </CCard>
     </CCol>
-    <CCol lg="6">
+    <CCol v-if="page3" lg="6" class="animation">
       <CCard>
         <CCardHeader>
           <CIcon name="cil-justify-center"/>
@@ -127,14 +121,13 @@
               />
         </CCardBody>
          <CCardFooter>
-               <CButton v-on:click="next=false" color="danger" block>Trở lại</CButton>
-                <CButton v-on:click="onUpload()" color="success" block>Đăng kí</CButton>
+                <CButton  class="btn_left" @click="page1 = false, page2 = true, page3 = false"  block> <i class="fas fa-arrow-left"></i> Trở lại </CButton>
+                <CButton class="btn_right" @click="onUpload" block>Đăng kí <i class="fas fa-check"></i></CButton>
       </CCardFooter>
       </CCard>
     </CCol>
   </CRow>
- 
- 
+  </CContainer>
  </div>
 </template>
 
@@ -148,14 +141,16 @@ export default {
   name: 'Store',
   data () {
     return {
-      
-      next: true,
-      provinces:'',
+      registered: false,
+      page1: true,
+      page2: false,
+      page3: false,
+      districts:'',
       bussinessType:'',
     
 //Store
       storeName:'',
-      provinceSelected:'',
+      districtSelected:'',
       bussinessTypeSelected:'',
       Store_address:'',
       imageData: null,
@@ -168,36 +163,29 @@ export default {
       name: '',
       address: '',
       phone: '',
-      birth: '',
       mail: '',
       avt: '',
-      pass: '', 
-      pass2:'',
-      sex: '',
       type: '-MO5VWchsca2XwktyNAw' ,
     }
   },
   methods: {
     async signUpStore(){
       try {
-        if(this.checkPass())
+        if(true)
         {
           const credentials = {
             userName: this.name,
             phone: this.phone,
-            address: this.address,
-            password: this.pass,
+            address: '',
+            password: '1',
             email: this.mail,
-            picture: this.avt,
-            sex: this.sex,
-            birthday: this.birth,
-            userTypeID: this.type
+            picture: '',
+            sex: '',
+            birthday: '',
+            userTypeID: this.type,
+            status:'-1'
           };
-          
-          // axios.post("https://localhost:44398/api/User/RegisterOwner", credentials).then(respone =>{ 
-          //     alert(respone.data)})
           let ownerID = await AuthService.registerOwner(credentials);
-          let menuID = await StoreService.createMenu();
           const credentialsStore = {
             storeAddress: this.Store_address,
             storeName: this.storeName,
@@ -205,34 +193,31 @@ export default {
             openTime: this.openTime,
             cLoseTime: this.closeTime,
             userID: ownerID.toString(),
-            provinceID: this.provinceSelected,
-            menuID: menuID.toString(),
+            provinceID: this.districtSelected,
             businessTypeID: this.bussinessTypeSelected,
             ratePoint: '0',
-            khoangcach: '0'
+            khoangcach: '0',
+            status:'-1'
           };
-          // axios.post("https://localhost:44398/api/Store/RegisterStore",credentialsStore ).then(respone =>{ 
-          //     alert(respone.data)})
           const response = await StoreService.registerStore(credentialsStore)
           alert(response);
-          this.$router.push('/login')
+          this.registered=true;
         }else 
         alert("Vui long nhap dung password")
       }catch (error) {
-        this.msg = error.response.data.msg;
-        alert(msg)
+        alert(error);
       }
     },
     goBack() {
-      this.usersOpened ? this.$router.go(-1) : this.$router.push({path: '/Homepage'})
+      this.usersOpened ? this.$router.go(-1) : this.$router.push({path: '/'})
     },
-     checkPass(){
-       if(this.pass == this.pass2){
-        return true}
-       else {
-        return false
-       }
-    },
+    //  checkPass(){
+    //    if(this.pass == this.pass2){
+    //     return true}
+    //    else {
+    //     return false
+    //    }
+    // },
     previewImage(event){
         this.picture=null;
         this.imageData= event.target.files[0];
@@ -250,7 +235,6 @@ export default {
       ()=> {
         storageRef.snapshot.ref.getDownloadURL().then((url) => { 
           this.picture=url;
-          alert(this.picture)
           this.signUpStore();
           })
         }
@@ -258,26 +242,54 @@ export default {
     },
     async onInit(){
       this.next = false;
-      this.provinces = await ProvinceService.getAll();
+      this.districts = await ProvinceService.getAllDistrict();
+      this.districtSelected = this.districts[0].districtID;
       this.bussinessType = await BussinessTypeService.getAll();
     }
   },
    mounted(){
      this.onInit();
-      // this.$http.get('https://localhost:44398/api/Province/GetAll').then(response => {
-      //       this.provinces = response.data
-      // })
-      // this.$http.get('https://localhost:44398/api/BusinessType/GetAll').then(response => {
-      //       this.bussinessType = response.data
-      // })
   }
 }
 </script>
 <style>
+.alert-green {
+    padding: 20px;
+    background-color:limegreen;
+    color: white;
+  }
 .btn_left{
-  width:100px;
+  width: 30%; border: 1px solid red; color: red; float: left; margin-top: 8px ;
 }
 .btn_right{
-  width: 100px;
+ width: 30%; border: 1px solid limegreen; color: limegreen; float: right;
+}
+.btn_left:hover{
+  background: red; color: white;
+}
+.btn_right:hover{
+  background: limegreen; color: white;
+}
+.select-template{
+  width:360px;height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-bottom: 10px;
+}
+.lable-select{
+  width: 122px;
+}
+.animation {
+  animation-duration: 1.5s;
+  animation-name: slidein;
+}
+
+@keyframes slidein {
+  from {
+    margin-left: 20%;
+    width: 100%;
+  }
+
+  to {
+    margin-left: 0%;
+    width: 100%;
+  }
 }
 </style>

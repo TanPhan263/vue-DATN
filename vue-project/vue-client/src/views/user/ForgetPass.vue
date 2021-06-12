@@ -87,14 +87,14 @@ export default {
       return val ? val.length >= 8 : false
     },
     sendCode(){
-        axios.post("http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/User/ForgetPass?Email="+ this.email).then(respone =>{ 
+        axios.post("http://KLTN.somee.com/api/User/ForgetPass?Email="+ this.email).then(respone =>{ 
             this.code=respone.data.code;
             console.log(this.code)});
     },
     isValid(){
         if(this.code== this.code2 && this.validator(this.pass))
           { try{ 
-          axios.post("http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/User/ResetPass?Email=" + this.email +"&Password="+ this.pass);
+          axios.post("http://KLTN.somee.com/api/User/ResetPass?Email=" + this.email +"&Password="+ this.pass);
           this.show=1;
           this.msg='Đổi mật khẩu thành công, mời bạn đăng nhập lại';
           }

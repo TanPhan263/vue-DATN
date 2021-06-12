@@ -1,13 +1,25 @@
 <template>
-<div style="background-color: #f6f6f6f6"> 
-   <div @click="chat=!chat" class="message"><i class="fa fa-envelope"></i></div>
+<div class="wrapper" style="background-color: #f6f6f6f6"> 
+  <transition name="fade" mode="out-in" >
+      <div v-show="!isLoaded" class="modal-mask" style="background: white; text-align:center;">
+        <div class="modal-wrapper">
+          <div>
+              <div name="fade" mode="out-in" style="width:100%; background-color: #fff; border-radius:7px;">
+                <div class="lds-facebook"><div></div><div></div><div></div><div></div><div></div></div>
+              </div>
+          </div>
+        </div>
+      </div>
+  </transition>
+    <div v-if="storeOpen" @click="notify=false,chat=!chat" class="message"><i class="fa fa-envelope"></i>
+    </div>
     <transition >
       <div v-show="chat" class="chat">
-        <Chat v-bind:storeID="storeID"/>
+        <Chat v-bind:storeID="storeID" v-bind:storeName="storeName" v-bind:storePicture="storePicture" />
       </div>
     </transition>
   <Header/>
-  <Navbar @dishClicked="dishClicked" @storeClicked="storeClicked" :class="scroll_nav"/>
+  <Navbar :class="scroll_nav"/>
   <div class="pn-microsite">
     <div id="storeInfor" class="micro-content">
       <div class="micro-header clearfix">
@@ -67,7 +79,7 @@
       </div>
     </div>
     
-    <div :class="'micro-main-menu fl_left ' + scroll">
+    <div :class="'micro-main-menu fl_left ' + scrollMenu">
       <div class="tool-bar">
         <ul class="list-tool" >
           <li style="border: none;">
@@ -208,7 +220,7 @@
       </div>
     </div>
   </div>
-  <Footer style="margin-top: 150px;"/>
+  <Footer style="margin-top: 200px;"/>
   
 </div>
 </template>
@@ -223,7 +235,7 @@ import Footer from './containers/Footer'
 import Chat from '../chat/chatPage'
 import StoreService from '@/services/StoreService.js';
 import DiscountService from '@/services/DiscountService.js';
-const baseUrl='http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api';
+const baseUrl='http://KLTN.somee.com/api';
 
 export default {
   name: 'storeDetail',
@@ -235,17 +247,21 @@ export default {
   },
   data(){
     return{
+      notify: false,
+      isLoaded: false,
       chat: false,
       address: '',
       //binding class
       activeClass: 'Thông tin quán',
-      scroll: '',
+      scrollMenu: '',
       scroll_nav:'',
       nav: '',
       //dishChoosed
       active: false,
       dishChoosed:'',
       storeID:'',
+      storeName: '',
+      storePicture: '',
       storeOpen: [
         {
         storeID: String,
@@ -313,10 +329,10 @@ methods:{
       else return false;
     },
      dishClicked (item) {
-       this.$router.push({path: `DishType`, query:{key: item}})
+       this.$router.push({path: `dishtype`, query:{key: item}})
     },
     storeClicked(item){
-      this.$router.push('/storeDetail/'+ item);
+      this.$router.push('/'+ item);
       this.$router.go();
     },
     onScroll(){
@@ -328,9 +344,9 @@ methods:{
           this.scroll_nav='';
         }
         if (document.documentElement.scrollTop > 335) {
-          this.scroll= 'sticky';
+          this.scrollMenu= 'sticky';
         } else {
-          this.scroll= '';
+          this.scrollMenu= '';
         }
       };
     },
@@ -343,9 +359,14 @@ methods:{
           return temp;
         },
     async getDisCount(id){
+      try{
       this.discountList = await DiscountService.getDiscountbyStore(id);
       this.discountAll =  await DiscountService.getAll();
       console.log(this.discountAll)
+      }
+      catch(err){
+        console.log(err)
+      }
     },
     getDiscountName(id){
       let temp = ''
@@ -356,29 +377,33 @@ methods:{
       });
       return temp;
     }
-},
+  },
   created(){
     this.storeID=this.$route.params.id;
   },
   mounted(){
-    const id = this.$route.params.id;
-    this.$http.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Store/GetByID?id='+ id).then(response => {
-          this.storeOpen = response.data
-          
-          this.storeID=this.storeOpen[0].storeID;
-          this.address=this.storeOpen[0].storeAddress;
-          this.$http.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Dish/GetByIDStore?id=' +this.storeID).then(response => {
-              this.storeMenu = response.data;
-              this.storeMenu.forEach( element => {
-                if(!this.dishType.includes(element.dishType_ID))
-                  this.dishType.push(element.dishType_ID);
-              });
-          });
-          this.getType(this.storeOpen[0].businessTypeID);
-    });
-    this.getDisCount(id);
-    this.onScroll();
-   
+    try{
+      const id = this.$route.params.id;
+      this.$http.get('http://KLTN.somee.com/api/Store/GetByID?id='+ id).then(response => {
+            this.storeOpen = response.data
+            this.storeID=this.storeOpen[0].storeID;
+            this.storeName=this.storeOpen[0].storeName;
+            this.storePicture=this.storeOpen[0].storePicture;
+            this.address=this.storeOpen[0].storeAddress;
+            this.$http.get('http://KLTN.somee.com/api/Dish/GetByIDStore?id=' +this.storeID).then(response => {
+                this.storeMenu = response.data;
+                this.storeMenu.forEach( element => {
+                  if(!this.dishType.includes(element.dishType_ID))
+                    this.dishType.push(element.dishType_ID);
+                });
+            });
+            this.getType(this.storeOpen[0].businessTypeID);
+            this.isLoaded = true;
+      });
+      this.getDisCount(id);
+      this.onScroll();
+    }
+    catch(err){console.log(err)}
   }
 }
 </script>
@@ -421,18 +446,17 @@ html {
 .chat{
   z-index: 2;
   height: 450px;
-  width: 650px;
-  border-radius: 10px;
+  width: 950px;
   position: fixed;
   bottom: 0;
   right: 0;
 }
 .chatArea{
-z-index: 1;
-height: 500px;
-width: 700px;
-position: fixed;
-bottom: 0;
-right: 0;
+  z-index: 1;
+  height: 500px;
+  width: 700px;
+  position: fixed;
+  bottom: 0;
+  right: 0;
 }
 </style>

@@ -30,7 +30,7 @@
           >
             <template #status="{item}">
               <td>
-                <CBadge v-if="item.status === '1'" :color="getBadge(item.status)">
+                <CBadge v-if="item.status === '-1'" :color="getBadge(item.status)">
                  OK
                 </CBadge>
                 <CBadge v-else :color="getBadge(item.status)">
@@ -49,8 +49,14 @@
 import firebase from 'firebase';
 import ProvinceService from '@/services/ProvinceService';
 import StoreService from '@/services/StoreService';
-const url = 'https://localhost:44398/api/Store/GetAllManage'
+import AuthService from '@/services/AuthService.js';
+const url = 'http://KLTN.somee.com/api/Store/GetAllCheck'
 export default {
+   beforeRouteEnter (to, from, next) {
+    AuthService.checkUser(localStorage.getItem('isAuthen'))
+    AuthService.checkAdmin(localStorage.getItem('isAuthen'))
+    next();
+  },
   name: 'Stores',
   data () {
     return {
@@ -74,7 +80,7 @@ export default {
       fields: [
         { key: 'storeName', label: 'Tên quán', _classes: 'font-weight-bold' },
         { key: 'storeAddress', label: 'Địa chỉ', _classes: 'font-weight-bold' },
-        { key: 'openTime', label: 'Ngày đăng kí', _classes: 'font-weight-bold' },
+        { key: 'openTime', label: 'Giờ mở cửa', _classes: 'font-weight-bold' },
         { key: 'cLoseTime', label: 'Giờ đóng cửa', _classes: 'font-weight-bold' },
         { key: 'ratePoint', label: 'Đánh giá', _classes: 'font-weight-bold' },
         { key: 'status', label: 'status' },
@@ -105,12 +111,11 @@ export default {
   methods: {
     getBadge(status) {
       switch (status) {
-        case '2': return 'danger'
-        case '1': return 'primary'
+        case '-1': return 'danger'
       }
     },
     rowClicked (item) {
-      this.$router.push({path: `store/${item.storeID}`})
+      this.$router.push({path: `/${item.storeID}`})
     },
     pageChange (val) {
       this.$router.push({ query: { page: val }})
@@ -172,11 +177,16 @@ export default {
       })
       console.log(this.result)}
     },
-    onInit(){
-      this.$http.get(url,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
-              this.items = response.data;
-              this.result= this.items;
-            });
+    async onInit(){
+     
+      // this.$http.get(url,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
+      //         this.items = response.data;
+      //         console.log(this.items)
+      //         this.result= this.items;
+      // });
+        const token = localStorage.getItem('isAuthen');
+        this.items = await StoreService.getConfirmStore(token);
+        this.result = this.items;
     }
   },
   mounted() {
@@ -190,6 +200,6 @@ export default {
 @import url('../../../assets/css/dialog.css');
   .center_div{
   margin: 0 auto;
-  width:100% /* value of your choice which suits your alignment */
+  width:100%
 }
 </style>

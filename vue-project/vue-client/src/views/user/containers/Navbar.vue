@@ -2,7 +2,7 @@
   	<div :class="'navbar-fixed ' + scroll">
 		<div class="container-header clearfix">
 			<div class="logo fl_left">
-				<a href="/Homepage/" title="">
+				<a href="/" title="">
 					<img src="../../../assets/imgs/sunny.png" alt="sunnie.vn" width="112">
 				</a>
 				<select
@@ -42,18 +42,18 @@
 					</li>
 				</ul>
 			</div>
-			<div v-if="isLoggedin" class="fl_right">
+			<div v-if="isLoggedin==true" class="fl_right">
 			  <CHeaderNav class="mr-4">
 				<CHeaderNavItem class="d-md-down-none mx-2">
 					<CHeaderNavLink>
 					<i @click="search=true" style="font-weight: 300;font-size:20px; padding-right: 10px; float: right;color:black;" class="fa fa-search"/>
-					 <div style="color:black;" v-if="user">Xin chào {{ getName() }}</div>	
+					 <div style="color:black;" v-if="user">Xin chào {{ user.userName }}</div>	
 					</CHeaderNavLink>
 				</CHeaderNavItem>
 				<TheHeaderDropdownAccnt style="" v-bind:avt="getAvt"/>
 			  </CHeaderNav>
 			</div>
-			<div v-else  id="login" class="fl_right">
+			<div v-else id="login" class="fl_right">
 				<i  @click="search=true" style="font-size:20px; padding-right: 10px; float:left;color:black; margin-top:8px" class="fa fa-search"/>
 				<a href="/login" class="button" style="border-radius: 10px;margin-right: 5px;margin-top: 3px;" >Đăng nhập</a>
 				<a  href="/register" class="button" style="border-radius: 10px;margin-right: 5px; width: 90px; text-align:center;">Đăng kí</a>
@@ -67,8 +67,8 @@
 				<p style="width:100%; color: white; font-size: 17px;">Tìm quán ăn của bạn:</p>
 				<img src="" alt="">
 			    <input v-model="keyword" style="width: 600px;display: block;
-  margin-right: auto;
-  margin-left: auto;;padding:5px; font-size: 20px;color: white;background-color: transparent;border: none;border-bottom: 2px solid white;height:40px;box-sizing: border-box;" type="text"  v-on:keyup="onkeychange(keyword)" >
+					margin-right: auto;
+					margin-left: auto;;padding:5px; font-size: 20px;color: white;background-color: transparent;border: none;border-bottom: 2px solid white;height:40px;box-sizing: border-box;" type="text"  v-on:keyup="onkeychange(keyword)" >
 				<div v-show="loading" name="fade" mode="out-in" style="text-align:center;width:600px; background-color: #fff; border-radius:7px;">
                 <div class="lds-facebook"><div></div><div></div><div></div><div></div><div></div></div>
               	</div>
@@ -87,6 +87,7 @@ import TheHeaderDropdownAccnt from '@/containers/TheHeaderDropdownAccnt'
 import Suggest from './Suggest'
 import AuthService from '@/services/AuthService.js';
 import UserService from '@/services/UserService.js';
+import RouterService from '@/services/RouterService.js';
 export default {
 name: 'navbars',
 components:{
@@ -108,36 +109,54 @@ data(){
     }
 },
 created(){
-	this.check();
+	this.getUser();
 },	
 computed:{
-	// isLoggedin: async function() {
-		
-	// }
   },
   methods:{
-	  async check(){
-		if(localStorage.getItem('isAuthen') == null || localStorage.getItem('isAuthen') == 'Đăng nhập thất bại' || !AuthService.isAuthented(localStorage.getItem('isAuthen')))
-		{
-			this.isLoggedin = false;
-			return
-		}
-		this.user = await UserService.getInfo(localStorage.getItem('isAuthen'));
-		let check = this.user[0];
-		console.log(check);
-		if(check == "Bạn cần đăng nhập"){
-			this.isLoggedin = false;
-			AuthService.logout();
+	  async getUser(){
+      try{
+        if(localStorage.getItem('isAuthen')){
+          	let infor = await UserService.getInfo(localStorage.getItem('isAuthen'));
+           	if(infor[0] == "Bạn cần đăng nhập"){
+				this.isLoggedin = false;
+				AuthService.logout();
+				return;
+          	}
+		 	this.isLoggedin = true;
+			this.user = infor[0];
 			return;
-		}
-		this.isLoggedin =true;
-	  },
+        }
+		this.isLoggedin = false;
+      }
+      catch(err){console.log(err)}
+    },
+	//   async check(){
+	// 	if(localStorage.getItem('isAuthen') == null || !AuthService.isAuthented(localStorage.getItem('isAuthen')))
+	// 	{
+	// 		this.isLoggedin = false;
+	// 		return
+	// 	}
+	// 	this.user = await UserService.getInfo(localStorage.getItem('isAuthen'));
+	// 	let check = this.user[0];
+	// 	console.log(check);
+	// 	if(check == "Bạn cần đăng nhập"){
+	// 		this.isLoggedin = false;
+	// 		AuthService.logout();
+	// 		return;
+	// 	}
+	// 	this.isLoggedin =true;
+	//  },
+	check(){
+		if(this.user == 'null'){
+			this.isLoggedin = false;return;}
+		this.isLoggedin = true;
+	},
 	  getName(){
 		  try{
-		   	return this.user[0].userName;
+		   	return this.user.userName;
 		  }
 		  catch{
-			  alert("Lỗi rồi")
 		  }
 		   
 	  },
@@ -152,13 +171,11 @@ computed:{
 		}
 	  },
 	  getAvt(){
-		  this.user = JSON.parse(this.user)
-		  if(this.avt=='')
-			  return '../assets/imgs/userPic.png';
-		  else if(this.user.picture =='') return '../assets/imgs/userPic.png';
-		  return this.user.picture
+		  if(this.user!='null')
+			  if(this.user.picture =='') return '../assets/imgs/userPic.png';
+		  return this.user.picture;
 	  },
-	  getProvinceSelected(){
+	  	getProvinceSelected(){
 		  if(this.provinces!=''){
 			this.provinces.forEach(element => {
 				if(element.provinceID == localStorage.getItem('provinceId'))
@@ -167,27 +184,31 @@ computed:{
 		  }
 		  return 'TP Hồ Chí Minh';
 		},
-		storeClicked(index){
-			this.$emit('storeClicked',index);
-		},
+		storeClicked(item){
+        	RouterService.storeClicked(item);
+			this.$router.go();
+    	},
 		dishClicked(index){
-			this.$emit('dishClicked',index);
+			RouterService.dishClicked(index);
 		},
 		onkeychange(key){
-		this.isDropdown=true;
-		this.loading = true;
-		this.$http.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Dish/Search?dishname=' + key).then(response => {
-			if(response.data !='Không có kết quả tìm kiếm')
-			{
-				this.results = response.data;
-				this.loading = false;
-			}});
+			try{
+			this.isDropdown=true;
+			this.loading = true;
+			this.$http.get('http://kltn.somee.com/api/Dish/Search?dishname=' + key).then(response => {
+				if(response.data !='Không có kết quả tìm kiếm')
+				{
+					this.results = response.data;
+					this.loading = false;
+				}});
+			}
+			catch(err){console.log(err)}
 		},
 		viewMore(index){
-			this.$root.$refs.Homebody.viewMore_Search(index);
+			RouterService.viewMore(index);
 		},
 		viewMore_bussinessType(index){
-			this.$root.$refs.Homebody.viewMore(index);
+			RouterService.viewMore_Search(index);
 		},
   },
   mounted(){

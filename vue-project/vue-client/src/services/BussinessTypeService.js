@@ -1,5 +1,5 @@
 import axios from 'axios';
-const url = 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/BusinessType';
+const url = 'http://KLTN.somee.com/api/BusinessType';
 export default{
     getAll(){
         return axios.get( url+'/GetAll').then(response => response.data);

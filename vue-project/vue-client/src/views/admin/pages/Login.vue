@@ -126,22 +126,38 @@ export default {
           };
           const response = await AuthService.login(credentials);
           const token=response;
-          const response2 = await UserService.getInfo(token.token);
-          localStorage.setItem('isAuthen',token.token);
-          localStorage.setItem('userInfor',JSON.stringify(response2[0]));
-          const role = await AuthService.getRole(token.token);
-          console.log(role)
-          if(role == '-MO5VBnzdGsuypsTzHaV' || role == '-MO5VWchsca2XwktyNAw')
-          {
-            this.loading=false;
-            this.$router.push('/manage/dashboard');
-          }else if(role.userTyleID == '-MO5VYNnWIjXtvJO4AXi' ){
-            this.loading=false;
-            this.$router.push('/Homepage');
-          }
-          else{
-            this.loading=false;
-          } 
+            if(token.token == 'Đăng nhập thất bại') 
+            {
+              this.loading=false;
+              this.show=true;
+              this.mgs_err = 'Sai tên đăng nhập hoặc mật khẩu';
+              return;
+            }
+            const response2 = await UserService.getInfo(token.token);
+            localStorage.setItem('isAuthen',token.token);
+            localStorage.setItem('userInfor',JSON.stringify(response2[0]));
+            this.checkRole();
+            // const role = await AuthService.getRole(token.token);
+            // switch(role){
+            //   case '-MO5VBnzdGsuypsTzHaV':  this.loading=false;
+            //                                 this.$router.push('/manage/dashboard'); break;
+            //   case '-MO5VWchsca2XwktyNAw':  this.loading=false;
+            //                                 this.$router.push('/manage/dashboard'); break;
+            //   case '-MO5VYNnWIjXtvJO4AXi':  this.loading=false;
+            //                                 this.$router.push('/'); break;  
+            //   default: this.loading = false;                                                         
+            // }
+            // if(role == '-MO5VBnzdGsuypsTzHaV' || role == '-MO5VWchsca2XwktyNAw')
+            // {
+            //   this.loading=false;
+            //   this.$router.push('/manage/dashboard');
+            // }else if(role.userTyleID == '-MO5VYNnWIjXtvJO4AXi' ){
+            //   this.loading=false;
+            //   this.$router.push('/');
+            // }
+            // else{
+            //   this.loading=false;
+            // } 
         } catch (error) {
           this.loading=false;
           this.show=true;
@@ -160,15 +176,36 @@ export default {
         return false;
       return true;
     },
+    async checkRole(){
+      try{
+        if(localStorage.getItem('isAuthen')){
+          const role = await AuthService.getRole(localStorage.getItem('isAuthen'));
+          switch(role){
+            case '-MO5VBnzdGsuypsTzHaV':  this.loading=false;
+                                          this.$router.push('/manage/dashboard'); break;
+            case '-MO5VWchsca2XwktyNAw':  this.loading=false;
+                                          this.$router.push('/storeowner'); break;
+            case '-MO5VYNnWIjXtvJO4AXi':  this.loading=false;
+                                          this.$router.push('/'); break;  
+            default: this.loading = false;                                                         
+          }
+        }
+      }
+      catch(err){console.log(err)}
+    },
     reset(){
       this.username= "";
       this.password= "";
     },
     loginGoogle(){
       AuthService.loginGoogle();
+       this.loading=true;
+      this.checkRole();
     },
     loginFacebook(){
        AuthService.loginFacebook();
+       this.loading=true;
+       this.checkRole();
     }
   }
 };

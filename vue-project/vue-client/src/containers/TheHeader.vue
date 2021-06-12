@@ -30,7 +30,7 @@
         </CHeaderNavLink>
       </CHeaderNavItem>
       <CHeaderNavItem class="px-3">
-        <CHeaderNavLink to="/Homepage" exact >
+        <CHeaderNavLink to="/" exact >
           Trang chủ
         </CHeaderNavLink>
       </CHeaderNavItem>

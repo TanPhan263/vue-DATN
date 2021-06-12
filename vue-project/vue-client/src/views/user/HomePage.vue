@@ -1,7 +1,18 @@
 <template>
-<div @click="disableDropdown" class="wraper" style="background-color:#f6f6f6;">
+<div class="wraper" @click="disableDropdown">
+  <transition name="fade" mode="out-in" >
+      <div v-show="!isLoaded" class="modal-mask-home" style="background: white; text-align:center;">
+        <div class="modal-wrapper">
+          <div>
+              <div name="fade" mode="out-in" style="width:100%; background-color: #fff; border-radius:7px;">
+                <div class="lds-facebook"><div></div><div></div><div></div><div></div><div></div></div>
+              </div>
+          </div>
+        </div>
+      </div>
+  </transition>
   <Header/>
-  <Navbar @dishClicked="dishClicked"  @storeClicked="storeClicked"  :class="scroll" @onkeychange="onkeychange"/>
+  <Navbar :class="scroll"/>
   <div class="content-banner">
 			<div class="banner">
 				<img id="banner" style="margin: auto; height: 270px;width: 100%; display: block;">
@@ -35,15 +46,15 @@
 			</div>
 	</div>
 
-   <transition v-if="active">
-		<div class="modal-mask-home">
-			<div class="modal-wrapper">
-				<div class="modal-container">
-						<i v-on:click="active=false" class="fa fa-window-close" style="float: right; font-size: 20px; margin-bottom: 10px;"></i>
-             <GoogleMapHome @send-place="getPlace"/>
-				</div>
-			</div>
-			</div>
+    <transition v-if="active">
+      <div class="modal-mask-home">
+        <div class="modal-wrapper">
+          <div class="modal-container">
+              <i v-on:click="active=false" class="fa fa-window-close" style="float: right; font-size: 20px; margin-bottom: 10px;"></i>
+              <GoogleMapHome :place="location" v-bind:lat="lat" v-bind:lng="lng" @send-place="getPlace"/>
+          </div>
+        </div>
+      </div>
 		</transition>
       <transition name="fade" mode="out-in" >
           <router-view v-bind:keyword="keyword" :key="$route.path"></router-view>
@@ -67,6 +78,8 @@ import ProvinceService from '@/services/ProvinceService.js'
 import FormatWord from '@/services/FormatWord.js'
 import StoreService from '@/services/StoreService.js'
 import RouterService from '@/services/RouterService.js'
+import UserService from '@/services/UserService.js'
+import AuthService from '@/services/AuthService.js'
 export default {
   name:'Home',
   components:{
@@ -80,12 +93,15 @@ export default {
     },
   data() {
     return {
+      isLoaded: false,
       location: '1 Võ Văn Ngân, Linh Chiểu, Thủ Đức, Thành phố Hồ Chí Minh, Vietnam',
+      lat:'',
+      lng:'',
       active: false,
       nav: '',
       show: true,
       loading: false,
-      user: '',
+      user: 'null',
       stores:null,
       keyword: '',
       provinces:[],
@@ -101,36 +117,42 @@ export default {
     this.onScroll();
   },
   methods:{
-    async onInit(){
+      async onInit(){
       this.keyword = this.$route.query.key;
       this.provinces= await ProvinceService.getAll();
       var id= localStorage.getItem('provinceId');
       this.stores = await StoreService.getByProvince(id);
+      this.isLoaded = true;
     },
     storeClicked(item) {
-      RouterService.storeClicked(item)
+      RouterService.storeClicked(item);
     },
     dishClicked(item) {
-      this.$router.push('/search?key='+ item)
+      RouterService.dishClicked(item);
     },
     onkeychange(key){
-      this.isDropdown=true;
-      this.loading = true;
-      localStorage.setItem("keyword", key);
-      if(key == '' || key == null)
-        return this.results=null;
-      else {
-        setTimeout(() =>{
-          //this.results = this.stores.filter(this.searchfilter);
-           this.results = this.stores.filter(function(store){
-              var name = FormatWord.xoadau(store.storeName.toString().toLowerCase());
-              var searchkey = FormatWord.xoadau(key.toString().toLowerCase());
-              if (name.includes(searchkey))
-                return true;
-              return false;
-           });
-          this.loading = false;
-         }, 1500);
+      try{
+        this.isDropdown=true;
+        this.loading = true;
+        localStorage.setItem("keyword", key);
+        if(key == '' || key == null)
+          return this.results=null;
+        else {
+          setTimeout(() =>{
+            //this.results = this.stores.filter(this.searchfilter);
+            this.results = this.stores.filter(function(store){
+                var name = FormatWord.xoadau(store.storeName.toString().toLowerCase());
+                var searchkey = FormatWord.xoadau(key.toString().toLowerCase());
+                if (name.includes(searchkey))
+                  return true;
+                return false;
+            });
+            this.loading = false;
+          }, 1500);
+        }
+      }
+      catch(err){
+        console.log(err);
       }
     },
     searchfilter(store){
@@ -142,7 +164,7 @@ export default {
     },
     onSearchClicked(){
       localStorage.setItem("keyword", this.keyword);
-      this.$router.push('/search?key=' + this.keyword).catch(()=>{});
+      RouterService.onSearchClicked(this.keyword);
     },
     disableDropdown(){     
       this.isDropdown = false;
@@ -158,11 +180,16 @@ export default {
       };
     },
     async getPlace(place,lat,long){
-      console.log('place:' + place + 'close:'+close)
-      this.location = place;
-      var id= localStorage.getItem('provinceId');
-      this.stores = await StoreService.getByProvince_distance(id,lat,long);
-    }
+      try{
+        console.log('place:' + place + 'close:'+close)
+        this.location = place; 
+        this.lat= lat;
+        this.lng = long
+        var id= localStorage.getItem('provinceId');
+        this.stores = await StoreService.getByProvince_distance(id,lat,long);
+      }
+      catch(err){console.log(err)}
+    },
   }
 }
 </script>

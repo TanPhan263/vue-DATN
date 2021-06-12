@@ -5,7 +5,7 @@ export default [
       {
         _name: 'CSidebarNavItem',
         name: 'Dashboard',
-        to: '/manage/dashboard',
+        to: '/manage/overview',
         icon: 'cil-speedometer',
       },
       {
@@ -21,7 +21,7 @@ export default [
       {
         _name: 'CSidebarNavItem',
         name: 'Đổi mật khẩu',
-        to: '/ForgetPass',
+        to: '/forgetpass',
         icon: 'cil-lock-locked'
       },
       {
@@ -32,13 +32,13 @@ export default [
         _name: 'CSidebarNavItem',
         name: 'Quán của bạn',
         icon: 'cil-puzzle',
-        to: '/manage/manageStores'
+        to: '/manage/managestores'
       },
       {
         _name: 'CSidebarNavItem',
         name: 'Tin nhắn',
         icon: 'cil-envelope-closed',
-        to: '/manage/message/-M_HoshRYUpgWAIm7Fwa'
+        to: '/manage/message/'
       }
     ]
   }

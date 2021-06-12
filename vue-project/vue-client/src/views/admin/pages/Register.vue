@@ -125,7 +125,7 @@ export default {
           birthday: this.birth,
           userTypeID: this.type
           };
-          axios.post("http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/User/RegisterUser", credentials).then(respone =>{ 
+          axios.post("http://KLTN.somee.com/api/User/RegisterUser", credentials).then(respone =>{ 
               this.msg= respone.data
               this.show = 1;
               })

@@ -16,7 +16,6 @@
         {{places}}</p>
        <button  class="btn_change"  @click="changeMarker">Thay đổi</button>
       <br/>
-
     </div>
     <br>
     <GmapMap v-if="center"
@@ -44,10 +43,11 @@ export default {
     };
   },
 props:{
-    place:String
+    place:String,
+    lat: String,
+    lng: String
 },
   mounted() {
-    // this.geolocate();
     this.reserveGeocode();
   },
   methods: {
@@ -58,9 +58,9 @@ props:{
     },
     sendPlace(place) {
       console.log(this.center)
-        this.$emit('send-place',place,this.center.lat,this.center.lng);
-        this.$root.$refs.Homebody.changePlace(this.center.lat,this.center.lng);
-        },
+      this.$emit('send-place',place,this.center.lat,this.center.lng);
+      this.$root.$refs.Homebody.changePlace(this.center.lat,this.center.lng);
+      },
     changeMarker() {
         if (this.currentPlace) {
         const marker = {
@@ -81,22 +81,27 @@ props:{
       });
     },
     reserveGeocode(){
-    this.$gmapApiPromiseLazy().then(() => {
-        var geocoder = new google.maps.Geocoder();
-        geocoder.geocode({ location: this.center }, (results, status) => {
-          if (status === "OK") {
-            if (results[0]) {
-            let place=results[0].formatted_address;
-            this.places = place;
-            this.sendPlace(this.places);
-            } else {
-              window.alert("No results found");
-            }
-          } else {
-            window.alert("Geocoder failed due to: " + status);
-          }
+      try{
+        // this.places = this.place;
+        if(this.lat != '' && this.lng != '') this.center = {lat:parseFloat(this.lat) , lng:parseFloat(this.lng)}
+        this.$gmapApiPromiseLazy().then(() => {
+            var geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ location: this.center }, (results, status) => {
+              if (status === "OK") {
+                if (results[0]) {
+                let place=results[0].formatted_address;
+                this.places = place;
+                this.sendPlace(this.places);
+                } else {
+                  window.alert("No results found");
+                }
+              } else {
+                window.alert("Geocoder failed due to: " + status);
+              }
+            });
         });
-    });
+      }
+      catch(err){console.log(err)}
     }
   }
 };

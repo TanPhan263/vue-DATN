@@ -1,5 +1,5 @@
 <template>
-     <div class="footer">
+   <div class="footer">
       <div class="member-top">
         <div class="member">
            <h3 style="color:#df0024;">Kết nối với chúng tôi trên</h3>

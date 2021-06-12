@@ -1,6 +1,17 @@
 <template>
   <CRow>
     <CCol md="12">
+    <div v-if="status === '-1'" class="alert-red" >
+            <div class="row">
+              <div style="width: 100%">
+              <h4>Tài khoản chưa được kích hoạt</h4> <p>Nhấn để kích hoạt </p>
+                <CButton style="margin-right: 20px"  @click="confirmStore()" class="btn_left" type="submit" size="sm" color="warning"><CIcon name="cil-check-circle"/> Kích hoạt</CButton>
+                 <CButton @click="deleteStore()"  class="btn_left" type="reset" size="sm" color="danger"><CIcon name="cil-ban"/> Xóa</CButton>
+            </div>
+          </div>
+        </div>
+    </CCol>
+    <CCol md="12">
       <CCard>
          <CCardHeader>
           <div class="row" style="width: 100%">
@@ -8,8 +19,8 @@
           </div>
          </CCardHeader>
          <CCardBody>
-            <a :href="'http://localhost:8080/storeDetail/'+ storeID" target="_blank">
-              <span style="margin-right: 5px; padding: 3px;"><span  class="fa fa-link" style="font-size: 17px; color: blue"> http://localhost:8080/storeDetail/{{storeID}}</span>
+            <a :href="'http://localhost:8080/'+ storeID" target="_blank">
+              <span style="margin-right: 5px; padding: 3px;"><span  class="fa fa-link" style="font-size: 17px; color: blue"> http://localhost:8080/{{storeID}}</span>
               </span>
             </a>
          </CCardBody>
@@ -86,8 +97,9 @@
                 label="Chủ quán"
                 horizontal
                 autocomplete="name"
-                v-model="storeOwnerName"
+                :value="storeOwnerName.userName"
               /> -->
+             
               <div class="row" style="margin-left: 0px;">
                 <p style="margin-right:10px;">Chủ quán</p>
                 <select v-if="users"
@@ -103,6 +115,7 @@
                       </option>
                 </select>
                </div>
+                <p v-if="storeOwnerName.status === '-1'"> Tài khoản hiện chưa được xác nhận! <a :href="'/manage/users/'+storeOwnerName.userID">Đi đến tài khoản</a></p>
               <CInput
                 label="Địa chỉ"
                 horizontal
@@ -306,6 +319,7 @@ import DiscountService from '@/services/DiscountService.js';
 export default {
   beforeRouteEnter (to, from, next) {
     AuthService.checkUser(localStorage.getItem('isAuthen'))
+    AuthService.checkAdmin(localStorage.getItem('isAuthen'))
     next();
   },
   name: 'Store',
@@ -409,10 +423,9 @@ export default {
       alert(response)
     },
     getStoreOwner() {
-      this.$http.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/User/GetByID?id='+this.storeOwner,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
-            this.storeOwnerName = response.data[0].userName;
+      this.$http.get('http://KLTN.somee.com/api/User/GetByID?id='+this.storeOwner,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
+            this.storeOwnerName = response.data[0];
       })
-      return this.user
     },
     async getComments(index){
 			try{
@@ -448,11 +461,22 @@ export default {
     },
     async onInit(){
       this.users = await UserService.getAll(localStorage.getItem('isAuthen')); 
-    }
+    },
+    async confirmStore(){
+      const id = this.$route.params.id;
+      const response =  await StoreService.changeStatus(localStorage.getItem('isAuthen'), '1', id);
+      alert(response);
+    },
+    async deleteStore(){
+          const id = this.$route.params.id;
+          const response = await StoreService.delete(id,localStorage.getItem('isAuthen'))
+          alert(response);
+          this.$router.push("/confirmstore");
+    },
   },
    mounted(){
       const id = this.$route.params.id
-      this.$http.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Store/GetByIDManage?id='+id,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
+      this.$http.get('http://KLTN.somee.com/api/Store/GetByIDManage?id='+id,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
             this.storeName = response.data[0].storeName;
             this.storeAddress = response.data[0].storeAddress;
             this.storePicture = response.data[0].storePicture;
@@ -465,6 +489,7 @@ export default {
             this.storeID =  response.data[0].storeID;
             this.storeLat = response.data[0].lat;
             this.storeLong = response.data[0].long;
+            this.status = response.data[0].status;
             if(response.data[0].status == '1') this.check == false;
             else this.check = true;
             this.getStoreOwner();  
@@ -472,7 +497,7 @@ export default {
     });
      this.onInit();
      this.getDisCount(id);
-     this.$http.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/BusinessType/GetAll').then(response => {
+     this.$http.get('http://KLTN.somee.com/api/BusinessType/GetAll').then(response => {
             this.bussinessType = response.data
     })
   }
@@ -488,4 +513,9 @@ export default {
   width: 100px;
   float: right;
 }
+.alert-red {
+    padding: 20px;
+    background-color:#CD5C5C;
+    color: white;
+  }
 </style>

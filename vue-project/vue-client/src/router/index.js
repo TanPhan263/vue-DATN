@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import AuthService from '@/services/AuthService.js';
-import UserService from '@/services/UserService.js';
 
 // Containers
 const TheContainer = () => import('@/containers/TheContainer')
@@ -24,7 +23,7 @@ const User = () => import('@/views/admin/users/User')
 //store
 const Store = () => import('@/views/admin/stores/Store')
 const Stores = () => import('@/views/admin/stores/Stores')
-const ConfirmRegisterStore = () => import('@/views/admin/stores/ConfirmRegisterStore')
+const ConfirmStore = () => import('@/views/admin/stores/ConfirmStore')
 const inforUser = () => import('@/views/admin/inforUser/update')
 //change pass
 const Changepass = () => import('@/views/admin/change-pass/changepass')
@@ -32,6 +31,7 @@ const Changepass = () => import('@/views/admin/change-pass/changepass')
 //Homepage
 const Homepage = () => import('@/views/user/HomePage') 
 const Area = () => import('@/views/user/containers/Area') 
+const ViewMoreArea = () => import('@/views/user/containers/ViewMoreArea') 
 const Search = () => import('@/views/user/SearchPage')
 const CategoryPage= () => import('@/views/user/containers/CategoryPage') 
 const storeDetail= () => import('@/views/user/storeDetail') 
@@ -40,6 +40,7 @@ const UserInfor= () => import('@/views/user/UserInfor')
 const Homebody= () => import('@/views/user/Homebody') 
 const DishTypeSearch= () => import('@/views/user/DishTypeSearch') 
 //StoreOwner
+const DashboardStoreOwner = () => import('@/views/storeOwner/DashboardStoreOwner') 
 const Dish = () => import('@/views/storeOwner/manageMenu/Dish') 
 const ManageMenu = () => import('@/views/storeOwner/manageMenu/MangeMenu') 
 const ManageStoreInfor = () => import('@/views/storeOwner/manageStores/MangeStoreInfor') 
@@ -95,7 +96,12 @@ function configRoutes () {
           path: 'dashboard',
           name: 'Dashboard',
           component: Dashboard,
-        },       
+        },
+        {
+          path: 'overview',
+          name: 'storeowner',
+          component: DashboardStoreOwner,
+        },   
         {
           path: 'charts',
           name: 'Charts',
@@ -120,7 +126,7 @@ function configRoutes () {
             {
               path: '',
               name: 'Users',
-              component: Users
+              component: Users,
             },
             {
               path: ':id',
@@ -128,7 +134,7 @@ function configRoutes () {
                 label: 'User Details'
               },
               name: 'User',
-              component: User
+              component: User,
             }
           ]
         },
@@ -146,7 +152,7 @@ function configRoutes () {
             {
               path: '',
               name: 'Stores',
-              component: Stores
+              component: Stores,
             },
             {
               path: ':id',
@@ -154,14 +160,14 @@ function configRoutes () {
                 label: 'Store Details'
               },
               name: 'Store',
-              component: Store
+              component: Store,
             }
           ]
         },
         {
-          path: 'confirm-registered-store',
-          name: 'confirmRegisterStore',
-          component: ConfirmRegisterStore
+          path: 'confirmstore',
+          name: 'confirmStore',
+          component: ConfirmStore,
         },
         {
           path: 'update',
@@ -193,7 +199,7 @@ function configRoutes () {
           ]
         },
         {
-          path: 'manageStores',
+          path: 'managestores',
           meta: {
             label: 'Stores'
           },
@@ -206,15 +212,15 @@ function configRoutes () {
             {
               path: ':id',
               name: 'store',
-              component: ManageStoreInfor
+              component: ManageStoreInfor,
             },
             {
               path: '',
               name: 'stores',
-              component: OwnerStores
+              component: OwnerStores,
             },
             {
-              path: 'manageMenu',
+              path: 'managemenu',
               meta: {
                 label: 'Menus'
               },
@@ -227,12 +233,12 @@ function configRoutes () {
                 {
                   path: ':id',
                   name: 'dish',
-                  component: Dish
+                  component: Dish,
                 },
                 {
                   path: '',
-                  name: 'manageMenu',
-                  component: ManageMenu
+                  name: 'managemenu',
+                  component: ManageMenu,
                 }
               ]
             },
@@ -241,10 +247,10 @@ function configRoutes () {
         {
           path:'discount',
           name: 'Discount',
-          component: Discount
+          component: Discount,
         },
         {
-          path: 'message/:id',
+          path: 'message/',
           name: 'Message',
           component: Chat,
         },
@@ -273,15 +279,15 @@ function configRoutes () {
           name: 'login',
           component: Login
         },
-        {
-          path: 'register',
-          name: 'Register',
-          component: Register
-        }
+        // {
+        //   path: 'register',
+        //   name: 'Register',
+        //   component: Register
+        // }
       ]
     },
     {
-      path: '/chatPage',
+      path: '/chatpage',
       name: 'chat',
       component: chatPage
     },
@@ -296,9 +302,22 @@ function configRoutes () {
       component: Register     
     },
     {
-      path: '/',      
-      name: 'Trangchu',
-      redirect: '/Homepage',
+      path: '/forgetpass',      
+      name: 'ForgetPass',
+      component: ForgetPass
+    },
+    {
+      path: '/registerstore',      
+      name: '/RegisterStore',
+      component: RegisterStore
+    },
+    {
+      path: '/userinformation',      
+      name: 'UserInfor',
+      component: UserInfor
+    },
+    {
+      path: '/', 
       component: Homepage,
       children:[
         {
@@ -310,12 +329,12 @@ function configRoutes () {
           },
         },
         {
-          path: 'Homepage',      
-          name: 'Homepage',
+          path: '/',      
+          name: 'homebody',
           component: Homebody,
         },
         {
-          path: 'DishType',      
+          path: 'dishtype',      
           name: 'DishType',
           component: DishTypeSearch
         },
@@ -325,32 +344,23 @@ function configRoutes () {
           component: Area
         },
         {
-          path:'ViewMore',
+          path:'viewmore',
           name:'viewmore',
           component: CategoryPage
+        },
+        {
+          path:'district/:id',
+          name:'district',
+          component: ViewMoreArea
         }
       ]
     },
     {
-      path: '/storeDetail/:id',      
+      path: '/:id',      
       name: 'storeDetail',
       component: storeDetail
     },
-    {
-      path: '/ForgetPass',      
-      name: 'ForgetPass',
-      component: ForgetPass
-    },
-    {
-      path: '/RegisterStore',      
-      name: '/RegisterStore',
-      component: RegisterStore
-    },
-    {
-      path: '/UserInformation',      
-      name: 'UserInfor',
-      component: UserInfor
-    }
+   
   ]
 }
 

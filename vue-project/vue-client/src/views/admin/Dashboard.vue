@@ -2,7 +2,9 @@
   <div>
     <WidgetsDropdown/>
     <CCard>
+      
       <CCardBody>
+        
         <CRow>
           <CCol sm="5">
             <h4 id="traffic" class="card-title mb-0">Thống kê lượng truy cập</h4>
@@ -93,8 +95,14 @@ import AnalystService from '@/services/AnalystService.js'
 import StoreService from '@/services/StoreService.js'
 import CommentService from '@/services/CommentService.js'
 import UserService from '@/services/UserService.js'
+import AuthService from '@/services/AuthService.js'
 
 export default {
+   beforeRouteEnter (to, from, next) {
+    AuthService.checkUser(localStorage.getItem('isAuthen'))
+    AuthService.checkAdmin(localStorage.getItem('isAuthen'))
+    next();
+  },
   name: 'Dashboard',
   components: {
     MainChartExample,

@@ -45,7 +45,7 @@ ul.topbar a{
 
 
 .navbar-fixed{
-	z-index: 3;
+	z-index: 10;
 	opacity: 1.0;
 	background: #fff;
 	width: 100%;

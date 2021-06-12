@@ -1,16 +1,36 @@
 <template>
   <div class="container">
-  <div  class="messaging" >
-     <div v-if="!show" class="mesgs" style=" height: 400px; position: relative;">
+    <div v-if="!show" style=" height:100%; width:100%; position: relative;background:white">
        <div class="msg_history">
          <div class="form-outline">
           <input v-model="email"  type="text" placeholder="Please enter your email" id="formControlLg" class="form-control form-control-lg center" style="height: 40px;width: 80%" />
         </div>
-        
        </div>
        <button class="center" style="margin-top: 60px" @click="openChat" type="button">Chat</button>
     </div>
-      <div v-if="show" class="mesgs">
+    
+
+  <div v-if="show" class="messaging" >
+    <div class="inbox_people">
+        <div class="headind_srch">
+            <div class="recent_heading">
+              <h4>Store</h4>
+            </div>
+          </div>
+          <div class="inbox_chat">
+            <div v-for="(store,index) in storeList" v-bind:key="index" :class="[idStore === store.storeID? 'chat_list active_chat':'chat_list']"  @click="storeClicked(store.storeID)">
+              <div class="chat_people">
+                <div class="chat_img"> <img v-lazy="store.storePicture" :alt="store.storeName"> </div>
+                <div class="chat_ib">
+                  <h5>{{store.storeName}} <span class="chat_date"></span></h5>
+                </div>
+                 
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <div class="mesgs">
           <div class="headind_srch">
             <div class="recent_heading">
               <h4>Chat bot</h4>
@@ -49,7 +69,6 @@
     </div>
 </template>
 
-
 <script>
 import firebase from 'firebase';
 import UserService from '@/services/UserService.js'
@@ -57,20 +76,25 @@ export default {
     data(){
         return{
             user:'',
+            storeList:[],
             message: null,
             name: '',
             email:'',
             messages: [],
             show : false,
+            idStore:''
         }
     },
     props:{
       storeID: String,
+      storeName: String,
+      storePicture: String,
     },
     methods:{
       openChat(){
         if(this.email){
           this.name = this.email.slice(0,this.email.indexOf('@'));
+          localStorage.push('chatName',this.name);
           this.sayWelcome();
           this.show = true;
           this.fetchMessage();
@@ -81,6 +105,8 @@ export default {
             return secs.toString().slice(0,21);
         },
         sayWelcome(){
+          try{
+          this.checkStore();
           var today = new Date();
           const mess = {
             text: "Xin chào, tôi có thể giúp gì cho bạn???",
@@ -89,15 +115,21 @@ export default {
           };
           firebase
             .database()
-            .ref("Messages/store/"+this.storeID+'/'+ this.name +'/')
+            .ref("Messages/store/"+this.idStore+'/'+ this.name +'/')
             .push(mess);
            firebase
             .database()
-            .ref("Messages/store/"+this.storeID+'/' + this.name +'/')
+            .ref("Messages/store/"+this.idStore+'/' + this.name +'/')
             .child('lastmess').set("Xin chào, tôi có thể giúp gì cho bạn???");
+          }
+          catch(err){
+            console.log(err);
+          }
         },
         saveMessage(){
+          try{
           if(this.message == '') return;
+          this.checkStore();
           var today = new Date();
           const mess = {
             text: this.message,
@@ -106,33 +138,58 @@ export default {
           };
           firebase
             .database()
-            .ref("Messages/store/"+this.storeID+'/'+ this.name +'/')
+            .ref("Messages/store/"+this.idStore+'/'+ this.name +'/')
             .push(mess);
           firebase
             .database()
-            .ref("Messages/store/"+this.storeID+'/' + this.name +'/')
+            .ref("Messages/store/"+this.idStore+'/' + this.name +'/')
             .child('lastmess').set(this.message);
           this.message = "";
+          }
+          catch(err){
+            console.log(err);
+          }
         },
          fetchMessage(){
-          firebase.database().ref("Messages/store/").child(this.storeID).child(this.name).on("value", snapshot => {
-            let data = snapshot.val();
-            let messages = [];
-            Object.keys(data).forEach(key => {
-              messages.push({
-                id: key,
-                storename: data[key].storename,
-                username: data[key].username,
-                text: data[key].text,
-                date: data[key].date
+          try{
+            if(this.name){
+              firebase.database().ref("Messages/user/").child(this.name).on("value", snapshot =>{
+                let data = snapshot.val();
+                let messages = [];
+                Object.keys(data).forEach(key => {
+                  messages.push({
+                    storeID: data[key].storeID,
+                    storeName: data[key].storeName,
+                    storePicture: data[key].storePicture,
+                  });
+                });
+                this.storeList=messages;
               });
-            });
-            this.messages = messages;
-            this.messages.pop();
-          }); 
+              firebase.database().ref("Messages/store/").child(this.idStore).child(this.name).on("value", snapshot => {
+                let data = snapshot.val();
+                let messages = [];
+                Object.keys(data).forEach(key => {
+                  messages.push({
+                    id: key,
+                    storename: data[key].storename,
+                    username: data[key].username,
+                    text: data[key].text,
+                    date: data[key].date
+                  });
+                });
+                this.messages = messages;
+                this.messages.pop();
+            }); 
+            }
+            else this.messages=[];
+          }
+          catch(err){
+            console.log(err);
+          }
         },
         async checkLogin(){
           const token = localStorage.getItem('isAuthen')
+          if(!token) return;
           this.user = await UserService.getInfo(token);
           console.log(this.user[0]);
           if(this.user[0] != 'Bạn cần đăng nhập'){
@@ -142,28 +199,60 @@ export default {
             this.sayWelcome();
             this.fetchMessage();
           }
-        }
+          this.fetchMessage();
+        },
+        storeClicked(id){
+          this.idStore = id;
+          this.fetchMessage();
+        },
+        checkStore(){
+          const mess = {
+              storeID: this.idStore,
+              storeName: this.storeName,
+              storePicture: this.storePicture,
+            };
+          console.log(mess)
+          firebase
+            .database()
+            .ref("Messages/user/"+this.name).orderByChild("storeID").equalTo(this.idStore).once("value",snapshot => {
+                if (snapshot.exists()){
+                  const userData = snapshot.val();
+                  console.log("exists!", userData);
+                  return;
+                }
+                else{
+                  const mess = {
+                    storeID: this.idStore,
+                    storeName: this.storeName,
+                    storePicture: this.storePicture,
+                  };
+                  firebase
+                    .database()
+                    .ref("Messages/user/"+this.name)
+                    .push(mess);
+                }
+            });
+        },
     },
     created(){
     },
     mounted(){
+      this.idStore = this.storeID;
       this.checkLogin();
-      this.fetchMessage();
     },
 }
 </script>
 
 <style>
-.container{max-width:550px ; margin:auto;}
+.container{max-width:850px ; margin:auto;}
 img{ max-width:100%;}
 .inbox_people {
   background: #f8f8f8 none repeat scroll 0 0;
   float: left;
   overflow: hidden;
-  width: 40%; border-right:1px solid #c4c4c4;
+  width: 30%; border-right:1px solid #c4c4c4;
 }
 .inbox_msg {
-  border: 2px solid #f76242;
   clear: both;
   overflow: hidden;
 }
@@ -175,7 +264,7 @@ img{ max-width:100%;}
   text-align: right;
   width: 60%;
 }
-.headind_srch{  border-radius: 15px 15px 0 0; background: blue; padding:10px 20px 10px 20px; overflow:hidden; border-bottom:1px solid #c4c4c4;}
+.headind_srch{ background: blue; padding:10px 20px 10px 20px; overflow:hidden; border-bottom:1px solid #c4c4c4;}
 
 .recent_heading h4 {
   color: #fff;
@@ -197,7 +286,7 @@ img{ max-width:100%;}
 .chat_ib p{ font-size:14px; color:#989898; margin:auto}
 .chat_img {
   float: left;
-  width: 11%;
+  width: 12%;
 }
 .chat_ib {
   float: left;
@@ -207,11 +296,12 @@ img{ max-width:100%;}
 
 .chat_people{ overflow:hidden; clear:both;}
 .chat_list {
-  border-bottom: 1px solid #f76242;
+  cursor: pointer;
+  border-bottom: 1px solid #efefef;
   margin: 0;
   padding: 18px 16px 10px;
 }
-.inbox_chat { height: 400px; overflow-y: scroll; }
+.inbox_chat { padding: 7px; height: 400px; overflow-y: scroll; }
 
 .active_chat{ background:#ebebeb;}
 
@@ -244,10 +334,8 @@ img{ max-width:100%;}
 .received_withd_msg { width: 57%;}
 .mesgs {
   float: left;
-  width: 100%;
+  width: 70%;
   background: white;
-  border-radius: 15px 15px 0 0;
-  border: 2px solid #ebebeb
 }
 
  .sent_msg p {

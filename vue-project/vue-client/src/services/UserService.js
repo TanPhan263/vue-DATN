@@ -1,6 +1,6 @@
 import axios from 'axios';
-const url = 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/User/';
-const url2 = 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/UserType/';
+const url = 'http://KLTN.somee.com/api/User/';
+const url2 = 'http://KLTN.somee.com/api/UserType/';
 export default{
     getInfo(token){
         return axios.get(url+ 'GetByID',{ headers: {"Authorization" : `Bearer ${token}`}}).then(respone => respone.data);
@@ -24,5 +24,15 @@ export default{
     },
     getUserbyIDnoToken_pic(id){
         return axios.get(url+ 'GetByIDNotToken?id='+id).then(respone => respone.data[0]);
+    },
+    delete( id, token){
+        return axios
+          .post(url + 'DeleteByID?id='+ id, [],{ headers: {"Authorization" : `Bearer ${token}`}})
+          .then(response => response.data);
+    },
+    block(token, id, status){
+        return axios
+        .post(url + 'BlockAccount?id='+ id+ '&status='+status,[],{ headers: {"Authorization" : `Bearer ${token}`}})
+        .then(response => response.data);
     }
 };

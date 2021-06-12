@@ -1,7 +1,8 @@
 <template>
   <CChartBar
+    v-if="data"
     :datasets="defaultDatasets"
-    labels="months"
+    labels="indexes"
   />
 </template>
 
@@ -11,13 +12,17 @@ import { CChartBar } from '@coreui/vue-chartjs'
 export default {
   name: 'CChartBarExample',
   components: { CChartBar },
+  props:{
+    data: Array,
+  },
   computed: {
     defaultDatasets () {
+      console.log(this.data);
       return [
         {
-          label: 'GitHub Commits',
+          label: 'Star',
           backgroundColor: '#f87979',
-          data: [40, 20, 12, 39, 10, 40, 39, 80, 40, 20, 12, 11]
+          data: this.data
         }
       ]
     }

@@ -1,22 +1,21 @@
 import router from '../router/index';
 export default{
     storeClicked(item){
-        router.push({path: `/storeDetail/${item}`})
+        return router.push('/'+item);
     },
     dishClicked(item){
         router.push('/search?key='+ item)
     },
-    viewMoreClicked(id){
-        router.push('/ViewMore?key=' + id).catch(()=>{});
+    viewMore(id){
+        router.push('/viewmore?key=' + id).catch(()=>{});
     },
     dishViewMore(){
-        return router.push('/DishType');
+        return router.push('/dishtype');
     },
     viewMore_Search(index){
        return this.$router.push('/search?key=' + index).catch(()=>{});
     },
-    onSearchClicked(){
-        localStorage.setItem("keyword", this.keyword);
-        this.$router.push('/search?key=' + this.keyword).catch(()=>{});
+    onSearchClicked(keyword){
+        this.$router.push('/search?key=' + keyword).catch(()=>{});
     },
 }

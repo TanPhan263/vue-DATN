@@ -86,7 +86,13 @@
 <script>
 import firebase from 'firebase'
 import StoreService from '@/services/StoreService.js';
+import AuthService from '@/services/AuthService.js';
 export default {
+   beforeRouteEnter (to, from, next) {
+    AuthService.checkUser(localStorage.getItem('isAuthen'));
+    AuthService.checkStoreOwner(localStorage.getItem('isAuthen'));
+    next();
+  },
   props:{
     menuID: String,
   },
@@ -113,10 +119,10 @@ export default {
   },
     methods:{
         rowClicked (item) {
-            this.$router.push({path: `manageMenu/${item.dish_ID}`})
+            this.$router.push({path: `managemenu/${item.dish_ID}`})
         },
         getMenus(id){
-            this.$http.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Dish/GetByIDStore?id=' + this.menuID).then(response => {
+            this.$http.get('http://KLTN.somee.com/api/Dish/GetByIDStore?id=' + this.menuID).then(response => {
               this.menus = response.data
           });
         },

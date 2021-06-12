@@ -2,18 +2,18 @@ import axios from 'axios';
 import Vue from 'vue'
 Vue.prototype.$http = axios
 
-const url = 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Store';
-const url2 = 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/BusinessType';
-const url3 = 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Dish';
-const url4= 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/DishType';
-const url5= 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Menu';
-const url6= 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/DiscountType';
+const url = 'http://KLTN.somee.com/api/Store';
+const url2 = 'http://KLTN.somee.com/api/BusinessType';
+const url3 = 'http://KLTN.somee.com/api/Dish';
+const url4= 'http://KLTN.somee.com/api/DishType';
+const url5= 'http://KLTN.somee.com/api/Menu';
+const url6= 'http://KLTN.somee.com/api/DiscountType';
 export default{
     getAll(){
-        return axios.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Store/GetAll').then(response => response.data);
+        return axios.get('http://KLTN.somee.com/api/Store/GetAll').then(response => response.data);
     },
     getByID(id){
-        return axios.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Store/GetByID?id='+ id).then(response => response.data);
+        return axios.get('http://KLTN.somee.com/api/Store/GetByID?id='+ id).then(response => response.data);
     },
     getByProvince(id){
        return axios.get( url+'/GetAllGanToiProvince?id=' + id).then(response => response.data);
@@ -59,14 +59,14 @@ export default{
         return axios.post(url + '/CreateLatLong',store).then(response => response.data);  
     },
     updateRate(id, rate){
-        return axios.post(url + '/UpdateRatePoint?id='+ id + '&ratepoint=' + rate).then(response => response.data);
+        return axios.post(url + '/UpdateRatePoint?id='+ id + '&RatePoint=' + rate).then(response => response.data);
     },
     createMenu(){
         return axios.post(url5 + '/CreateMenu').then(response => response.data);
     },
     registerStore(credentials){
         return axios
-        .post(url + '/RegisterStore', credentials)
+        .post(url + '/CreateStoreOwner', credentials)
         .then(response => response.data);
     },
     deleteDish(id){
@@ -75,10 +75,10 @@ export default{
         .then(response => response.data);
     },
     getByBussinessType(id){
-        return axios.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Store/GetByIDBusinessType?id='+ id).then(response => response.data);
+        return axios.get('http://KLTN.somee.com/api/Store/GetByIDBusinessType?id='+ id).then(response => response.data);
     },
     getByDistrict(id){
-        return axios.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Store/GetByIDDistrict?id='+ id).then(response => response.data);
+        return axios.get('http://KLTN.somee.com/api/Store/GetByIDDistrict?id='+ id).then(response => response.data);
     },
     viewCount(view){
         return 
@@ -92,5 +92,17 @@ export default{
         return axios
         .get(url6 + '/GetAll')
         .then(response => response.data);
-    }
+    },
+    getConfirmStore(token){
+        return axios.get(url+'/GetAllCheck',{ headers: {'Accept': 'application/json',
+        'Content-Type': 'application/json' , "Authorization" : `Bearer ${token}`}}).then(response => response.data);
+    },
+    changeStatus(token, status, id){
+        return axios.post(url+'/ChangeStatusStore?id=' +id+ '&status='+status,[],{ headers: {"Authorization" : `Bearer ${token}`}}).then(response => response.data);
+    },
+    delete( id, token){
+        return axios
+          .post(url + '/DeleteByID?id='+ id, [],{ headers: {"Authorization" : `Bearer ${token}`}})
+          .then(response => response.data);
+    },
 }

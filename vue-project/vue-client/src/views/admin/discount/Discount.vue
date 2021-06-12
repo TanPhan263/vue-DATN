@@ -23,8 +23,8 @@
                     </div>
                         <p>Hình đại diện</p>
                         <div class="row">
-                          <img :src="discountPicture" alt="">
-                        <input type="file"  @change="previewImage">
+                          <img class="imgBanner" :src="discountPicture" alt="">
+                          <input type="file" @change="previewImage">
                         </div>
                       </slot>
                     </div>
@@ -156,7 +156,13 @@ import firebase from 'firebase'
 import { CChartLineSimple } from '../charts/index.js'
 import DiscountService from '@/services/DiscountService.js'
 import StoreService from '@/services/StoreService.js'
+import AuthService from '@/services/AuthService.js'
 export default {
+  beforeRouteEnter (to, from, next) {
+    AuthService.checkUser(localStorage.getItem('isAuthen'))
+    AuthService.checkAdmin(localStorage.getItem('isAuthen'))
+    next();
+  },
     components:{
         CChartLineSimple
     },
@@ -181,7 +187,6 @@ export default {
     methods:{
         async getDiscounts(){
             this.discounts = await DiscountService.getAll();
-            console.log(this.discounts);
         },
         async deleteDiscount(){
             try {
@@ -231,45 +236,53 @@ export default {
           }
         },
         async submitDiscount(){
-          const discount =  {
-            discountTypeID: this.discountID,
-            discountTypeName: this.discountName,
-            discountTypePicture: this.discountPicture,
-          storeID: "",
-          };
-          if(!this.create){
-            const response = await DiscountService.editDitscount(this.discountID,discount,this.token);
-            console.log(response);
+          try{
+            const discount =  {
+              discountTypeID: this.discountID,
+              discountTypeName: this.discountName,
+              discountTypePicture: this.discountPicture,
+            storeID: "",
+            };
+            if(!this.create){
+              const response = await DiscountService.editDitscount(this.discountID,discount,this.token);
+              alert(response);
+            }
+            else{
+              const response = await DiscountService.createDiscount(discount,this.token);
+              alert(response);
+              this.create= false;
+            }
+            this.getDiscounts();
           }
-          else{
-            const response = await DiscountService.createDiscount(discount,this.token);
-            console.log(response);
-            this.create= false;
-          }
-          this.getDiscounts();
+          catch(err){ console.log(err);}
         },
         discountClicked(id, name, picture){
           this.active=true
-          console.log(id)
           this.discountPicture= picture;
           this.discountName=name;
           this.discountID=id;
           this.getAddStore(id);
         },
         async addStoreToDiscount(id){
-          console.log('add')
+          try{
           const discount = {
               iDStore: id,
               iDDiscountType: this.discountID
           }
-          console.log(discount)
           const response = await DiscountService.addStoreToDiscount(discount,this.token);
-          console.log(response)
+          alert(response);
+          }
+          catch(err){console.log(err);}
         },
         async removeStoreToDiscount(idStore){
+          try{
           const response = await DiscountService.removeStoreToDiscount(idStore,this.discountStoreID,this.token);
           this.getDiscountStore(this.discountStoreID);
-          console.log(response);
+          alert(response);
+          }
+          catch(err){
+            alert('Lỗi rồi: ' + err)
+          }
         },
         async getDiscountStore(id){
           this.discountStoreID = id;
@@ -314,5 +327,9 @@ export default {
 }
 .img-discount{
   border-radius: 0px 0px 5px 5px;
+}
+.imgBanner{
+  height: 300px;
+  width: 500px;
 }
 </style>

@@ -8,8 +8,8 @@
           </div>
          </CCardHeader>
          <CCardBody>
-            <a :href="'http://localhost:8080/storeDetail/'+ storeID" target="_blank">
-              <span style="margin-right: 5px; padding: 3px;"><span  class="fa fa-link" style="font-size: 17px; color: blue"> http://localhost:8080/storeDetail/{{storeID}}</span>
+            <a :href="'http://localhost:8080/'+ storeID" target="_blank">
+              <span style="margin-right: 5px; padding: 3px;"><span  class="fa fa-link" style="font-size: 17px; color: blue"> http://localhost:8080/{{storeID}}</span>
               </span>
             </a>
          </CCardBody>
@@ -258,7 +258,13 @@ import MangeMenu from '../manageMenu/MangeMenu'
 import StoreService from '@/services/StoreService.js';
 import CommentService from '@/services/CommentService.js';
 import DiscountService from '@/services/DiscountService.js';
+import AuthService from '@/services/AuthService.js';
 export default {
+   beforeRouteEnter (to, from, next) {
+    AuthService.checkUser(localStorage.getItem('isAuthen'));
+    AuthService.checkStoreOwner(localStorage.getItem('isAuthen'));
+    next();
+  },
   name: 'manageStore',
   components:{
     MangeMenu
@@ -334,7 +340,7 @@ export default {
       return this.menuID;
     },
     goBack() {
-      this.usersOpened ? this.$router.go(-1) : this.$router.push({path: '/manageStores'})
+      this.usersOpened ? this.$router.go(-1) : this.$router.push({path: '/managestores'})
     },
     async getStore(id){
       this.type = await StoreService.getAllBussinessType();

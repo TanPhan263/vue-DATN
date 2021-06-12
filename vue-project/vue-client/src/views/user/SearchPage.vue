@@ -40,7 +40,7 @@
         <div v-if="!show" class="slider" style="width:100%">
           <ul v-if="pageOfItems && pageOfItems.length> 0">
 			<li v-for="(store, index ) in pageOfItems" v-bind:key="index">
-				<a :href="'/storeDetail/' + store.storeID">
+				<a :href="'/' + store.storeID">
 				<img :src="store.storePicture"/>
 				<div class="middle">
                     <div class="text" style="background: #ff6666 ">Xem quán</div>
@@ -156,7 +156,7 @@ export default {
 			}
 			else 
 			{
-				this.$http.get('http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Dish/Search?dishname=' + key).then(response => {
+				this.$http.get('http://KLTN.somee.com/api/Dish/Search?dishname=' + key).then(response => {
 				if(response.data !='Không có kết quả tìm kiếm')
 				{
 					this.lable='';
@@ -167,18 +167,20 @@ export default {
 			}
 		},
 		subString(index){
-		return index.toString().substring(0,20);
+			return index.toString().substring(0,20);
 		},
 		subString_address(index){
-		return index.toString().substring(0,12);
+			return index.toString().substring(0,12);
 		},
 		getType(index){
-		var temp='Unknown'
-		this.type.forEach(element => {
-				if(element.businessTypeID == index)
-				temp = element.businessTypeName;
-		});
-		return temp;
+		try{
+			var temp='Unknown'
+			this.type.forEach(element => {
+					if(element.businessTypeID == index)
+					temp = element.businessTypeName;
+			});
+			return temp;}
+		catch(err){console.log(err)}
 		},
 		sortDistance(a,b){
 			return parseFloat(a.khoangcach) - parseFloat(b.khoangcach);

@@ -105,8 +105,13 @@
 import firebase from 'firebase'
 import axios from 'axios';
 import UserService from '@/services/UserService.js';
+import AuthService from '@/services/AuthService.js';
 
 export default {
+    beforeRouteEnter (to, from, next) {
+      AuthService.checkUser(localStorage.getItem('isAuthen'))
+      next();
+  },
     name: 'update',
     data(){
         return{
@@ -150,7 +155,7 @@ export default {
           
         },
         update(){
-          console.log(this.picture);
+          try{
           const credentials = {
           userID: this.id,
           userName: this.name,
@@ -163,12 +168,17 @@ export default {
           birthday: this.birth,
           userTypeID: this.type
           };
-          axios.post("http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/User/EditByID" , credentials ,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{ 
+          axios.post("http://KLTN.somee.com/api/User/EditByID" , credentials ,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{ 
             alert(respone.data)})
+          }
+          catch(err){
+            console.log(err);
+          }
         }
     },
     mounted() {
-          this.$http.get("http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/User/GetByID" , { headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{
+      try{
+          this.$http.get("http://KLTN.somee.com/api/User/GetByID" , { headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{
             this.id= respone.data[0].userID
             this.name=respone.data[0].userName
             this.phone=respone.data[0].phone
@@ -180,6 +190,10 @@ export default {
             this.type= respone.data[0].userTypeID
             this.sex= respone.data[0].sex
           })
+      }
+      catch(err){
+        console.log('lỗi rồi')
+      }
     }
 }
 </script>

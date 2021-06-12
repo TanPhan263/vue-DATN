@@ -1,6 +1,6 @@
 import axios from 'axios';
-const url='http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/DiscountType';
-const url2='http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Discount'
+const url='http://KLTN.somee.com/api/DiscountType';
+const url2='http://KLTN.somee.com/api/Discount'
 export default{
     getAll(){
         return axios.get(url +'/GetAll').then(response => response.data);

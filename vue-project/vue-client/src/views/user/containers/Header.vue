@@ -1,10 +1,10 @@
 <template>
   <div class="container-topbar">
       <ul class="topbar" >
-			<li><a v-if="getRole()" style="color:black;" href="/manage/dashboard">Admin DashBoard</a>
-      <a v-else @click="notifyMe()" style="color:black;">Đăng kí quán mới trên Sunnie</a></li>
+			<li><a v-if="role" style="color:black;" href="/manage/dashboard">DashBoard</a>
+          <a v-else  href="/registerStore" style="color:black;">Đăng kí quán mới trên Sunnie</a></li>
 			<div class="fl_right">
-				<div @click="notifyMe()" class="language fl_right">
+				<div class="language fl_right">
 					<a  style="padding: 7px 0px 0px 15px; color: black">
 						<img src="../../../assets/imgs/vn.png" alt="vn" width="20"> 
             Ngôn ngữ
@@ -22,30 +22,34 @@
   
 <script>
 /* eslint-env jquery */
+import AuthService from '@/services/AuthService.js';
 export default {
   name: "homeheader",
   data(){
     return{
-      user: null,
+      role:false,
       time: 0,
       min: 0,
       isDropdow: false
     }
   },
   mounted(){
-    this.oninit();
-    this.user=localStorage.getItem('userInfor');
-    this.user = JSON.parse(this.user);
+    this.getRole();
     const today = new Date();
     this.time = today.getHours();
     this.min = today.getMinutes();
   },
   components: {},
   methods:{
-    getRole(){
-      if(this.user == null) return false;
-      else if(this.user.userTypeID == '-MO5VBnzdGsuypsTzHaV' || this.user.userTypeID == '-MO5VWchsca2XwktyNAw' ) return true;
-      else return false;
+    async getRole(){
+      if(!localStorage.getItem('isAuthen'))  return this.role = false;;
+      const role = await AuthService.getRole(localStorage.getItem('isAuthen'));
+      if(role == '-MO5VBnzdGsuypsTzHaV' || role == '-MO5VWchsca2XwktyNAw')
+      {
+       this.role = true;
+       return
+      }
+      return this.role = false;
     },
     notifyMe() {
     if (!window.Notification) {

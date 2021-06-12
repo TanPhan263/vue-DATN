@@ -11,7 +11,7 @@
                       placeholder="Tìm quán"
                       v-on:keyup="onChange(keyword)"
               />
-            <CButton @click="active=true" style="margin-left: 20px; height: 35px;" color="primary" >Thêm quán</CButton>
+            <CButton @click="openAddStore" style="margin-left: 20px; height: 35px;" color="primary" >Thêm quán</CButton>
           </div>
            <transition v-if="active" >
               <div class="modal-mask">
@@ -32,11 +32,25 @@
                     label="Tên Quán"
                       v-model ="storeName"
                     />
-                    <CInput
+                    <!-- <CInput
                     label="Chủ quán"
                       v-model ="storeOwner"
                       placeholder="Nhập ID chủ quán"
-                    />
+                    /> -->
+                    <div class="row" style="margin-left: 0px;">
+                      <p style="margin-right:10px;">Chủ quán</p>
+                      <select v-if="users"
+                            id="storeOwner"
+                            class="country fl_left selectBox"
+                            vertical
+                            v-model="storeOwner"
+                            placeholder="Chủ quán"
+                            >
+                            <option v-for="(user, index) in users" v-bind:key="index" :value="user.userID">
+                                {{user.userName}}
+                            </option>
+                      </select>
+                    </div>
                      <CInput
                        label="Địa chỉ"
                       v-model="storeAddress"
@@ -44,8 +58,8 @@
                     <p>Tỉnh</p>
                     <select
                         id="province"
-                        style="width:490px;height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-bottom: 10px;"
-                        class="country fl_left"
+                       
+                        class="country fl_left selectBox"
                         vertical
                         v-model="provinceSelected"
                         placeholder="chọn tỉnh"
@@ -67,8 +81,7 @@
                     <p>Loại Quán</p>
                     <select
                         id="province"
-                        style="width:490px;height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-bottom: 10px;"
-                        class="country fl_left"
+                        class="country fl_left selectBox"
                         vertical
                         v-model="businessTypeSelected"
                         placeholder="Loại món ăn"
@@ -136,18 +149,22 @@
 <script>
 import firebase from 'firebase';
 import AuthService from '@/services/AuthService'
+import UserService from '@/services/UserService'
 import ProvinceService from '@/services/ProvinceService';
 import StoreService from '@/services/StoreService';
-const url = 'http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/Store/GetAllManage'
-export default {
+// const url = 'http://KLTN.somee.com/api/Store/GetAllManage'
+const url = 'http://KLTN.somee.com/api/Store/GetAll'
 
+export default {
   beforeRouteEnter (to, from, next) {
     AuthService.checkUser(localStorage.getItem('isAuthen'))
+    AuthService.checkAdmin(localStorage.getItem('isAuthen'))
     next();
   },
   name: 'Stores',
   data () {
     return {
+      users: [],
       keyword: '',
       result: null,
       provinces:[
@@ -266,11 +283,15 @@ export default {
       })
       console.log(this.result)}
     },
+    async openAddStore(){
+        this.active=true;
+        this.users = await UserService.getAll(localStorage.getItem('isAuthen'));
+    },
     onInit(){
-      this.$http.get(url,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
+      this.$http.get(url,{ headers: {'Content-Type': 'application/json' ,"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
               this.items = response.data;
               this.result= this.items;
-            });
+      }); 
     }
   },
   mounted() {
@@ -285,5 +306,8 @@ export default {
   .center_div{
   margin: 0 auto;
   width:100% /* value of your choice which suits your alignment */
+}
+.selectBox{
+  width:490px;height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-bottom: 10px;
 }
 </style>

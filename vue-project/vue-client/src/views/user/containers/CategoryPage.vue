@@ -40,6 +40,7 @@
 </template>
 
 <script>
+import RouterService from '@/services/RouterService.js';
 import StoreService from '@/services/StoreService.js';
 import BussinessTypeService from '@/services/BussinessTypeService.js';
 const customLabels = {
@@ -93,24 +94,28 @@ export default {
 			this.stores = await StoreService.getByBussinessType(key);
 			this.lable = await BussinessTypeService.getByID(key);
 			if(this.stores) this.show= false;
-
 		},
-		storeClicked (item) {
-			this.$router.push('/storeDetail/' + item);
+		storeClicked(item) {
+			RouterService.storeClicked(item);
 		},
 		subString(index){
-		return index.toString().substring(0,20);
+			return index.toString().substring(0,20);
 		},
 		subString_address(index){
-		return index.toString().substring(0,12);
+			return index.toString().substring(0,12);
 		},
 		getType(index){
-		var temp='Unknown'
-		this.type.forEach(element => {
-			if(element.businessTypeID == index)
-				temp = element.businessTypeName;
-		});
-		return temp;
+		try{
+			var temp='Unknown'
+			this.type.forEach(element => {
+				if(element.businessTypeID == index)
+					temp = element.businessTypeName;
+			});
+			return temp;
+		}
+		catch(err){
+			console.log(err);
+		}
 		},
 	}
 }

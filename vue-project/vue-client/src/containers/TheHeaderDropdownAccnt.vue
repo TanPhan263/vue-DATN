@@ -22,8 +22,11 @@
     <CDropdownItem v-if="getRole() === true" @click="gotoProfile()">
       <CIcon name="cil-user" /> Profile
     </CDropdownItem>
-     <CDropdownItem v-else to="/UserInformation">
+     <CDropdownItem v-else to="/userinformation">
       <CIcon name="cil-user"/> Profile
+    </CDropdownItem>
+    <CDropdownItem @click="logout">
+      <CIcon name="cil-envelope-closed" /> Messages
     </CDropdownItem>
     <CDropdownItem @click="logout">
       <CIcon name="cil-lock-locked" /> Logout
@@ -61,7 +64,7 @@ export default {
     logout() {
       localStorage.removeItem("userInfor");
       localStorage.removeItem("isAuthen");
-      this.$router.push('/');
+      this.$router.go();
     },
     async created() {
     if (!this.$store.getters.isLoggedIn) {
@@ -69,7 +72,6 @@ export default {
     }
   },
   getRole(){
-    console.log(this.user[0].userTypeID)
     if(this.user[0].userTypeID == '-MO5VBnzdGsuypsTzHaV' || this.user[0].userTypeID == '-MO5VWchsca2XwktyNAw'   )
       return true;
     else return false;
