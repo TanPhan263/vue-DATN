@@ -156,7 +156,7 @@ export default {
 			}
 			else 
 			{
-				this.$http.get('http://KLTN.somee.com/api/Dish/Search?dishname=' + key).then(response => {
+				this.$http.get('https://api.viefood.info/api/Dish/Search?dishname=' + key).then(response => {
 				if(response.data !='Không có kết quả tìm kiếm')
 				{
 					this.lable='';

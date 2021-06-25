@@ -5,21 +5,10 @@
     :show="show"
     @update:show="(value) => $store.commit('set', ['sidebarShow', value])"
   >
-    <CSidebarBrand class="d-md-down-none" to="/">
-      <CIcon 
-        class="c-sidebar-brand-full" 
-        size="custom-size" 
-        :height="35" 
-        viewBox="0 0 556 134"
-      />
-      <CIcon 
-        class="c-sidebar-brand-minimized" 
-        size="custom-size" 
-        :height="35" 
-        viewBox="0 0 110 134"
-      />
+    <CSidebarBrand class="d-md-down-none">
+      <a style="text-decoration: none;" v-show="!minimize" v-if="isAdmin()" href="/manage/dashboard" class="logo">VieFood Admin</a>
+      <a style="text-decoration: none;" v-show="!minimize" v-else href="/manage/overview"  class="logo">VieFood Store Owner</a>
     </CSidebarBrand>
-
     <CRenderFunction v-if="isAdmin()" flat :content-to-render="$options.nav"/>
     <CRenderFunction v-else flat :content-to-render="$options.nav_storeOwner"/>
     <CSidebarMinimizer
@@ -41,22 +30,19 @@ export default {
   },
   data(){
     return {
-      admin: true
+      admin: true,
     }
   },
   created(){
     this.admin = this.isAdmin();
-    console.log(this.admin)
   },
   mounted(){
-    console.log(this.userType)
-    console.log(this.isAdmin())
   },
   methods:{
     isAdmin(){
       if(this.userType == '-MO5VBnzdGsuypsTzHaV') return true;
       return false;
-    }
+    },
   },
   computed: {
     show () {
@@ -68,3 +54,10 @@ export default {
   }
 }
 </script>
+<style>
+  .logo{
+    width: 275%; text-align: center; font-size: 20px; color: white;
+    font-weight: bold;
+    text-decoration: none;
+  }
+</style>

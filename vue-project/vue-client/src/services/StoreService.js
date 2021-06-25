@@ -2,18 +2,18 @@ import axios from 'axios';
 import Vue from 'vue'
 Vue.prototype.$http = axios
 
-const url = 'http://KLTN.somee.com/api/Store';
-const url2 = 'http://KLTN.somee.com/api/BusinessType';
-const url3 = 'http://KLTN.somee.com/api/Dish';
-const url4= 'http://KLTN.somee.com/api/DishType';
-const url5= 'http://KLTN.somee.com/api/Menu';
-const url6= 'http://KLTN.somee.com/api/DiscountType';
+const url = 'https://api.viefood.info/api/Store';
+const url2 = 'https://api.viefood.info/api/BusinessType';
+const url3 = 'https://api.viefood.info/api/Dish';
+const url4= 'https://api.viefood.info/api/DishType';
+const url5= 'https://api.viefood.info/api/Menu';
+const url6= 'https://api.viefood.info/api/DiscountType';
 export default{
     getAll(){
-        return axios.get('http://KLTN.somee.com/api/Store/GetAll').then(response => response.data);
+        return axios.get('https://api.viefood.info/api/Store/GetAll').then(response => response.data);
     },
     getByID(id){
-        return axios.get('http://KLTN.somee.com/api/Store/GetByID?id='+ id).then(response => response.data);
+        return axios.get('https://api.viefood.info/api/Store/GetByID?id='+ id).then(response => response.data);
     },
     getByProvince(id){
        return axios.get( url+'/GetAllGanToiProvince?id=' + id).then(response => response.data);
@@ -36,6 +36,9 @@ export default{
     getAllBussinessType(){
         return axios.get( url2+'/GetAll').then(response => response.data);
     },
+    getBussinessTypeById(id){
+        return axios.get( url2+'/GetByID?id='+ id).then(response => response.data[0].businessTypeName);
+    },
     getByUser(id,token){
         return axios.get(url+'/GetByIDOwner?id='+id,{ headers: {"Authorization" : `Bearer ${token}`}}).then(response => response.data);
     },
@@ -45,6 +48,9 @@ export default{
     addDish(dish,token)
     {
         return axios.post(url3 + '/CreateDish',dish,{ headers: {"Authorization" : `Bearer ${token}`}}).then(response => response.data);
+    },
+    getDishByStore(id){
+        return axios.get(url3 + '/GetByIDStore?id='+id).then(response => response.data);
     },
     getDishByID(id){
         return axios.get(url3 + '/GetByID?id='+id).then(response => response.data);
@@ -75,10 +81,10 @@ export default{
         .then(response => response.data);
     },
     getByBussinessType(id){
-        return axios.get('http://KLTN.somee.com/api/Store/GetByIDBusinessType?id='+ id).then(response => response.data);
+        return axios.get('https://api.viefood.info/api/Store/GetByIDBusinessType?id='+ id).then(response => response.data);
     },
     getByDistrict(id){
-        return axios.get('http://KLTN.somee.com/api/Store/GetByIDDistrict?id='+ id).then(response => response.data);
+        return axios.get('https://api.viefood.info/api/Store/GetByIDDistrict?id='+ id).then(response => response.data);
     },
     viewCount(view){
         return 

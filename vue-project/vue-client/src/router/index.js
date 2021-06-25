@@ -17,6 +17,7 @@ const Login = () => import('@/views/admin/pages/Login')
 const Register = () => import('@/views/admin/pages/Register')
 const RegisterStore = () => import('@/views/admin/pages/RegisterStore')
 const Chat = () => import('@/views/admin/pages/Chat')
+const ChatAdmin = () => import('@/views/admin/chat/chatAdmin')
 // Users
 const Users = () => import('@/views/admin/users/Users')
 const User = () => import('@/views/admin/users/User')
@@ -27,7 +28,10 @@ const ConfirmStore = () => import('@/views/admin/stores/ConfirmStore')
 const inforUser = () => import('@/views/admin/inforUser/update')
 //change pass
 const Changepass = () => import('@/views/admin/change-pass/changepass')
-
+//navbar
+const Navbar = () => import('@/views/admin/navbar/navBar')
+const Provinces = () => import('@/views/admin/provinces/manageProvince')
+const Footer = () => import('@/views/admin/footer/manageFooter')
 //Homepage
 const Homepage = () => import('@/views/user/HomePage') 
 const Area = () => import('@/views/user/containers/Area') 
@@ -46,7 +50,7 @@ const ManageMenu = () => import('@/views/storeOwner/manageMenu/MangeMenu')
 const ManageStoreInfor = () => import('@/views/storeOwner/manageStores/MangeStoreInfor') 
 const OwnerStores = () => import('@/views/storeOwner/manageStores/stores') 
 //Chat
-const chatPage = () => import('@/views/chat/chatPage')
+const chatPage = () => import('@/views/chat/chatTest')
 //Discount
 const Discount =() => import('@/views/admin/discount/Discount')
 Vue.use(Router)
@@ -170,6 +174,21 @@ function configRoutes () {
           component: ConfirmStore,
         },
         {
+          path: 'navbar',
+          name: 'navbar',
+          component: Navbar,
+        },
+        {
+          path: 'provinces',
+          name: 'provinces',
+          component: Provinces,
+        },
+        {
+          path: 'footer',
+          name: 'footer',
+          component: Footer,
+        },
+        {
           path: 'update',
           component: {
             render(c) {
@@ -254,6 +273,12 @@ function configRoutes () {
           name: 'Message',
           component: Chat,
         },
+        {
+          path: 'chats/',
+          name: 'chat',
+          component: ChatAdmin,
+        },
+
       ]
     },
     {

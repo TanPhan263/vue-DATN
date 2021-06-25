@@ -58,7 +58,6 @@
                     <p>Tỉnh</p>
                     <select
                         id="province"
-                       
                         class="country fl_left selectBox"
                         vertical
                         v-model="provinceSelected"
@@ -147,13 +146,13 @@
 </template>
 
 <script>
-import firebase from 'firebase';
+import firebase from '@/firebase/init.js';
 import AuthService from '@/services/AuthService'
 import UserService from '@/services/UserService'
 import ProvinceService from '@/services/ProvinceService';
 import StoreService from '@/services/StoreService';
-// const url = 'http://KLTN.somee.com/api/Store/GetAllManage'
-const url = 'http://KLTN.somee.com/api/Store/GetAll'
+// const url = 'https://api.viefood.info/api/Store/GetAllManage'
+const url = 'https://api.viefood.info/api/Store/GetAll'
 
 export default {
   beforeRouteEnter (to, from, next) {

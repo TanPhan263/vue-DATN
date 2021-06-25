@@ -1,5 +1,5 @@
 import axios from 'axios';
-const url = 'http://KLTN.somee.com/api/BusinessType';
+const url = 'https://api.viefood.info/api/BusinessType';
 export default{
     getAll(){
         return axios.get( url+'/GetAll').then(response => response.data);

@@ -15,9 +15,10 @@ import CommentGrid from 'vue-comment-grid'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faUserSecret } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import firebase from 'firebase'
 import VueLazyload from 'vue-lazyload'
+import VueChatScroll from 'vue-chat-scroll'
  
+Vue.use(VueChatScroll);
 // lazyload image with options
 const loadimage = require('./assets/imgs/loading.gif')
 const errorimage = require('./assets/imgs/error.png')
@@ -37,47 +38,14 @@ Vue.use(infiniteScroll)
 import JwPagination from 'jw-vue-pagination';
 Vue.component('jw-pagination', JwPagination);
 
-require('firebase/firestore');
-firebase.initializeApp({
-  apiKey: "AIzaSyDNRD7rcNybO5pVkC8POMiMhYYwmfreUVQ",
-  authDomain: "tlcn-1a9cf.firebaseapp.com",
-  databaseURL: "https://tlcn-1a9cf.firebaseio.com",
-  projectId: "tlcn-1a9cf",
-  storageBucket: "tlcn-1a9cf.appspot.com",
-  messagingSenderId: "295500543953",
-  appId: "1:295500543953:web:b85c401589d343127152f0",
-  measurementId: "G-RC7XRDEM86"
-});
-
 //GoogleMap
 Vue.use(VueGoogleMaps, {
   load: {
-    key: "AIzaSyDWTx7bREpM5B6JKdbzOvMW-RRlhkukmVE",
+    key: "AIzaSyDNI_ZWPqvdS6r6gPVO50I4TlYkfkZdXh8",
     libraries: "places"
   }
 });
 
-//firebase notification
-// var messaging = firebase.messaging();
-// messaging.requestPermission().then(function() {
-//   console.log('Have permission');
-//   return messaging.getToken({vapidKey: 'BEupx02HLRNfvTuJmMrksken3ZOqWA-Adz6tig2KaPP_EtuCvcYOcJVERk3KoTVeRreVI65HCUQhCge70HyJTsE'});
-// }).then(function(token){
-//   console.log(token);
-// })
-// .catch(function(err){
-//   console.log(err);
-// })
-// messaging.onMessage(function(payload){
-// console.log('onMessage: ', payload);
-// })
-//add firestore
-var db = firebase.firestore();
-window.db = db;
-
-db.settings({
-  timestampsInSnapshots: true
-});
 //add awesome icon
 library.add(faUserSecret)
 

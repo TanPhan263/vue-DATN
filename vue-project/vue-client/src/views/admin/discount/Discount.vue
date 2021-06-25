@@ -117,8 +117,7 @@
 			</div>
 		</transition>
     <CCol  v-for="(discount,index) in discounts" v-bind:key="index" sm="6" lg="3"  @click="getDeleteDiscount(discount.discountTypeID)" >
-      <CWidgetDropdown style="border:none;height: 170px;" color="info" :text="discount.discountTypeName"
->
+      <CWidgetDropdown style="border:none;height: 170px;border-radius:0px" color="info" :text="discount.discountTypeName"
       >
         <template #default>
          
@@ -139,7 +138,7 @@
       </CWidgetDropdown>
     </CCol>
     <CCol sm="6" lg="3" @click="isCreate()">
-         <CWidgetDropdown style="border:none;" color="info"
+         <CWidgetDropdown style="border:none; border-radius:0px" color="info"
       >
         <template #default>
         </template>
@@ -152,7 +151,7 @@
 </template>
 
 <script>
-import firebase from 'firebase'
+import firebase from '@/firebase/init.js';
 import { CChartLineSimple } from '../charts/index.js'
 import DiscountService from '@/services/DiscountService.js'
 import StoreService from '@/services/StoreService.js'
@@ -326,7 +325,7 @@ export default {
   width:100% /* value of your choice which suits your alignment */
 }
 .img-discount{
-  border-radius: 0px 0px 5px 5px;
+  border-radius: 0px 0px 0px 0px;
 }
 .imgBanner{
   height: 300px;

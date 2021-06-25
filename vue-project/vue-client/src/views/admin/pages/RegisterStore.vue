@@ -1,13 +1,20 @@
 <template>
  <div class="d-flex align-items-center min-vh-100">
-   
   <CContainer >
+    <CAlert
+      style="width:100%"
+            color="danger"
+            closeButton
+            :show.sync="showErr">
+           {{ msg }}
+      </CAlert>
     <div v-if="registered" class="alert-green">
       <div class="row">
       <i style="font-size: 70px; margin: 0px 20px 0 20px" class="fas fa-check"></i>
       <div style="width: 88%">
       <span class="closebtn" style="float: right; font-size: 20px" @click="registered=false">&times;</span> 
-      <h4>Thông tin quán đã được ghi nhận</h4> <p>Bạn vui lòng đợi admin xác nhận thông tin. <br>Cám ơn bạn đãn chọn chúng tôi!!!</p>
+          <h4>Thông tin quán đã được ghi nhận</h4> <p>Bạn vui lòng đợi admin xác nhận thông tin. <br>Cám ơn bạn đãn chọn chúng tôi!!!</p>
+          <br><a href="/"><strong>Về trang chủ</strong></a>
     </div>
     </div>
   </div>
@@ -35,13 +42,13 @@
                   autocomplete="email"
                   v-model="mail"
                 />
-                <CButton class="btn_right" v-on:click="page1 = false, page2 = true, page3= false" block>Tiếp theo <i class="fas fa-arrow-right"></i></CButton>
+                <CButton class="btn_right" v-on:click="gotoNextPage(1)" block>Tiếp theo <i class="fas fa-arrow-right"></i></CButton>
               </CForm>
             </CCardBody>
           </CCard>
         </CCol>
       </CRow>
-  <CRow   class="justify-content-center">
+  <CRow class="justify-content-center">
     <CCol v-if="page2" col="12" lg="6" class="animation">
       <CCard>
         <CCardHeader>
@@ -79,9 +86,10 @@
                 label="Giờ mở"
                 horizontal
                 v-model="openTime"
+                placeholder="07:00"
               />
                <CInput
-               
+                placeholder="23:00"
                 label="Giờ đóng"
                 horizontal
                 v-model="closeTime"
@@ -103,8 +111,8 @@
             </CForm>
           </CCardBody>
             <CCardFooter>
-              <CButton  class="btn_left" @click="page1 = true, page2 = false, page3 = false"  block> <i class="fas fa-arrow-left"></i> Trở lại </CButton>
-              <CButton  class="btn_right" @click="page1 = false, page2 = false, page3 = true" block>Tiếp theo <i class="fas fa-arrow-right"></i></CButton>
+              <CButton  class="btn_left" @click="page1 = true, page2 = false, page3 = false,showErr = false"  block> <i class="fas fa-arrow-left"></i> Trở lại </CButton>
+              <CButton  class="btn_right" @click="gotoNextPage(2)" block>Tiếp theo <i class="fas fa-arrow-right"></i></CButton>
       </CCardFooter>
       </CCard>
     </CCol>
@@ -115,8 +123,13 @@
           <strong>CHỌN ẢNH ĐẠI DIỆN QUÁN</strong>
         </CCardHeader>
         <CCardBody>
-             <input
+             <!-- <input
                 type="file"
+                @change="previewImage"
+              /> -->
+              <CInputFile
+                horizontal
+                custom
                 @change="previewImage"
               />
         </CCardBody>
@@ -132,7 +145,7 @@
 </template>
 
 <script>
-import firebase from 'firebase';
+import firebase from '@/firebase/init.js';
 import AuthService from '@/services/AuthService.js';
 import StoreService from '@/services/StoreService.js';
 import ProvinceService from '@/services/ProvinceService.js'
@@ -145,9 +158,10 @@ export default {
       page1: true,
       page2: false,
       page3: false,
-      districts:'',
-      bussinessType:'',
-    
+      districts:[],
+      bussinessType:[],
+      msg: '',
+      showErr: false,
 //Store
       storeName:'',
       districtSelected:'',
@@ -157,21 +171,17 @@ export default {
       picture:'',
       openTime:'',
       closeTime:'',
-      storeType:'',
-      id: '',
 //User
       name: '',
-      address: '',
       phone: '',
       mail: '',
-      avt: '',
       type: '-MO5VWchsca2XwktyNAw' ,
     }
   },
   methods: {
     async signUpStore(){
       try {
-        if(true)
+        if(this.checkPage1() && this.checkPage2())
         {
           const credentials = {
             userName: this.name,
@@ -200,24 +210,18 @@ export default {
             status:'-1'
           };
           const response = await StoreService.registerStore(credentialsStore)
-          alert(response);
           this.registered=true;
-        }else 
-        alert("Vui long nhap dung password")
+          this.reset();
+        }else {
+          this.showErr = true;
+        }
       }catch (error) {
-        alert(error);
+        console.log(error);
       }
     },
     goBack() {
       this.usersOpened ? this.$router.go(-1) : this.$router.push({path: '/'})
     },
-    //  checkPass(){
-    //    if(this.pass == this.pass2){
-    //     return true}
-    //    else {
-    //     return false
-    //    }
-    // },
     previewImage(event){
         this.picture=null;
         this.imageData= event.target.files[0];
@@ -240,6 +244,60 @@ export default {
         }
       )
     },
+    checkPage1(){
+      if(this.name== '' || this.phone ==''|| this.email=='')
+        {
+            this.msg = 'Vui lòng nhập đầy đủ thông tin của bạn!'
+            return false;
+        }
+      else{
+        if(!this.ValidateEmail(this.mail)){
+          this.msg="Email không hợp lệ";
+          return false;
+        }
+        return true;
+      }
+    },
+    checkPage2(){
+      if(this.openTime == '' || this.closeTime =='' || this.Store_address =='' || this.storeName == ''||
+       this.bussinessTypeSelected=='' || this.districtSelected == '')
+       {
+         this.msg = "Vui lòng nhập đầy đủ thông tin quán của bạn"
+         return false;
+       }
+      return true;
+    },
+    ValidateEmail(mail) 
+    {
+       var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+          if (mail.match(validRegex)) {
+            return true;
+          } else {
+            return false;
+        }
+    },
+    reset(){
+      this.openTime == ''; 
+      this.closeTime ==''; 
+      this.Store_address ==''; 
+      this.storeName == '';
+      this.bussinessTypeSelected==''; 
+      this.districtSelected == '';
+      this.name== '';
+      this.phone =='';
+      this.email=='';
+      this.picture ='';
+      this.page1 = true; this.page2 = false; this.page3= false;
+    },
+    gotoNextPage(index){   
+      this.showErr = false;   
+      switch(index){
+        case 1: if(!this.checkPage1()){ this.showErr=true; return;} 
+                this.page1 = false; this.page2 = true; this.page3= false; break;
+        case 2: if(!this.checkPage2()){ this.showErr=true; return;} 
+                this.page1 = false; this.page2 = false; this.page3 = true; break;
+      }
+    },
     async onInit(){
       this.next = false;
       this.districts = await ProvinceService.getAllDistrict();
@@ -257,7 +315,7 @@ export default {
     padding: 20px;
     background-color:limegreen;
     color: white;
-  }
+}
 .btn_left{
   width: 30%; border: 1px solid red; color: red; float: left; margin-top: 8px ;
 }
@@ -271,16 +329,16 @@ export default {
   background: limegreen; color: white;
 }
 .select-template{
-  width:360px;height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-bottom: 10px;
+  width:72%;height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-bottom: 15px;
 }
 .lable-select{
-  width: 122px;
+  width: 25%;
+  float: left;
 }
 .animation {
   animation-duration: 1.5s;
   animation-name: slidein;
 }
-
 @keyframes slidein {
   from {
     margin-left: 20%;
@@ -291,5 +349,12 @@ export default {
     margin-left: 0%;
     width: 100%;
   }
+}
+a{
+  text-decoration: none;
+  color: white;
+}
+a:hover{
+  text-decoration: none;
 }
 </style>

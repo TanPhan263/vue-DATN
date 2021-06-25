@@ -1,15 +1,15 @@
 <template>
   <CRow>
     <CCol md="12">
-    <div v-if="status === '-1'" class="alert-red" >
+      <div v-if="status === '-1'" class="alert-red" >
             <div class="row">
               <div style="width: 100%">
-              <h4>Tài khoản chưa được kích hoạt</h4> <p>Nhấn để kích hoạt </p>
+              <h4>Quán hiện chưa được kích hoạt</h4> <p>Nhấn để kích hoạt </p>
                 <CButton style="margin-right: 20px"  @click="confirmStore()" class="btn_left" type="submit" size="sm" color="warning"><CIcon name="cil-check-circle"/> Kích hoạt</CButton>
                  <CButton @click="deleteStore()"  class="btn_left" type="reset" size="sm" color="danger"><CIcon name="cil-ban"/> Xóa</CButton>
             </div>
           </div>
-        </div>
+      </div>
     </CCol>
     <CCol md="12">
       <CCard>
@@ -19,8 +19,8 @@
           </div>
          </CCardHeader>
          <CCardBody>
-            <a :href="'http://localhost:8080/'+ storeID" target="_blank">
-              <span style="margin-right: 5px; padding: 3px;"><span  class="fa fa-link" style="font-size: 17px; color: blue"> http://localhost:8080/{{storeID}}</span>
+            <a :href="'http://viefood.info/'+ storeID" target="_blank">
+              <span style="margin-right: 5px; padding: 3px;"><span  class="fa fa-link" style="font-size: 17px; color: blue"> http://viefood.info/{{storeID}}</span>
               </span>
             </a>
          </CCardBody>
@@ -115,7 +115,7 @@
                       </option>
                 </select>
                </div>
-                <p v-if="storeOwnerName.status === '-1'"> Tài khoản hiện chưa được xác nhận! <a :href="'/manage/users/'+storeOwnerName.userID">Đi đến tài khoản</a></p>
+                <p style="color:red" v-if="storeOwnerName.status === '-1'"> Tài khoản hiện chưa được xác nhận! <a :href="'/manage/users/'+storeOwnerName.userID"><strong>Đi đến tài khoản</strong></a></p>
               <CInput
                 label="Địa chỉ"
                 horizontal
@@ -423,7 +423,7 @@ export default {
       alert(response)
     },
     getStoreOwner() {
-      this.$http.get('http://KLTN.somee.com/api/User/GetByID?id='+this.storeOwner,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
+      this.$http.get('https://api.viefood.info/api/User/GetByID?id='+this.storeOwner,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
             this.storeOwnerName = response.data[0];
       })
     },
@@ -463,20 +463,33 @@ export default {
       this.users = await UserService.getAll(localStorage.getItem('isAuthen')); 
     },
     async confirmStore(){
-      const id = this.$route.params.id;
-      const response =  await StoreService.changeStatus(localStorage.getItem('isAuthen'), '1', id);
-      alert(response);
+      try{
+        if(this.storeOwner != ''){
+          const id = this.$route.params.id;
+          const responseStore =  await StoreService.changeStatus(localStorage.getItem('isAuthen'), '1', id);
+          const responseOwner =  await UserService.block(localStorage.getItem('isAuthen'), this.storeOwner, '1');
+          alert(responseStore);
+        }
+      }
+      catch{
+
+      }
     },
     async deleteStore(){
+      try{
+        if(confirm('Bạn chắc chắn muốn xóa')){
           const id = this.$route.params.id;
           const response = await StoreService.delete(id,localStorage.getItem('isAuthen'))
           alert(response);
           this.$router.push("/confirmstore");
+        }
+      }
+      catch{}
     },
   },
    mounted(){
       const id = this.$route.params.id
-      this.$http.get('http://KLTN.somee.com/api/Store/GetByIDManage?id='+id,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
+      this.$http.get('https://api.viefood.info/api/Store/GetByIDManage?id='+id,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
             this.storeName = response.data[0].storeName;
             this.storeAddress = response.data[0].storeAddress;
             this.storePicture = response.data[0].storePicture;
@@ -497,7 +510,7 @@ export default {
     });
      this.onInit();
      this.getDisCount(id);
-     this.$http.get('http://KLTN.somee.com/api/BusinessType/GetAll').then(response => {
+     this.$http.get('https://api.viefood.info/api/BusinessType/GetAll').then(response => {
             this.bussinessType = response.data
     })
   }

@@ -1,6 +1,6 @@
 import axios from 'axios';
-const url = 'http://KLTN.somee.com/api/User/';
-const url2 = 'http://KLTN.somee.com/api/UserType/';
+const url = 'https://api.viefood.info/api/User/';
+const url2 = 'https://api.viefood.info/api/UserType/';
 export default{
     getInfo(token){
         return axios.get(url+ 'GetByID',{ headers: {"Authorization" : `Bearer ${token}`}}).then(respone => respone.data);

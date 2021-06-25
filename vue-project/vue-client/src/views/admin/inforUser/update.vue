@@ -102,7 +102,7 @@
 </template>
 
 <script>
-import firebase from 'firebase'
+import firebase from '@/firebase/init.js';
 import axios from 'axios';
 import UserService from '@/services/UserService.js';
 import AuthService from '@/services/AuthService.js';
@@ -168,7 +168,7 @@ export default {
           birthday: this.birth,
           userTypeID: this.type
           };
-          axios.post("http://KLTN.somee.com/api/User/EditByID" , credentials ,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{ 
+          axios.post("https://api.viefood.info/api/User/EditByID" , credentials ,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{ 
             alert(respone.data)})
           }
           catch(err){
@@ -178,7 +178,7 @@ export default {
     },
     mounted() {
       try{
-          this.$http.get("http://KLTN.somee.com/api/User/GetByID" , { headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{
+          this.$http.get("https://api.viefood.info/api/User/GetByID" , { headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{
             this.id= respone.data[0].userID
             this.name=respone.data[0].userName
             this.phone=respone.data[0].phone

@@ -11,11 +11,11 @@
         </div>
       </div>
   </transition>
-    <div v-if="storeOpen" @click="notify=false,chat=!chat" class="message"><i class="fa fa-envelope"></i>
+    <div  v-if="storeID!=='' && storeName!=='' && storePicture!==''" @click="notify=false,chat=!chat" class="message"><i class="fa fa-envelope"></i>
     </div>
     <transition >
       <div v-show="chat" class="chat">
-        <Chat v-bind:storeID="storeID" v-bind:storeName="storeName" v-bind:storePicture="storePicture" />
+        <Chat v-bind:isOpen="chat" v-bind:storeID="storeID" v-bind:storeName="storeName" v-bind:storePicture="storePicture" />
       </div>
     </transition>
   <Header/>
@@ -38,9 +38,12 @@
           <div class="res-common">
             <div class="breadcrum"></div>
             <div class="main-info-title">
-              <span class="main-info-title-contracted" style="float:right">
-                <span class="fa fa-check-circle" style="font-size: 30px"></span>
-              </span>
+              <div v-if="storeRate > 3.5" class="numberCircle" style="float:right;background:limegreen">
+               {{ Math.ceil(storeRate*100)/100}}
+              </div>
+               <div v-else class="numberCircle" style="float:right; background:red">
+              {{ Math.ceil(storeRate*100)/100}}
+              </div>
               <h1 style="width: 600px; margin-top:20px;font-size: 25px" class="fl_left">{{storeOpen[0].storeName}}
               </h1>
               <div class="clearfix"></div>
@@ -71,7 +74,7 @@
                 <div class="res-common-minmaxprice"  style="border-top: 1px solid #888;">
                   <span v-if="discountList"><span v-for="(discount,index) in discountList" v-bind:key="index" class="fa fa-tag" style="font-size: 15px; color: red; border: 1px solid red; padding: 2px;"> {{getDiscountName(discount.idDiscountType)}}</span>  </span>
                 </div>
-                
+                 <iframe :src="'https://www.facebook.com/plugins/share_button.php?href=https%3A%2F%2Fviefood.info%2F'+storeID+'&layout=button&size=large&appId=396920051515132&width=87&height=28'" width="87" height="28" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
               </div>
             </div>
           </div>
@@ -141,13 +144,16 @@
             </h2>
           </div>
           <div class="tb-offers-box">
-            <div class="tb-content">
-              <div v-for="dish in storeMenu" v-bind:key="dish.dish_ID" class="tb-offer-item">
-                <div @click="showDishChoosed(dish)" class="tb-item-left" style="margin-left: 20px;">
-                  <img v-lazy="dish.dishPicture" style="width: 120px; height: 110px; border-radius:10px; cursor:pointer;" />
+            <div class="tb-content" >
+              <div v-for="(dish,index) in storeMenu" v-bind:key="index" class="tb-offer-item">
+                <div class="tb-item-left" style="margin-left: 20px">
+                  <div class="popup" @click="showDishChoosed(dish,index)" @mouseover="openPopup('myPopup'+ index)" @mouseleave="closePopup('myPopup'+ index)">
+                  <img v-lazy="dish.dishPicture" style="width: 120px; height: 110px; border-radius:10px; cursor:pointer;"/>
+                    <span class="popuptext" :id="'myPopup'+ index"><img height="500" width="800"  v-lazy="dish.dishPicture" ></span>
+                  </div>
                 </div>
-                <div class="tb-item-mid" style="">
-                  <a @click="showDishChoosed(dish)" style="color: #000" class="tb-oi-time">
+                  <div class="tb-item-mid" style="">
+                    <a @click="showDishChoosed(dish, index)" style="color: #000" class="tb-oi-time">
                     <span class="">{{dish.dishName}}</span>
                     <span class=""></span>
                   </a>
@@ -157,7 +163,14 @@
                     >
                   </a>
                 </div>
-                <div style="width: 30px; height:30px; background-color: red; float:right; border-radius: 5px;"><p style="text-align: center; margin-top: 7px;"><span class="fa fa-plus fl-right" style="color:white;"></span></p></div>
+                <!-- <div style="width: 30px; height:30px; background-color: red; float:right; border-radius: 5px;"> -->
+                <!-- <p style="text-align: center; margin-top: 7px;"><span class="fa fa-plus fl-right" style="color:white;"></span></p> -->
+                <div style="float:right">
+                  <div class="res-common-minmaxprice"  v-if="dishDiscountList[index]">
+                      <span v-for="(discount,index) in dishDiscountList[index]" v-bind:key="index" style="margin-right: 5px; padding: 3px;"><span  class="fa fa-tag" style="font-size: 17px; color: red"> {{getDiscountName(discount.dishcountTypeID)}}</span>
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -169,13 +182,11 @@
                 <div class="modal-container">
                 <div class="modal-header">
                   <slot name="header">
-                  <h3>{{dishChoosed.dishName}}</h3>
-                  <a class="tb-shorttitle" style="float:right; font-size: 20px;">
-                      <span>
-                        {{dishChoosed.dishPrice}}</span
-                      >
-                    </a>
+                  <h5>{{dishChoosed.dishName}}</h5>
                   </slot>
+                  <a class="tb-shorttitle" style="float:right; font-size: 20px;">
+                      <i v-on:click="active=false" class="fas fa-times" style="float: right; font-size: 20px;"></i>
+                    </a>
                 </div>
 
                 <div class="modal-body">
@@ -186,9 +197,13 @@
                   </div>
                   <div class="tb-item-mid col-sm-4">
                     <a class="tb-shorttitle">
-                      <span>
-                        Something about dish...</span
-                      >
+                        <strong><span>Giá gốc:</span><span>{{dishChoosed.dishPrice}}</span></strong>
+                        <br>
+                        <h6>Khuyến mãi đang áp dụng:</h6>
+                        <div class="res-common-minmaxprice"  v-if="dishDiscountList[dishChoosedIndex]">
+                        <span v-for="(discount,index) in dishDiscountList[dishChoosedIndex]" v-bind:key="index" style="margin-right: 5px; padding: 3px;"><span  class="fa fa-tag" style="font-size: 17px; color: red"> {{getDiscountName(discount.dishcountTypeID)}}</span><br>
+                        </span>
+                        </div>
                     </a>
                   </div>
                   </div>
@@ -196,11 +211,6 @@
                 </div>
 
                 <div class="modal-footer">
-                  <slot name="footer">
-                  <button class="btn btn-danger" @click="active=false">
-                    Close
-                  </button>
-                  </slot>
                 </div>
                 </div>
               </div>
@@ -232,10 +242,9 @@ import Navbar from './containers/Navbar';
 import GoogleMap from './containers/GoogleMap';
 import Comments from './containers/Comments/comments';
 import Footer from './containers/Footer'
-import Chat from '../chat/chatPage'
+import Chat from '../chat/chatTest'
 import StoreService from '@/services/StoreService.js';
 import DiscountService from '@/services/DiscountService.js';
-const baseUrl='http://KLTN.somee.com/api';
 
 export default {
   name: 'storeDetail',
@@ -259,9 +268,11 @@ export default {
       //dishChoosed
       active: false,
       dishChoosed:'',
+      dishChoosedIndex: 0,
       storeID:'',
       storeName: '',
       storePicture: '',
+      storeRate:0,
       storeOpen: [
         {
         storeID: String,
@@ -279,8 +290,6 @@ export default {
       ],
       storeMenu:[],
       menuId: '',
-      dishType: [],
-      dishType_all: [],
       isMapOpen: false,
       provinces: [],
       businessTypeName:'',
@@ -288,7 +297,8 @@ export default {
       totalRate:5,
       commentList:[],
       discountList:[],
-      discountAll:[]
+      discountAll:[],
+      dishDiscountList:[]
     }
   },
   components:{
@@ -300,14 +310,15 @@ export default {
     Chat
   },
 methods:{
-    getType(index){
-      this.$http.get(baseUrl +'/BusinessType/GetByID?id='+ index).then(response =>{
-        this.businessTypeName = response.data[0].businessTypeName })
-    },
-    showDishChoosed(index)
+    // getType(index){
+    //   this.$http.get(baseUrl +'/BusinessType/GetByID?id='+ index).then(response =>{
+    //     this.businessTypeName = response.data[0].businessTypeName })
+    // },
+    showDishChoosed(dish,index)
     {
       this.active = true;
-      this.dishChoosed = index;
+      this.dishChoosed = dish;
+      this.dishChoosedIndex = index;
     },
     changeActive(tab){
       this.activeClass = tab;
@@ -350,19 +361,15 @@ methods:{
         }
       };
     },
-    getTypeDish(index){
-          var temp='Unknown'
-          this.dishType_all.forEach(element => {
-              if(element.dishType_ID == index)
-                temp = element.dishyTypeName;
-          });
-          return temp;
-        },
-    async getDisCount(id){
+    async getDisCount(id,array){
       try{
       this.discountList = await DiscountService.getDiscountbyStore(id);
       this.discountAll =  await DiscountService.getAll();
-      console.log(this.discountAll)
+      for (let i = 0; i < array.length ; i++) {
+        let discount = await DiscountService.getDishDiscounts(array[i].dish_ID)
+        this.dishDiscountList.push(discount);
+      };
+      console.log(this.dishDiscountList)
       }
       catch(err){
         console.log(err)
@@ -370,37 +377,67 @@ methods:{
     },
     getDiscountName(id){
       let temp = ''
-      console.log(id)
       this.discountAll.forEach(element => {
         if(element.discountTypeID == id)
           temp = element.discountTypeName;
       });
       return temp;
-    }
+    },
+    async onInit(){
+      try{
+        this.storeID = this.$route.params.id;
+        this.storeOpen = await StoreService.getByID(this.storeID);
+        this.storeName=this.storeOpen[0].storeName;
+        this.storePicture=this.storeOpen[0].storePicture;
+        this.address=this.storeOpen[0].storeAddress;
+        this.storeRate = this.storeOpen[0].ratePoint;
+        if(this.storeRate == null || this.storeRate == 'NaN' ) this.storeRate = 0;
+        this.storeMenu = await StoreService.getDishByStore(this.storeID);
+        this.businessTypeName = await StoreService.getBussinessTypeById(this.storeOpen[0].businessTypeID);
+        this.getDisCount(this.storeID,this.storeMenu);
+        this.isLoaded = true;
+      }
+      catch{}
+    },
+    openPopup(name) {
+			if(this.isPopup == false){
+        this.isPopup = true;
+        var popup = document.getElementById(name);
+        popup.classList.toggle("show");
+			}
+		},
+		closePopup(name) {
+			if(this.isPopup == true){
+				var popup = document.getElementById(name);
+				popup.classList.toggle("show");
+				this.isPopup = false;
+			}
+		},
   },
   created(){
     this.storeID=this.$route.params.id;
   },
   mounted(){
     try{
-      const id = this.$route.params.id;
-      this.$http.get('http://KLTN.somee.com/api/Store/GetByID?id='+ id).then(response => {
-            this.storeOpen = response.data
-            this.storeID=this.storeOpen[0].storeID;
-            this.storeName=this.storeOpen[0].storeName;
-            this.storePicture=this.storeOpen[0].storePicture;
-            this.address=this.storeOpen[0].storeAddress;
-            this.$http.get('http://KLTN.somee.com/api/Dish/GetByIDStore?id=' +this.storeID).then(response => {
-                this.storeMenu = response.data;
-                this.storeMenu.forEach( element => {
-                  if(!this.dishType.includes(element.dishType_ID))
-                    this.dishType.push(element.dishType_ID);
-                });
-            });
-            this.getType(this.storeOpen[0].businessTypeID);
-            this.isLoaded = true;
-      });
-      this.getDisCount(id);
+      // this.$http.get('https://api.viefood.info/api/Store/GetByID?id='+ id).then(response => {
+      //       this.storeOpen = response.data
+      //       this.storeID=this.storeOpen[0].storeID;
+      //       this.storeName=this.storeOpen[0].storeName;
+      //       this.storePicture=this.storeOpen[0].storePicture;
+      //       this.address=this.storeOpen[0].storeAddress;
+      //       this.storeRate = this.storeOpen[0].ratePoint;
+      //       if(this.storeRate == null || this.storeRate == 'NaN' ) this.storeRate = 0;
+      //       this.$http.get('https://api.viefood.info/api/Dish/GetByIDStore?id=' +this.storeID).then(response => {
+      //           this.storeMenu = response.data;
+      //           this.storeMenu.forEach( element => {
+      //             if(!this.dishType.includes(element.dishType_ID))
+      //               this.dishType.push(element.dishType_ID);
+      //           });
+      //       });
+      //       this.getType(this.storeOpen[0].businessTypeID);
+      //       this.isLoaded = true;
+      // });
+      this.onInit();
       this.onScroll();
     }
     catch(err){console.log(err)}
@@ -459,4 +496,27 @@ html {
   bottom: 0;
   right: 0;
 }
+.left-thing{
+	width: 10%; 
+	height: 100%;
+}
+.middle-thing{
+	width: 55%;
+	font-size: 13px;
+}
+.right-thing{
+	width: 35%;
+	float: right;
+	text-align: right;
+	font-size: 13px;
+}
+.numberCircle {
+    width: 50px;
+    line-height: 50px;
+    border-radius: 50%;
+    text-align: center;
+    font-size: 17px;
+    font-weight: bold;
+    color: white;
+} 
 </style>

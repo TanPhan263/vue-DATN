@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex align-items-center min-vh-100" style="background-image: url('https://wallpaperaccess.com/full/1631410.jpg');">
+  <div class="d-flex align-items-center min-vh-100">
    <transition v-if="loading">
        	<div class="modal-mask">
           <div class="loading" >
@@ -7,20 +7,32 @@
           </div>
          </div>
     </transition>
-    <CContainer fluid>
-       <div v-if="show == 1" class="alert-red" style="margin-bottom: 20px;margin-top: 20px;">
+    <CContainer class="justify-content-center" >
+      <CAlert
+            color="danger"
+            closeButton
+            :show.sync="showErr">
+           {{ msg }}
+      </CAlert>
+      <CAlert
+            color="success"
+            closeButton
+            :show.sync="showSuccess">
+           {{ msg }}
+      </CAlert>
+       <!-- <div v-if="show == 1" class="alert-red" style="margin-bottom: 20px;margin-top: 20px;">
         <span class="closebtn" @click="show=0">&times;</span> {{ msg }}
       </div>
        <div v-if="show == 2" class="alert-blue" style="margin-bottom: 20px;margin-top: 20px;">
         <span class="closebtn" @click="show=0">&times;</span> {{ msg }}
-      </div>
+      </div> -->
       <CRow class="justify-content-center">
         <CCol md="6">
           <CCard class="mx-4 mb-0">
             <CCardBody class="p-4">
               <CForm>
                 <h1>Register</h1>
-                <p class="text-muted">Create your account</p>
+                <p class="text-muted">Already have an account?<a href="/login"><strong>Login</strong></a></p>
                 <CInput
                   placeholder="Username"
                   autocomplete="username"
@@ -34,10 +46,6 @@
                   autocomplete="email"
                   prepend="@"
                   v-model="mail"
-                  description="Please enter your email."
-                  label="Email"
-                  required
-                  was-validated
                 />
                 <CInput
                   placeholder="Password"
@@ -53,26 +61,23 @@
                   invalid-feedback="Your password is not correct"
                   autocomplete="new-password"
                   class="mb-4"
-                  v-model="pass2"
-                  :is-valid="checkPass"
-                >
+                  v-model="retypepass"
+                  >
                   <template #prepend-content><CIcon name="cil-lock-locked"/></template>
                 </CInput>
                 <CButton v-on:click="signUp" color="success" block>Create Account</CButton>
-                <br>
-                 <a style="float: left" href="/registerStore">Create your own store...</a>
               </CForm>
             </CCardBody>
-            <CCardFooter class="p-4">
+            <CCardFooter style="text-align:center" class="p-4">
               <p class="text-muted">or login with</p>
               <CRow>
                 <CCol col="6">
-                  <CButton block color="facebook">
+                  <CButton  @click="loginFacebook()" block color="facebook">
                     Facebook
                   </CButton>
                 </CCol>
                 <CCol col="6">
-                  <CButton block style="background: red; color: white">
+                  <CButton @click="loginGoogle()" block style="background: red; color: white">
                     Google
                   </CButton>
                 </CCol>
@@ -86,7 +91,7 @@
 </template>
 
 <script>
-// import AuthService from '@/services/AuthService.js';
+import AuthService from '@/services/AuthService.js';
 import axios from 'axios';
 export default {
   name: "Register",
@@ -94,7 +99,8 @@ export default {
     return {
       loading: false,
       msg:'plaplaspl',
-      show: 0,
+      showErr: false,
+      showSuccess: false,
       id: '',
       name: '',
       address: '',
@@ -103,7 +109,7 @@ export default {
       mail: '',
       avt: '',
       pass: '', 
-      pass2:'',
+      retypepass:'',
       sex: '',
       type: '-MO5VYNnWIjXtvJO4AXi' ,
     };
@@ -111,9 +117,16 @@ export default {
   methods: {
     signUp() {
       try {
-        this.loading = true;
-        if(this.checkPass())
+        this.showErr=false;
+        this.showSuccess= false;
+        if(!this.ValidateEmail(this.mail)){
+          this.msg="Email không hợp lệ";
+          this.showErr = true;
+          return;
+        }
+        if(this.check())
         {
+          this.loading = true;
           const credentials = {
           userName: this.name,
           phone: this.phone,
@@ -125,30 +138,34 @@ export default {
           birthday: this.birth,
           userTypeID: this.type
           };
-          axios.post("http://KLTN.somee.com/api/User/RegisterUser", credentials).then(respone =>{ 
-              this.msg= respone.data
-              this.show = 1;
-              })
-          setTimeout(this.reset(), 2000);
+          axios.post("https://api.viefood.info/api/User/RegisterUser", credentials).then(respone =>{ 
+              this.msg="Bạn đã đăng kí thành công, vui lòng đăng nhập"
+              this.showSuccess = true;
+            })
+          this.reset();
         }else{
           this.loading=false;
-           this.msg="Vui lòng nhập đúng password";
-           this.show = 1;
+          this.showErr = true;
         }
       }catch (error) {
         this.loading=false;
         this.msg = error.response.data.msg;
-        this.show = 2;
+        this.showErr = true;
       }
     },
-    checkPass(){
-      if(this.pass=='') return false;
-      else if(this.pass == this.pass2){
-        return true;
-       } 
-        else {
+    check(){
+      if(this.name == '' || this.mail == '' || this.pass =='' || this.retypepass =='')
+      {
+        this.msg='Vui lòng nhập đầy đủ thông tin';
         return false;
-       }
+      }
+      else{   
+        if(this.pass == this.retypepass) return true;
+        else{
+          this.msg = 'Password không trùng khớp, vui lòng nhập lại';
+          return false;
+        }
+      }
     },
     reset(){
       this.name='';
@@ -159,14 +176,37 @@ export default {
       this.avt='';
       this.sex='';
       this.birth='';
-      this.pass2 = '';
+      this.retypepass = '';
       this.loading=false;
-      this.$router.push('/login')
-    }
+    },
+    ValidateEmail(mail) 
+    {
+       var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+          if (mail.match(validRegex)) {
+            return true;
+          } else {
+            return false;
+        }
+    },
+     loginGoogle(){
+      AuthService.loginGoogle();
+      this.loading=false;
+    },
+    loginFacebook(){
+       AuthService.loginFacebook();
+       this.loading=false;
+    },
   }
 };
 </script>
 <style>
   @import url('../../../assets/css/alert.css');
-
+a{
+  text-decoration: none;
+  color: black;
+}
+a:hover{
+  text-decoration: none;
+  color: Red;
+}
 </style>

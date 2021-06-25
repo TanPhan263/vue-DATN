@@ -25,18 +25,17 @@
      <CDropdownItem v-else to="/userinformation">
       <CIcon name="cil-user"/> Profile
     </CDropdownItem>
-    <CDropdownItem @click="logout">
-      <CIcon name="cil-envelope-closed" /> Messages
+    <CDropdownItem to="/ForgetPass">
+      <CIcon name="cil-lock-locked" /> Change password
     </CDropdownItem>
     <CDropdownItem @click="logout">
-      <CIcon name="cil-lock-locked" /> Logout
+      <CIcon name="cil-account-logout" /> Logout
     </CDropdownItem>
     </div>
   </CDropdown>
 </template>
 
 <script>
-import AuthService from '@/services/AuthService.js';
 import UserService from '@/services/UserService.js';
 export default {
   name: 'TheHeaderDropdownAccnt',

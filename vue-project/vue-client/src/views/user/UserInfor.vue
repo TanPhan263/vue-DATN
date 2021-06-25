@@ -94,7 +94,7 @@
 </template>
 
 <script>
-import firebase from 'firebase'
+import firebase from '@/firebase/init.js';
 import axios from 'axios';
 import UserService from '@/services/UserService.js';
 export default {
@@ -185,7 +185,7 @@ export default {
               userTypeID: this.userTypeID
               };
               localStorage.setItem('userInfor',credentials.toString())
-              axios.post("http://KLTN.somee.com/api/User/EditByID" , credentials ,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{ 
+              axios.post("https://api.viefood.info/api/User/EditByID" , credentials ,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{ 
                 this.loading= false;
                 alert(respone.data)
               });

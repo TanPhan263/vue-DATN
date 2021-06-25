@@ -46,11 +46,11 @@
 </template>
 
 <script>
-import firebase from 'firebase';
+import firebase from '@/firebase/init.js';
 import ProvinceService from '@/services/ProvinceService';
 import StoreService from '@/services/StoreService';
 import AuthService from '@/services/AuthService.js';
-const url = 'http://KLTN.somee.com/api/Store/GetAllCheck'
+const url = 'https://api.viefood.info/api/Store/GetAllCheck'
 export default {
    beforeRouteEnter (to, from, next) {
     AuthService.checkUser(localStorage.getItem('isAuthen'))
@@ -115,7 +115,7 @@ export default {
       }
     },
     rowClicked (item) {
-      this.$router.push({path: `/${item.storeID}`})
+      this.$router.push({path: `/manage/store/${item.storeID}`})
     },
     pageChange (val) {
       this.$router.push({ query: { page: val }})

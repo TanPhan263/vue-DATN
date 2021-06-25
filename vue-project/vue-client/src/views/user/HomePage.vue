@@ -59,6 +59,13 @@
       <transition name="fade" mode="out-in" >
           <router-view v-bind:keyword="keyword" :key="$route.path"></router-view>
       </transition>
+      <div @click="chat=!chat" class="message"><i class="fa fa-envelope"></i>
+      </div>
+      <transition >
+        <div v-show="chat" class="chat">
+          <Chat/>
+        </div>
+      </transition>
     <Footer/>
   </div>
 </template>
@@ -68,6 +75,7 @@
 import Header from './containers/Header'
 import Navbar from './containers/Navbar'
 import Suggest from './containers/Suggest'
+import Chat from '../chat/chatTest'
 import Homebody from './Homebody'
 import CategoryPage from './containers/CategoryPage'
 import SearchPage from './SearchPage'
@@ -89,7 +97,8 @@ export default {
       Footer,
       GoogleMapHome,
       Suggest,
-      CategoryPage
+      CategoryPage,
+      Chat
     },
   data() {
     return {
@@ -107,7 +116,8 @@ export default {
       provinces:[],
       results: null,
       isDropdown: false,
-      scroll: ''
+      scroll: '',
+      chat: false,
     }
   },
   created(){
@@ -134,9 +144,11 @@ export default {
       try{
         this.isDropdown=true;
         this.loading = true;
-        localStorage.setItem("keyword", key);
         if(key == '' || key == null)
+        {
+          this.loading = false;
           return this.results=null;
+        }
         else {
           setTimeout(() =>{
             //this.results = this.stores.filter(this.searchfilter);
@@ -256,5 +268,37 @@ export default {
     top: 24px;
     height: 32px;
   }
+}
+.message{
+  z-index: 3;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  text-align: center;
+  background: blue;
+  height: 60px;
+  width: 60px;
+  border-radius: 50%;
+}
+.message i {
+  margin: 13px;
+  color: white;
+  font-size: 30px;
+}
+.chat{
+  z-index: 3;
+  height: 450px;
+  width: 950px;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+}
+.chatArea{
+  z-index: 1;
+  height: 500px;
+  width: 700px;
+  position: fixed;
+  bottom: 0;
+  right: 0;
 }
 </style>

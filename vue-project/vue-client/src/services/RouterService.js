@@ -13,9 +13,9 @@ export default{
         return router.push('/dishtype');
     },
     viewMore_Search(index){
-       return this.$router.push('/search?key=' + index).catch(()=>{});
+       return router.push('/search?key=' + index).catch(()=>{});
     },
     onSearchClicked(keyword){
-        this.$router.push('/search?key=' + keyword).catch(()=>{});
+        router.push('/search?key=' + keyword).catch(()=>{});
     },
 }

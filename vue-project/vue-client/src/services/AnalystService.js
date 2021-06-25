@@ -1,5 +1,5 @@
 import axios from 'axios';
-const url='http://KLTN.somee.com/api/Store';
+const url='https://api.viefood.info/api/Store';
 export default{
     getDate(ngay, thang, nam){
         return axios.get(url +'/ThongKeTheoNgayAll?ngay='+ngay+'&thang='+thang+'&nam='+nam).then(response => response.data);

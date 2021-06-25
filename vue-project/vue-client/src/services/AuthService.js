@@ -2,8 +2,7 @@ import axios from 'axios';
 import firebase from 'firebase';
 import router from '../router/index';
 import UserService from '../services/UserService';
-const url = 'http://KLTN.somee.com/api/User/';
-const url2 = 'http://KLTN.somee.com/api/Store/';
+const url = 'https://api.viefood.info/api/User/';
 export default {
   parseJwt (isAuthen) {
     var base64Url = isAuthen.split('.')[1];
@@ -12,6 +11,11 @@ export default {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
     return JSON.parse(jsonPayload);
+  },
+  getRole(credentials) {
+    return axios
+      .get(url + 'GetRole',{ headers: {"Authorization" : `Bearer ${credentials}`}})
+      .then(response => response.data);
   },
   isAuthented(token){
     var expireTime = this.parseJwt(token);
@@ -33,24 +37,35 @@ export default {
   login(credentials) {
     return axios
       .post(url + 'Login', credentials)
-      .then(response => response.data);
+      .then(async function(response){
+        if(response.data == 'Đăng nhập thất bại') 
+          {
+            return response.data;
+          }
+        const response2 = await UserService.getInfo(response.data.token);
+        localStorage.setItem('isAuthen',response.data.token);
+        localStorage.setItem('userInfor',JSON.stringify(response2[0]));
+        switch(response2[0].userTypeID){
+          case '-MO5VBnzdGsuypsTzHaV':router.push('/manage/dashboard'); break;
+          case '-MO5VWchsca2XwktyNAw':router.push('/manage/overview'); break;
+          case '-MO5VYNnWIjXtvJO4AXi':router.push('/'); break;  
+          default: router.push('/'); break;                                                           
+        }
+        }
+      );
   },
   signUp(credentials) {
     return axios
       .post(url + 'RegisterUser', credentials)
       .then(response => response.data);
   },
-  getRole(credentials) {
-    return axios
-      .get(url + 'GetRole',{ headers: {"Authorization" : `Bearer ${credentials}`}})
-      .then(response => response.data);
-  },
+  
   getSecretContent() {
     return axios.get(url + 'secret-route/').then(response => response.data);
   },
   registerOwner(credentials){
     return axios
-      .post('http://KLTN.somee.com/api/User/RegisterOwner', credentials)
+      .post('https://api.viefood.info/api/User/RegisterOwner', credentials)
       .then(response => response.data);
   },
   loginGoogle(){
@@ -71,7 +86,12 @@ export default {
             console.log(user_result);
             localStorage.setItem('isAuthen',result.data.token);
             localStorage.setItem('userInfor',JSON.stringify(user_result[0]));
-            router.push('/')
+            switch(user_result[0].userTypeID){
+              case '-MO5VBnzdGsuypsTzHaV':router.push('/manage/dashboard'); break;
+              case '-MO5VWchsca2XwktyNAw':router.push('/manage/overview'); break;
+              case '-MO5VYNnWIjXtvJO4AXi':router.push('/'); break;  
+              default: router.push('/'); break;                                                           
+            }
           });
         }
         else {
@@ -88,7 +108,7 @@ export default {
                 idGoogle: user.providerData[0].uid
                 };
               // signUp(signup_credentials);
-              axios.post("https://localhost:44398/api/User/RegisterUser", signup_credentials).then(respone =>{
+              axios.post("https://api.viefood.info/api/User/RegisterUser", signup_credentials).then(respone =>{
                 axios.post(url + "LoginGoogle?idGoogle=" + user.providerData[0].uid+ "&email="+ user.providerData[0].email)
                 .then( async function(result){
                   console.log('login2 success')
@@ -97,14 +117,20 @@ export default {
                   console.log(user_result);
                   localStorage.setItem('isAuthen',result.data.token);
                   localStorage.setItem('userInfor',JSON.stringify(user_result[0]));
-                  router.push('/Homepage')
+                  switch(user_result[0].userTypeID){
+                    case '-MO5VBnzdGsuypsTzHaV':router.push('/manage/dashboard'); break;
+                    case '-MO5VWchsca2XwktyNAw':router.push('/manage/overview'); break;
+                    case '-MO5VYNnWIjXtvJO4AXi':router.push('/'); break;  
+                    default: router.push('/'); break;                                                           
+                  }
                 });
             });
+           
         }
       });
       }).catch((error) => {
-      var errorCode = error.code;
-      console.log(errorCode);
+        var errorCode = error.code;
+        console.log(errorCode);
       });
   },
   loginFacebook(){
@@ -127,6 +153,12 @@ export default {
             console.log(user_result);
             localStorage.setItem('isAuthen',result.data.token);
             localStorage.setItem('userInfor',JSON.stringify(user_result[0]));
+            switch(user_result[0].userTypeID){
+              case '-MO5VBnzdGsuypsTzHaV':router.push('/manage/dashboard'); break;
+              case '-MO5VWchsca2XwktyNAw':router.push('/manage/overview'); break;
+              case '-MO5VYNnWIjXtvJO4AXi':router.push('/'); break;  
+              default: router.push('/'); break;                                                           
+            }
           });
         }
         else {
@@ -143,7 +175,7 @@ export default {
                 idGoogle: user.providerData[0].uid
                 };
               // signUp(signup_credentials);
-              axios.post("https://localhost:44398/api/User/RegisterUser", signup_credentials).then(respone =>{
+              axios.post("https://api.viefood.info/api/User/RegisterUser", signup_credentials).then(respone =>{
                 axios.post(url + "LoginFacebook?idFacebook=" + user.providerData[0].uid+ "&email="+ user.providerData[0].email)
                 .then( async function(result){
                   console.log('login success')
@@ -152,20 +184,20 @@ export default {
                   console.log(user_result);
                   localStorage.setItem('isAuthen',result.data.token);
                   localStorage.setItem('userInfor',JSON.stringify(user_result[0]));
+                  switch(user_result[0].userTypeID){
+                    case '-MO5VBnzdGsuypsTzHaV':router.push('/manage/dashboard'); break;
+                    case '-MO5VWchsca2XwktyNAw':router.push('/manage/overview'); break;
+                    case '-MO5VYNnWIjXtvJO4AXi':router.push('/'); break;  
+                    default: router.push('/'); break;                                                           
+                  }
                 });
               })
         }
       });
     }).catch((error) => {
         // Handle Errors here.
-        console.log(err);
+        console.log(error);
     });
-  },
-  signupSocial(){
-
-  },
-  loginSocial(){
-
   },
   checkUser(token){
     return axios.get(url+ 'GetByID',{ headers: {"Authorization" : `Bearer ${token}`}}).then(respone => 
@@ -192,5 +224,5 @@ export default {
         if(response.data != '-MO5VWchsca2XwktyNAw')
         router.push('/pages/404')
       });
-  }
+  },
 };

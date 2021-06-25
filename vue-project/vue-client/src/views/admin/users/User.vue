@@ -99,16 +99,18 @@
                </div>
               <CCardHeader style="text-align:center; height: 50px;">
               </CCardHeader>
-            <CRow form class="form-group" @click="status=!status" style="margin-top:20px">
-            <CCol tag="label" sm="10" class="col-form-label">
-              Ban acount: 
-            </CCol>
-           <CSwitch  
-              class="mr-1"
-              color="danger"
-              :checked="check"
-              shape="pill"
-            /></CRow>
+            <CRow form class="form-group" @click="status=!status" style="margin-top:20px;">
+             <h5> Ban account</h5>
+              <CSwitch 
+                class="mr-1"
+                color="danger"
+                :checked="check"
+                shape="pill"
+              />
+              <div style="float:right">
+                <h5>Nhắn tin</h5> <CIcon name="cil-envelope-closed" />
+              </div>
+            </CRow>
             </CForm>
           </CCardBody>
           <CCardFooter>
@@ -122,7 +124,7 @@
             
 <script>
 import axios from 'axios';
-import firebase from 'firebase';
+import firebase from '@/firebase/init.js';
 import UserService from '@/services/UserService.js';
 import AuthService from '@/services/AuthService.js';
 export default {
@@ -229,7 +231,7 @@ export default {
           status : this.status.toString()
           };
           console.log(this.status);
-          axios.post("http://KLTN.somee.com/api/User/EditByID?id=" + id, credentials ,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{ 
+          axios.post("https://api.viefood.info/api/User/EditByID?id=" + id, credentials ,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{ 
             alert(respone.data)})
         },
         async deleteAccount(){

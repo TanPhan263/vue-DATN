@@ -8,8 +8,6 @@
        </div>
        <button class="center" style="margin-top: 60px" @click="openChat" type="button">Chat</button>
     </div>
-    
-
   <div v-if="show" class="messaging" >
     <div class="inbox_people">
         <div class="headind_srch">
@@ -24,7 +22,6 @@
                 <div class="chat_ib">
                   <h5>{{store.storeName}} <span class="chat_date"></span></h5>
                 </div>
-                 
               </div>
             </div>
           </div>
@@ -36,11 +33,11 @@
               <h4>Chat bot</h4>
             </div>
           </div>
-          <div class="msg_history">
+          <div class="msg_history" v-chat-scroll="{always: false, smooth: true}" id="messages" ref='messages'>
             <div v-for="(mess,index) in messages" v-bind:key="index">
             <div v-if="mess.storename" class="incoming_msg" >
               <div class="incoming_msg_img"> 
-                <img src="../../assets/imgs/userPic.png" alt="sunil"> 
+                <img src="../../assets/imgs/userPic.png"  alt="avt"> 
               </div>
                 <div  class="received_msg">
                     <div class="received_withd_msg">
@@ -60,7 +57,7 @@
           <div class="type_msg">
             <div class="input_msg_write">
               <input @keyup.enter="saveMessage" v-model="message" type="text" class="write_msg" placeholder="Type a message" />
-              <button class="msg_send_btn" type="button"><i class="fas fa-paper-plane" aria-hidden="true"></i></button>
+              <button @click="saveMessage" class="msg_send_btn" type="button"><i class="fas fa-paper-plane" aria-hidden="true"></i></button>
             </div>
           </div>
         </div>
@@ -70,7 +67,7 @@
 </template>
 
 <script>
-import firebase from 'firebase';
+import firebase from '@/firebase/init.js';
 import UserService from '@/services/UserService.js'
 export default {
     data(){
@@ -94,7 +91,7 @@ export default {
       openChat(){
         if(this.email){
           this.name = this.email.slice(0,this.email.indexOf('@'));
-          localStorage.push('chatName',this.name);
+          // localStorage.setItem('chatName',this.name);
           this.sayWelcome();
           this.show = true;
           this.fetchMessage();

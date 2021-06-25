@@ -1,10 +1,9 @@
 <template>
   <div>
+     <h3>WebSite Over View</h3>
     <WidgetsDropdown/>
     <CCard>
-      
       <CCardBody>
-        
         <CRow>
           <CCol sm="5">
             <h4 id="traffic" class="card-title mb-0">Thống kê lượng truy cập</h4>
@@ -86,7 +85,6 @@
     <WidgetsBrand/>
   </div>
 </template>
-
 <script>
 import MainChartExample from './charts/MainChartExample'
 import WidgetsDropdown from './widgets/WidgetsDropdown'

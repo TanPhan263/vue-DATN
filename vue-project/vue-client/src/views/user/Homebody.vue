@@ -168,7 +168,7 @@
           </div>  
       </div>
     </div>
-    <Area v-if="provinceID === '-MO5b_1K2_tF_C4GVDo3'" v-bind:type="type"/>
+    <Area v-bind:type="type"/>
     <div v-infinite-scroll="loadMore" infinite-scroll-disabled="disabled"  infinite-scroll-distance="100" style="margin-top: 20px;">
       <div v-for="(list, index) in loadMoreList" v-bind:key="index" class="ship">
         <div class="menu-ship">
@@ -217,7 +217,7 @@ import StoreService from '@/services/StoreService.js';
 import RouterService from '@/services/RouterService.js';
 import { loadOptions } from '@babel/core';
 import Area from './containers/Area.vue';
-const baseUrl='http://KLTN.somee.com/api/'
+const baseUrl='https://api.viefood.info/api/'
 import DiscountService from '@/services/DiscountService.js'
 
 export default {
@@ -263,7 +263,7 @@ export default {
           try{
             this.discount = await DiscountService.getAll();
             console.log(this.discount);
-            var id= localStorage.getItem('provinceId');
+            var id = localStorage.getItem('provinceId');
             this.provinceID = id;
             this.stores = await StoreService.getByProvince(id)
             this.rates = await StoreService.getByProvince(id);
@@ -365,12 +365,10 @@ export default {
           this.loading = false;
           setTimeout(() =>{
             if(this.index < this.type.length){
-                console.log(this.type[this.index]);
                 let id = this.type[this.index].businessTypeID;
                 var store = this.stores.filter(function(store) {
                     return store.businessTypeID === id });
-                if(store.length > 5){
-                  if(store.length > 12)
+                if(store.length >= 12){
                     store = store.slice(0,12);
                   this.loadMoreList.push(store);}
                 this.index = this.index + 1;

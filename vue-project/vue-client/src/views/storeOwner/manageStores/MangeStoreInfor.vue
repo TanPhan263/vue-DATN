@@ -8,8 +8,8 @@
           </div>
          </CCardHeader>
          <CCardBody>
-            <a :href="'http://localhost:8080/'+ storeID" target="_blank">
-              <span style="margin-right: 5px; padding: 3px;"><span  class="fa fa-link" style="font-size: 17px; color: blue"> http://localhost:8080/{{storeID}}</span>
+            <a :href="'https://viefood.info/'+ storeID" target="_blank">
+              <span style="margin-right: 5px; padding: 3px;"><span  class="fa fa-link" style="font-size: 17px; color: blue"> https://viefood.info/{{storeID}}</span>
               </span>
             </a>
          </CCardBody>
@@ -34,7 +34,7 @@
 		</transition>
 
      <transition v-if="active2">
-		<div class="modal-mask">
+		  <div class="modal-mask">
 			<div class="modal-wrapper">
 				<div class="modal-container">
 				<div class="modal-header">
@@ -70,12 +70,6 @@
         </CCardHeader>
          <CCardBody>
             <CForm>
-              <CInput
-                label="Ngày đăng kí"
-                horizontal
-                value="1/1/2020"
-              disabled
-              />
               <CInput
                 label="Tên quán"
                 v-model="storeName"
@@ -144,7 +138,7 @@
             :image="storePicture"
             />
           </CCarousel>
-           <CRow form class="form-group" @click="check=!check" style="margin-top: 50px;">
+           <CRow form class="form-group" style="margin-top: 50px;">
             <CCol tag="label" sm="10" class="col-form-label">
               Ban store: 
             </CCol>
@@ -153,6 +147,7 @@
               color="danger"
               :checked="check"
               shape="pill"
+              disabled
             />
           </CRow>
           <div class="row">
@@ -213,9 +208,6 @@
        <CCardHeader>
       <div class="row" style="width: 100%">
             <h2  style="margin-left: 12px; width: 80%">Comments</h2>
-            <CInput
-                      placeholder="Tìm comment"
-              />
       </div>
       </CCardHeader>
        <CCardBody>
@@ -246,14 +238,28 @@
               </td>
             </template> -->
           </CDataTable>
-           </CCardBody>
-     </CCard>
-        </CCol>
+          </CCardBody>
+        </CCard>
+      </CCol>
+      <CCol md="12" v-if="commentList">
+         <CCardHeader>
+          <div style="width: 100%">
+                <h2  style="margin-left: 12px; width: 80%">Hình ảnh từ bình luận</h2>
+          </div>
+        </CCardHeader>
+       <CCardBody class="row">
+        <div v-for="(dish,index) in commentList " v-bind:key="index" class="prof-photos-items" style="overflow: visible;">
+						<img v-if="dish.image" style="width: 245px; height: 150px; margin-right: 10px"
+						:src="dish.image"
+					/>
+        </div>
+       </CCardBody>
+      </CCol>
   </CRow>
 </template>
 
 <script>
-import firebase from 'firebase';
+import firebase from '@/firebase/init.js';
 import MangeMenu from '../manageMenu/MangeMenu'
 import StoreService from '@/services/StoreService.js';
 import CommentService from '@/services/CommentService.js';
@@ -276,7 +282,6 @@ export default {
       discountAll:[],
       commentList: [],
       fields: [
-        { key: 'commentID', label: 'ID Comment', _classes: 'font-weight-bold' },
         { key: 'userName', label: 'Người comment', _classes: 'font-weight-bold' },
         { key: 'content', label: 'Nội dung', _classes: 'font-weight-bold' },
         { key: 'date', label: 'Ngày', _classes: 'font-weight-bold' },
@@ -360,6 +365,7 @@ export default {
       this.storeLong = this.storeOpened[0].long;
       if(this.storeOpened[0].status == '1') this.check == false;
               else this.check = true;
+      if(this.storeRate == null || this.storeRate == 'NaN' ) this.storeRate = 0;
     },
     previewImage(event){
           this.imageData= event.target.files[0];

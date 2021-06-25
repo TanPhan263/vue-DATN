@@ -42,6 +42,8 @@ export default {
   components: {},
   methods:{
     async getRole(){
+      try{
+      console.log(localStorage.getItem('isAuthen'))
       if(!localStorage.getItem('isAuthen'))  return this.role = false;;
       const role = await AuthService.getRole(localStorage.getItem('isAuthen'));
       if(role == '-MO5VBnzdGsuypsTzHaV' || role == '-MO5VWchsca2XwktyNAw')
@@ -50,6 +52,10 @@ export default {
        return
       }
       return this.role = false;
+    }
+    catch(err){
+      console.log(err);
+    }
     },
     notifyMe() {
     if (!window.Notification) {

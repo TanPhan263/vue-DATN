@@ -128,7 +128,7 @@
 </template>
 
 <script>
-import firebase from 'firebase';
+import firebase from '@/firebase/init.js';
 import ProvinceService from '@/services/ProvinceService';
 import StoreService from '@/services/StoreService';
 import AuthService from '@/services/AuthService.js';

@@ -51,8 +51,31 @@ export default [
         name: 'Quản lý khuyến mãi',
         icon: 'cil-puzzle',
         to: '/manage/discount'
+      },
+      {
+        _name: 'CSidebarNavItem',
+        name: 'Quản lý tỉnh thành',
+        icon: 'cil-puzzle',
+        to: '/manage/provinces'
+      },
+      {
+        _name: 'CSidebarNavItem',
+        name: 'Quản lý Footer',
+        icon: 'cil-puzzle',
+        to: '/manage/footer'
+      },
+      {
+        _name: 'CSidebarNavItem',
+        name: 'Quản lý thanh Menu',
+        icon: 'cil-puzzle',
+        to: '/manage/navbar'
+      },
+      {
+        _name: 'CSidebarNavItem',
+        name: 'Chat',
+        icon: 'cil-puzzle',
+        to: '/manage/chats'
       }
-      
     ]
   }
 ]

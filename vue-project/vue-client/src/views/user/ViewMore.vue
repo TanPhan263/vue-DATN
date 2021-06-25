@@ -142,7 +142,7 @@ export default {
 			this.show = true;
 			this.type = await StoreService.getAllBussinessType();
 			const key = this.$route.query.key
-			this.$http.get('http://KLTN.somee.com/api/Dish/Search?dishname=' + key).then(response => {
+			this.$http.get('https://api.viefood.info/api/Dish/Search?dishname=' + key).then(response => {
 			if(response.data !='Không có kết quả tìm kiếm')
 			{
 				this.stores = response.data;

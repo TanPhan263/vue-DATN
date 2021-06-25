@@ -26,7 +26,7 @@
 
 <script>
 import RouterService from '@/services/RouterService.js'
-const baseUrl='http://KLTN.somee.com/api/'
+const baseUrl='https://api.viefood.info/api/'
 const customLabels = {
     first: '<<',
     last: '>>',

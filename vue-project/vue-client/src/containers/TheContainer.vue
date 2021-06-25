@@ -1,8 +1,8 @@
 <template>
-  <div class="c-app">
+  <div v-if="userType !== 'unknow'" class="c-app">
     <TheSidebar v-bind:userType="userType"/>
     <CWrapper>
-      <TheHeader v-bind:userName="userName"/>
+      <TheHeader v-bind:userType="userType" v-bind:userName="userName"/>
       <div class="c-body">
         <main class="c-main">
           <CContainer fluid>
@@ -40,16 +40,12 @@ export default {
       try{
         const token = localStorage.getItem('isAuthen')
         this.user = await UserService.getInfo(token);
-        console.log(this.user[0]);
         if(this.user[0] == 'Bạn cần đăng nhập'){
           AuthService.logout();
           return;
         }
-        this.userName=this.user[0].userName;
-        console.log(this.userName);
-        const role = await AuthService.getRole(token);
-        this.userType = role;
-        console.log(this.userType);
+        this.userName = this.user[0].userName;
+        this.userType = await AuthService.getRole(token);
       }
       catch{}
     }

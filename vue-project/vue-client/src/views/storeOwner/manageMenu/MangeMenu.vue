@@ -84,7 +84,7 @@
 </template>
 
 <script>
-import firebase from 'firebase'
+import firebase from '@/firebase/init.js';
 import StoreService from '@/services/StoreService.js';
 import AuthService from '@/services/AuthService.js';
 export default {
@@ -122,7 +122,7 @@ export default {
             this.$router.push({path: `managemenu/${item.dish_ID}`})
         },
         getMenus(id){
-            this.$http.get('http://KLTN.somee.com/api/Dish/GetByIDStore?id=' + this.menuID).then(response => {
+            this.$http.get('https://api.viefood.info/api/Dish/GetByIDStore?id=' + this.menuID).then(response => {
               this.menus = response.data
           });
         },

@@ -132,7 +132,7 @@
 </template>
 
 <script>
-import firebase from 'firebase'
+import firebase from '@/firebase/init.js';
 import usersData from './UsersData'
 import UserService from '@/services/UserService';
 import AuthService from '@/services/AuthService';

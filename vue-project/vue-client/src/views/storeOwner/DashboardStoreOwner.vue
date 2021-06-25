@@ -10,13 +10,13 @@
                 <div class="recent_heading">
                 <h4>Store</h4>
                 </div>
-                <div class="srch_bar">
+                <!-- <div class="srch_bar">
                 <div class="stylish-input-group">
                     <input  v-model="keywordStore" type="text" class="search-bar"  placeholder="Search"   v-on:keyup="onChangeStore(keywordStore)" >
                     <span class="input-group-addon">
                     <button type="button"> <i class="fa fa-search" aria-hidden="true"></i> </button>
                     </span> </div>
-                </div>
+                </div> -->
           </div>
           <div class="inbox_chat" v-if="resultStore" style="direction: ltr;">
             <div v-for="(store,index) in resultStore" v-bind:key="index" :class="[storeID === store.storeID? 'chat_list active_chat':'chat_list']" @click="storeClicked(store.storeID,store.storeName)">
@@ -226,7 +226,7 @@ export default {
       };
     },
     fetchStore(){
-        const url = 'http://KLTN.somee.com/api/Store/GetAllManage'
+        const url = 'https://api.viefood.info/api/Store/GetAllManage'
         this.$http.get(url,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
             this.store = response.data;
             this.resultStore= this.store;

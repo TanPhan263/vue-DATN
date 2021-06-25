@@ -3,7 +3,7 @@
 		<div class="container-header clearfix">
 			<div class="logo fl_left">
 				<a href="/" title="">
-					<img src="../../../assets/imgs/sunny.png" alt="sunnie.vn" width="112">
+					<img :src="logo" alt="viefood.info" width="112">
 				</a>
 				<select
 				id="province"
@@ -22,10 +22,10 @@
             
 			<div class="top-category">
 				<ul class="top-category-1">
-					<li>
-						<a @click="viewMore('Quán gần bạn')">Gần bạn</a>
+					<li v-for="(nav,index) in navItems" v-bind:key="index">
+						<a @click="viewMore(nav.id)">{{nav.lable}}</a>
 					</li>
-					<li>
+					<!-- <li>
 						<a @click="viewMore('Đánh giá cao')">Đánh giá cao</a>
 					</li>
 					<li>
@@ -39,7 +39,7 @@
 					</li>
 					<li>
 						<a @click="viewMore_bussinessType('-MZBxapE_4hRznidydc_')">Coffee</a>
-					</li>
+					</li> -->
 				</ul>
 			</div>
 			<div v-if="isLoggedin==true" class="fl_right">
@@ -64,12 +64,11 @@
 				<div class="modal-container2" style="width: 618px;overflow: auto;
                 height: 550px; padding: 5px;"> 
 			    <i @click="search=false" style="font-size:20px; float:right; color:white;" class="fa fa-times"></i>
-				<p style="width:100%; color: white; font-size: 17px;">Tìm quán ăn của bạn:</p>
 				<img src="" alt="">
 			    <input v-model="keyword" style="width: 600px;display: block;
 					margin-right: auto;
 					margin-left: auto;;padding:5px; font-size: 20px;color: white;background-color: transparent;border: none;border-bottom: 2px solid white;height:40px;box-sizing: border-box;" type="text"  v-on:keyup="onkeychange(keyword)" >
-				<div v-show="loading" name="fade" mode="out-in" style="text-align:center;width:600px; background-color: #fff; border-radius:7px;">
+				<div v-show="loading && keyword !== ''" name="fade" mode="out-in" style="text-align:center;width:600px; background-color: #fff; border-radius:7px;">
                 <div class="lds-facebook"><div></div><div></div><div></div><div></div><div></div></div>
               	</div>
 				<div v-if="results  && !loading">
@@ -82,7 +81,8 @@
 </template>
 
 <script>
-const baseUrl='http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api/'
+import firebase from '@/firebase/init.js';
+const baseUrl='https://api.viefood.info/api/'
 import TheHeaderDropdownAccnt from '@/containers/TheHeaderDropdownAccnt'
 import Suggest from './Suggest'
 import AuthService from '@/services/AuthService.js';
@@ -106,14 +106,40 @@ data(){
 		results: [],
 		loading: false,
 		isLoggedin: false,
+		logo:'',
+		navItems:[],
     }
 },
 created(){
 	this.getUser();
+	this.getLogo();
+	this.getNavItem();
 },	
 computed:{
   },
   methods:{
+	  getLogo(){
+		  try{
+      		const socialRef = firebase.database().ref("Footer/logo/");
+            socialRef.on("value", snapshot => {
+            let data = snapshot.val();
+            if(data){
+              let logo = [];
+              Object.keys(data).forEach(key => {
+                    logo.push({
+                      id: key,
+                      picture: data[key].picture,
+                    });
+                });
+                this.logo = logo[0].picture;
+            }
+            else{
+             this.logo='';
+            }
+          });
+		}
+		catch(err){}
+      },
 	  async getUser(){
       try{
         if(localStorage.getItem('isAuthen')){
@@ -131,22 +157,29 @@ computed:{
       }
       catch(err){console.log(err)}
     },
-	//   async check(){
-	// 	if(localStorage.getItem('isAuthen') == null || !AuthService.isAuthented(localStorage.getItem('isAuthen')))
-	// 	{
-	// 		this.isLoggedin = false;
-	// 		return
-	// 	}
-	// 	this.user = await UserService.getInfo(localStorage.getItem('isAuthen'));
-	// 	let check = this.user[0];
-	// 	console.log(check);
-	// 	if(check == "Bạn cần đăng nhập"){
-	// 		this.isLoggedin = false;
-	// 		AuthService.logout();
-	// 		return;
-	// 	}
-	// 	this.isLoggedin =true;
-	//  },
+	getNavItem(){
+		try{
+      const navRef = firebase.database().ref("Nav");
+            navRef.on("value", snapshot => {
+            let data = snapshot.val();
+            if(data){
+              let items = [];
+              Object.keys(data).forEach(key => {
+                    items.push({
+                    navId: key,
+                    id:  data[key].id,
+                    lable: data[key].lable,
+                    });
+                });
+                this.navItems = items;
+            }
+            else{
+             this.navItems =[];
+            }
+          });
+		}
+		catch{}
+    },
 	check(){
 		if(this.user == 'null'){
 			this.isLoggedin = false;return;}
@@ -195,7 +228,7 @@ computed:{
 			try{
 			this.isDropdown=true;
 			this.loading = true;
-			this.$http.get('http://kltn.somee.com/api/Dish/Search?dishname=' + key).then(response => {
+			this.$http.get('https://api.viefood.info/api/Dish/Search?dishname=' + key).then(response => {
 				if(response.data !='Không có kết quả tìm kiếm')
 				{
 					this.results = response.data;
@@ -206,23 +239,27 @@ computed:{
 		},
 		viewMore(index){
 			RouterService.viewMore(index);
+			this.$router.go();
 		},
 		viewMore_bussinessType(index){
 			RouterService.viewMore_Search(index);
 		},
   },
   mounted(){
-	this.$http.get(baseUrl + 'Province/GetAll').then(response => {
-            this.provinces=response.data
-    })
-	if(localStorage.getItem('provinceId')==null)
-	  {
-		  this.provinceSelected='-MO5b_1K2_tF_C4GVDo3';
-		  localStorage.setItem('provinceId', this.provinceSelected)
-	  }
-	  if(localStorage.getItem('provinceId')!=''){
-		  this.provinceSelected=localStorage.getItem('provinceId')
-	  }
+	  try{
+			this.$http.get(baseUrl + 'Province/GetAll').then(response => {
+					this.provinces=response.data
+			})
+			if(localStorage.getItem('provinceId')==null)
+			{
+				this.provinceSelected='-MO5b_1K2_tF_C4GVDo3';
+				localStorage.setItem('provinceId', this.provinceSelected)
+			}
+			if(localStorage.getItem('provinceId')!=''){
+				this.provinceSelected=localStorage.getItem('provinceId')
+			}
+		}
+		catch{}
   }
 }
 </script>

@@ -44,7 +44,7 @@
 </template>
 
 <script>
-const baseUrl='http://tlcnwebapi-dev.us-west-2.elasticbeanstalk.com/api';
+const baseUrl='https://api.viefood.info/api';
 export default {
 data(){
 	return{

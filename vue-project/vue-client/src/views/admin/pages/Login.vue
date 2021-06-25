@@ -12,21 +12,26 @@
          </div>
     </transition>
     <CContainer>
-  <div v-if="show" class="alert-red">
+      <CAlert
+            color="danger"
+            closeButton
+            :show.sync="show"
+          >
+           {{ mgs_err }}
+      </CAlert>
+  <!-- <div v-if="show" class="alert-red">
   <span class="closebtn" @click="show=false">&times;</span> {{ mgs_err }}
-  </div>
+  </div> -->
       <CRow class="justify-content-center">
         <CCol md="8">
           <CCardGroup>
             <CCard class="p-4">
               <CCardBody>
                 <CForm>
-                  <img
-                    class="imglogo"
-                    src="../../../assets/imgs/sunny.png"
-                  />
+                  <img  class="imglogo" :src="logo" alt="viefood.info">
                   <p class="text-muted">Sign In to your account</p>
                   <CInput
+                    type="email"
                     placeholder="Email"
                     autocomplete="email"
                     v-model="username"
@@ -101,22 +106,53 @@
 </template>
 
 <script>
+import firebase from '@/firebase/init.js';
 import AuthService from '@/services/AuthService.js';
-import UserService from '@/services/UserService.js';
 export default {
   name: "Login",
   data() {
     return { 
       loading: false,
       show: false,
-        username: "",
-        password: "",
-        mgs_err:'',
-        role: []
+      username: "",
+      password: "",
+      mgs_err:'',
+      role: [],
+      logo:'',
     }
   },
+  mounted() {
+    this.getLogo();
+  },
   methods: {
-    async login() {
+    getLogo(){
+		  try{
+      		const socialRef = firebase.database().ref("Footer/logo/");
+            socialRef.on("value", snapshot => {
+            let data = snapshot.val();
+            if(data){
+              let logo = [];
+              Object.keys(data).forEach(key => {
+                    logo.push({
+                      id: key,
+                      picture: data[key].picture,
+                    });
+                });
+                this.logo = logo[0].picture;
+            }
+            else{
+             this.logo='';
+            }
+          });
+        }
+        catch(err){}
+      },
+      async login() {
+        if(!this.ValidateEmail(this.username)) {
+          this.show=true;
+          this.mgs_err = 'Email không hợp lệ!!!';
+          return;
+        }
       if(this.check()){
         try {
           this.loading=true;
@@ -124,19 +160,26 @@ export default {
             email: this.username,
             password: this.password
           };
-          const response = await AuthService.login(credentials);
-          const token=response;
-            if(token.token == 'Đăng nhập thất bại') 
+          const login = await AuthService.login(credentials);
+          if(login.token == 'Đăng nhập thất bại') 
             {
               this.loading=false;
               this.show=true;
-              this.mgs_err = 'Sai tên đăng nhập hoặc mật khẩu';
+              this.mgs_err = 'Sai tên đăng nhập hoặc mật khẩu!!!';
               return;
             }
-            const response2 = await UserService.getInfo(token.token);
-            localStorage.setItem('isAuthen',token.token);
-            localStorage.setItem('userInfor',JSON.stringify(response2[0]));
-            this.checkRole();
+          // const token=response;
+          //   if(token.token == 'Đăng nhập thất bại') 
+          //   {
+          //     this.loading=false;
+          //     this.show=true;
+          //     this.mgs_err = 'Sai tên đăng nhập hoặc mật khẩu';
+          //     return;
+          //   }
+            // const response2 = await UserService.getInfo(token.token);
+            // localStorage.setItem('isAuthen',token.token);
+            // localStorage.setItem('userInfor',JSON.stringify(response2[0]));
+            // this.checkRole();
             // const role = await AuthService.getRole(token.token);
             // switch(role){
             //   case '-MO5VBnzdGsuypsTzHaV':  this.loading=false;
@@ -161,13 +204,12 @@ export default {
         } catch (error) {
           this.loading=false;
           this.show=true;
-          this.mgs_err = error;
+          this.mgs_err = 'Sai tên đăng nhập hoặc mật khẩu!!!';
         }
       }
       else{
-        this.loading=false;
         this.show=true;
-        this.mgs_err='Bạn chưa nhập password hoặc email';
+        this.mgs_err='Bạn chưa nhập password hoặc email!!!';
         return;
       }
     },
@@ -176,36 +218,27 @@ export default {
         return false;
       return true;
     },
-    async checkRole(){
-      try{
-        if(localStorage.getItem('isAuthen')){
-          const role = await AuthService.getRole(localStorage.getItem('isAuthen'));
-          switch(role){
-            case '-MO5VBnzdGsuypsTzHaV':  this.loading=false;
-                                          this.$router.push('/manage/dashboard'); break;
-            case '-MO5VWchsca2XwktyNAw':  this.loading=false;
-                                          this.$router.push('/storeowner'); break;
-            case '-MO5VYNnWIjXtvJO4AXi':  this.loading=false;
-                                          this.$router.push('/'); break;  
-            default: this.loading = false;                                                         
-          }
-        }
-      }
-      catch(err){console.log(err)}
-    },
     reset(){
       this.username= "";
       this.password= "";
     },
     loginGoogle(){
       AuthService.loginGoogle();
-       this.loading=true;
-      this.checkRole();
+      this.loading=false;
     },
     loginFacebook(){
        AuthService.loginFacebook();
-       this.loading=true;
-       this.checkRole();
+       this.loading=false;
+    },
+    ValidateEmail(mail) 
+    {
+      if(mail == '') return false;
+       var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+          if (mail.match(validRegex)) {
+            return true;
+          } else {
+            return false;
+        }
     }
   }
 };
@@ -241,6 +274,6 @@ export default {
 }
 .imglogo{
   margin: 0 auto;
-  width: 30% ;
+  width: 40% ;
 }
 </style>
