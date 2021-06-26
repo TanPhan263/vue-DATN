@@ -10,7 +10,7 @@
       class="ml-3 d-md-down-none"
       @click="$store.commit('toggleSidebarDesktop')"
     />
-    <CHeaderNav class="d-md-down-none mr-auto">
+    <CHeaderNav v-if="userType === '-MO5VBnzdGsuypsTzHaV'" class="d-md-down-none mr-auto">
       <CHeaderNavItem class="px-3">
         <CHeaderNavLink to="dashboard">
           Dashboard
@@ -23,6 +23,24 @@
       </CHeaderNavItem>
       <CHeaderNavItem class="px-3">
         <CHeaderNavLink to="store" exact >
+          Stores
+        </CHeaderNavLink>
+      </CHeaderNavItem>
+    </CHeaderNav>
+
+    <CHeaderNav v-if="userType === '-MO5VWchsca2XwktyNAw'" class="d-md-down-none mr-auto">
+      <CHeaderNavItem class="px-3">
+        <CHeaderNavLink to="overview">
+          Dashboard
+        </CHeaderNavLink>
+      </CHeaderNavItem>
+      <CHeaderNavItem class="px-3">
+        <CHeaderNavLink to="message" exact>
+          Messages
+        </CHeaderNavLink>
+      </CHeaderNavItem>
+      <CHeaderNavItem class="px-3">
+        <CHeaderNavLink to="managestores" exact >
           Stores
         </CHeaderNavLink>
       </CHeaderNavItem>
@@ -41,9 +59,6 @@
       </CHeaderNavItem>
       <TheHeaderDropdownAccnt/>
     </CHeaderNav>
-    <CSubheader class="px-3">
-      <CBreadcrumbRouter class="border-0 mb-0"/>
-    </CSubheader>
   </CHeader>
 </template>
 
@@ -57,6 +72,7 @@ export default {
   },
   props:{
     userName: String,
+    userType: String
   },
   components: {
     TheHeaderDropdownAccnt
