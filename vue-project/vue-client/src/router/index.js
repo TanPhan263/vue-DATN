@@ -16,7 +16,7 @@ const Page500 = () => import('@/views/admin/pages/Page500')
 const Login = () => import('@/views/admin/pages/Login')
 const Register = () => import('@/views/admin/pages/Register')
 const RegisterStore = () => import('@/views/admin/pages/RegisterStore')
-const Chat = () => import('@/views/admin/pages/Chat')
+const chatOwner = () => import('@/views/storeOwner/chat/chatOwner')
 const ChatAdmin = () => import('@/views/admin/chat/chatAdmin')
 // Users
 const Users = () => import('@/views/admin/users/Users')
@@ -50,7 +50,7 @@ const ManageMenu = () => import('@/views/storeOwner/manageMenu/MangeMenu')
 const ManageStoreInfor = () => import('@/views/storeOwner/manageStores/MangeStoreInfor') 
 const OwnerStores = () => import('@/views/storeOwner/manageStores/stores') 
 //Chat
-const chatPage = () => import('@/views/chat/chatTest')
+const chatUser = () => import('@/views/user/chat/chatUser')
 //Discount
 const Discount =() => import('@/views/admin/discount/Discount')
 Vue.use(Router)
@@ -271,7 +271,7 @@ function configRoutes () {
         {
           path: 'message/',
           name: 'Message',
-          component: Chat,
+          component: chatOwner,
         },
         {
           path: 'chats/',
@@ -314,7 +314,7 @@ function configRoutes () {
     {
       path: '/chatpage',
       name: 'chat',
-      component: chatPage
+      component: chatUser
     },
     {
       path: '/login',      

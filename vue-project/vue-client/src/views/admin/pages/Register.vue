@@ -5,7 +5,7 @@
           <div class="loading" >
             <span class="fa fa-spinner fa-spin"></span>
           </div>
-         </div>
+        </div>
     </transition>
     <CContainer class="justify-content-center" >
       <CAlert

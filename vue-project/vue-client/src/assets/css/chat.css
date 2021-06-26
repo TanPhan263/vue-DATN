@@ -100,7 +100,11 @@ img{ max-width:100%;}
   padding: 30px 15px 0 25px;
   width: 60%;
 }
-
+.mesgs-admin {
+  float: left;
+  padding: 30px 15px 0 25px;
+  width: 100%;
+}
  .sent_msg p {
   background: #05728f none repeat scroll 0 0;
   border-radius: 3px;
@@ -139,7 +143,8 @@ img{ max-width:100%;}
   width: 33px;
 }
 .messaging { float: right; width: 70%; padding: 0 0 50px 0;}
+.messaging-admin{ float: right; width: 100%; padding: 0 0 50px 0;}
 .msg_history {
-  height: 416px;
+  height: 420px;
   overflow-y: auto;
 }

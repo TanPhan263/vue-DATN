@@ -31,14 +31,14 @@
       <div class="mesgs">
           <div class="headind_srch">
             <div class="recent_heading">
-              <h5 style="width: 50%;float: left">Chat bot</h5> <h5 style="text-align: right;float: right;width: 50%" @click="exitChat"><i class="fas fa-times"></i></h5>
+              <h5 style="width: 50%;float: left">Chat bot</h5>
             </div>
           </div>
           <div class="msg_history" v-chat-scroll="{always: false, smooth: true}" id="messages" ref='messages'>
             <div v-for="(mess,index) in messages" v-bind:key="index">
             <div v-if="mess.senderID !== user.userID" class="incoming_msg" >
               <div class="incoming_msg_img"> 
-                <img src="../../assets/imgs/userPic.png"  alt="avt"> 
+                <img src="../../../assets/imgs/userPic.png"  alt="avt"> 
               </div>
                 <div  class="received_msg">
                     <div class="received_withd_msg">
@@ -93,12 +93,17 @@ export default {
     },
     methods:{
         openChat(){
-          this.user.userID = this.user.userName.slice(0,this.user.userName.indexOf('@'));
-          this.roomID = this.storeID + this.user.userID;
-          this.createInboxes();
-          this.fectchInboxes(this.user.userID);
-          this.fetchMessage();
-          this.show = true;
+            if(validateEmail(this.user.userName)){
+            this.user.userID = this.user.userName.slice(0,this.user.userName.indexOf('@'));
+            this.roomID = this.storeID + this.user.userID;
+            this.createInboxes();
+            this.fectchInboxes(this.user.userID);
+            this.fetchMessage();
+            this.show = true;
+          }
+          else{
+            alert("email không đúng, vui lòng nhập lại!!");
+          }
         },
 //test
         async checkLogin(){
@@ -135,16 +140,18 @@ export default {
                   senderID: this.user.userID,
                   senderName:  this.user.userName,
                   senderPic: '',
-                  time: today.toString(),
+                  time: today.toString().slice(3,10),
                   lastMsg: '',
+                  seen: ''
                 };
                 const inboxSender = {
                   roomID: this.storeID + this.user.userID,
                   senderID: this.storeID,
                   senderName:  this.storeName,
                   senderPic: this.storePicture,
-                  time: today.toString(),
+                  time: today.toString().slice(3,10),
                   lastMsg: '',
+                  seen: ''
                 };
                 firebase
                   .database()
@@ -174,11 +181,11 @@ export default {
             firebase
               .database()
               .ref("Messages/inboxes/"+ this.storeClickedID).child(this.user.userID)
-              .update({time:today.toString().slice(0,21),lastMsg:this.message});
+              .update({time:today.toString().slice(3,10),lastMsg:this.message});
             firebase
               .database()
               .ref("Messages/inboxes/"+ this.user.userID).child(this.storeClickedID)
-              .update({time:today.toString().slice(0,21),lastMsg:this.message});
+              .update({time:today.toString().slice(3,10),lastMsg:this.message});
             this.message = "";
             }
             catch(err){
@@ -202,8 +209,9 @@ export default {
                       date: data[key].date
                     });
                   });
-                  if(this.roomID == messages[0].roomID)
+                  if(this.roomID == messages[0].roomID){
                     this.messages = messages;
+                  }
                 }
                 else this.messages =[];
             }); 
@@ -249,6 +257,16 @@ export default {
         exitChat(){
           localStorage.removeItem('chatUser');
         },
+        validateEmail(mail) 
+        {
+          if(mail == '') return false;
+          var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+              if (mail.match(validRegex)) {
+                return true;
+              } else {
+                return false;
+            }
+        },
         onInit(){
           if(this.isOpen){
             this.storeClickedID = this.storeID;
@@ -263,7 +281,7 @@ export default {
             else
               this.checkLogin();
             }
-        }
+        },
     },
     created(){
     },

@@ -242,7 +242,7 @@ import Navbar from './containers/Navbar';
 import GoogleMap from './containers/GoogleMap';
 import Comments from './containers/Comments/comments';
 import Footer from './containers/Footer'
-import Chat from '../chat/chatTest'
+import Chat from '../user/chat/chatUser'
 import StoreService from '@/services/StoreService.js';
 import DiscountService from '@/services/DiscountService.js';
 
