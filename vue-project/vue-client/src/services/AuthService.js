@@ -105,6 +105,7 @@ export default {
                 sex: '',
                 birthday: '',
                 userTypeID: '-MO5VYNnWIjXtvJO4AXi',
+                status:'1',
                 idGoogle: user.providerData[0].uid
                 };
               // signUp(signup_credentials);
@@ -172,6 +173,7 @@ export default {
                 sex: '',
                 birthday: '',
                 userTypeID: '-MO5VYNnWIjXtvJO4AXi',
+                status:'1',
                 idGoogle: user.providerData[0].uid
                 };
               // signUp(signup_credentials);

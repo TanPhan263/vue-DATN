@@ -275,7 +275,7 @@ function configRoutes () {
         },
         {
           path: 'chats/',
-          name: 'chat',
+          name: 'chatadmin',
           component: ChatAdmin,
         },
 
@@ -313,7 +313,7 @@ function configRoutes () {
     },
     {
       path: '/chatpage',
-      name: 'chat',
+      name: 'chatuser',
       component: chatUser
     },
     {

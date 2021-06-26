@@ -1,6 +1,6 @@
 <template>
     <div class="discover">
-		<h2 v-if="lable">{{lable[0].businessTypeName}}</h2>
+		<h2 v-if="lable && !show">{{lable[0].businessTypeName}}</h2>
       <div class="artical" style="width: 100%">
         <div  v-if="!show" class="slider" style="width:100%">
           <ul v-if="pageOfItems && pageOfItems.length> 0">
@@ -20,11 +20,9 @@
           </ul>
 		  <ul v-else style="text-align: center;"><img src="../../../assets/imgs/wrong.jpg" style="width:60%; margin-bottom: 50px" alt=""></ul>
         </div>
-	
-			<div class="text-center pb-0 pt-3" style="font-weight: bold;">
+			<div  v-if="!show" class="text-center pb-0 pt-3" style="font-weight: bold;">
 				<jw-pagination :items="stores" @changePage="onChangePage" v-bind:pageSize="pageSize" :styles="customStyles" :labels="customLabels"></jw-pagination>
 			</div>
-		
 		 <div  v-show="show" style="margin: 0 auto;" class="loader"></div>
       </div>
 	  
@@ -60,7 +58,7 @@ const customStyles = {
 export default {
 	watch: {
       '$route' (to, from) {
-        if (to.path === '/ViewMore') {
+        if (to.path === '/viewmore') {
          this.onInit();
         }
       }

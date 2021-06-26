@@ -223,7 +223,6 @@
             :items-per-page="5"
             clickable-rows
             :active-page="activePage"
-            @row-clicked="rowClicked"
             :pagination="{ doubleArrows: false, align: 'center'}"
             @page-change="pageChange"
           >

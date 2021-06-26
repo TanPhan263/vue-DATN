@@ -11,14 +11,14 @@
         </div>
       </div>
   </transition>
-    <div  v-if="storeID!=='' && storeName!=='' && storePicture!==''" @click="notify=false,chat=!chat" class="message"><i class="fa fa-envelope"></i>
+    <div v-if="storeID!=='' && storeName!=='' && storePicture!==''" @click="notify=false,chat=!chat" class="message"><i class="fa fa-envelope"></i>
     </div>
     <transition >
       <div v-show="chat" class="chat">
         <Chat v-bind:isOpen="chat" v-bind:storeID="storeID" v-bind:storeName="storeName" v-bind:storePicture="storePicture" />
       </div>
     </transition>
-  <Header/>
+  <!-- <Header/> -->
   <Navbar :class="scroll_nav"/>
   <div class="pn-microsite">
     <div id="storeInfor" class="micro-content">

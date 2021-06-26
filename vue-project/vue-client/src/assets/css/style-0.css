@@ -50,7 +50,8 @@ ul.topbar a{
 	background: #fff;
 	width: 100%;
 	left: 0;
-	position: absolute; top: 35px;	
+	position: absolute; top: 0px;	
+	position: fixed;
 }
 .container-header{
 	width: 1170px;

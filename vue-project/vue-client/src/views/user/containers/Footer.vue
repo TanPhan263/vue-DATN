@@ -1,5 +1,12 @@
 <template>
    <div class="footer">
+     <div @click="chat=!chat" class="message"><i class="fa fa-envelope"></i>
+      </div>
+      <transition >
+        <div v-bind:isOpen="chat" v-show="chat" class="chat">
+          <Chat v-bind:isOpen="chat"/>
+        </div>
+      </transition>
       <div class="member-top">
         <div class="member">
            <h3 style="color:#df0024;">Kết nối với chúng tôi trên</h3>
@@ -31,8 +38,12 @@
 
 <script>
 import firebase from '@/firebase/init.js';
+import Chat from '../../user/chat/chatUser'
 export default {
    name: 'Footer',
+   components:{
+     Chat
+   },
    data(){
       return{
          socials:[],
@@ -40,6 +51,7 @@ export default {
          companyInfo:[],
          categories:[],
          childcategories:[],
+         chat: false,
       }
    },
    mounted() {
@@ -178,5 +190,37 @@ i {
 }
 .cateChild{
    padding:10px 0 10px 0;
+}
+.message{
+  z-index: 3;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  text-align: center;
+  background: blue;
+  height: 60px;
+  width: 60px;
+  border-radius: 50%;
+}
+.message i {
+  margin: 13px;
+  color: white;
+  font-size: 30px;
+}
+.chat{
+  z-index: 2;
+  height: 450px;
+  width: 940px;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+}
+.chatArea{
+  z-index: 1;
+  height: 500px;
+  width: 700px;
+  position: fixed;
+  bottom: 0;
+  right: 0;
 }
 </style>

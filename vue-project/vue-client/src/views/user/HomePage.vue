@@ -11,7 +11,7 @@
         </div>
       </div>
   </transition>
-  <Header/>
+  <!-- <Header/> -->
   <Navbar :class="scroll"/>
   <div class="content-banner">
 			<div class="banner">
@@ -27,7 +27,7 @@
               text-shadow: 2px 2px 3px #585858;"> {{ location }} 
               </p>
             </div>
-            <input v-model="keyword" type="text" placeholder="Bánh mì bò kho..."  v-on:keyup="onkeychange(keyword)">
+            <input v-model="keyword" type="text" placeholder="Tìm kiếm món ăn, quán ăn,..."  v-on:keyup="onkeychange(keyword)">
 						<a @click="onSearchClicked" class="icon-search"><i class="fa fa-search" style=" margin-top: 8px;font-size: 30px;"></i></a>
             <div class="dropdown" v-if="isDropdown" style="margin: 0 auto;">
             <div id="myDropdown" class="dropdown-content" style="width: 618px;
@@ -50,7 +50,7 @@
       <div class="modal-mask-home">
         <div class="modal-wrapper">
           <div class="modal-container">
-              <i v-on:click="active=false" class="fa fa-window-close" style="float: right; font-size: 20px; margin-bottom: 10px;"></i>
+              <i v-on:click="active=false" class="fas fa-times" style="padding: 3px;float: right; font-size: 23px;"></i>
               <GoogleMapHome :place="location" v-bind:lat="lat" v-bind:lng="lng" @send-place="getPlace"/>
           </div>
         </div>
@@ -58,13 +58,6 @@
 		</transition>
       <transition name="fade" mode="out-in" >
           <router-view v-bind:keyword="keyword" :key="$route.path"></router-view>
-      </transition>
-      <div @click="chat=!chat" class="message"><i class="fa fa-envelope"></i>
-      </div>
-      <transition >
-        <div v-show="chat" class="chat">
-          <Chat/>
-        </div>
       </transition>
     <Footer/>
   </div>
@@ -75,14 +68,12 @@
 import Header from './containers/Header'
 import Navbar from './containers/Navbar'
 import Suggest from './containers/Suggest'
-import Chat from '../user/chat/chatUser'
 import Homebody from './Homebody'
 import CategoryPage from './containers/CategoryPage'
 import SearchPage from './SearchPage'
 import Search from './containers/Search'
 import Footer from './containers/Footer'
 import GoogleMapHome from './containers/GoogleMapHome';
-import ProvinceService from '@/services/ProvinceService.js'
 import FormatWord from '@/services/FormatWord.js'
 import StoreService from '@/services/StoreService.js'
 import RouterService from '@/services/RouterService.js'
@@ -98,7 +89,6 @@ export default {
       GoogleMapHome,
       Suggest,
       CategoryPage,
-      Chat
     },
   data() {
     return {
@@ -113,26 +103,19 @@ export default {
       user: 'null',
       stores:null,
       keyword: '',
-      provinces:[],
       results: null,
       isDropdown: false,
       scroll: '',
-      chat: false,
     }
   },
   created(){
     this.onInit();
   },
-  mounted(){ 
-    this.onScroll();
-  },
   methods:{
       async onInit(){
-      this.keyword = this.$route.query.key;
-      this.provinces= await ProvinceService.getAll();
       var id= localStorage.getItem('provinceId');
-      this.stores = await StoreService.getByProvince(id);
       this.isLoaded = true;
+      this.stores = await StoreService.getByProvince(id);
     },
     storeClicked(item) {
       RouterService.storeClicked(item);
@@ -182,15 +165,6 @@ export default {
       this.isDropdown = false;
       return this.isDropdown;
     },
-    onScroll(){
-      window.onscroll = () => {
-        if (document.documentElement.scrollTop > 35) {
-         this.scroll= 'sticky'
-        } else {
-          this.scroll= ''
-        }
-      };
-    },
     async getPlace(place,lat,long){
       try{
         console.log('place:' + place + 'close:'+close)
@@ -228,10 +202,6 @@ export default {
   border-radius: 50%;
   display: inline-block;
 }
-.sticky {
-  position: fixed;
-  top: 0px;
-}
 .lds-facebook {
   display: inline-block;
   position: relative;
@@ -268,37 +238,5 @@ export default {
     top: 24px;
     height: 32px;
   }
-}
-.message{
-  z-index: 3;
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  text-align: center;
-  background: blue;
-  height: 60px;
-  width: 60px;
-  border-radius: 50%;
-}
-.message i {
-  margin: 13px;
-  color: white;
-  font-size: 30px;
-}
-.chat{
-  z-index: 3;
-  height: 450px;
-  width: 950px;
-  position: fixed;
-  bottom: 0;
-  right: 0;
-}
-.chatArea{
-  z-index: 1;
-  height: 500px;
-  width: 700px;
-  position: fixed;
-  bottom: 0;
-  right: 0;
 }
 </style>

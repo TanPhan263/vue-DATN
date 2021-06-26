@@ -256,7 +256,6 @@ export default {
           })
       },
       mounted(){
-          // this.scroll();
       },
       methods:{
         async onInit(){
@@ -328,38 +327,6 @@ export default {
         subStringName(index){
           return index.toString().substring(0,20);
         },
-      //   scroll() {
-      //   window.onscroll = () => {
-      //     let bottomOfWindow = document.documentElement.scrollTop + window.innerHeight > document.documentElement.offsetHeight - 200 ;
-      //     if(bottomOfWindow) {
-      //       this.loading = true;
-      //       if(this.index < this.type.length){
-      //         var temp = this.type[this.index];
-      //         if(this.index < this.type.length){
-      //           var store = this.stores.filter(function(store) {
-      //                 return store.businessTypeID ==  temp.businessTypeID });}
-      //         while(store.length==0){
-      //             this.index = this.index + 1;
-      //             if( this.index < this.type.length){
-      //             temp = this.type[this.index].businessTypeID;
-      //             store = this.stores.filter(function(store) {
-      //                   return store.businessTypeID ==  temp });
-      //             }
-      //         }
-      //         setTimeout(() =>{ 
-      //           this.loadMoreList.push(store);
-      //           this.index = this.index + 1;
-      //           this.loading = false;
-      //           this.margin = 150;
-      //         }, 1500);
-      //       }
-      //       else{
-      //         this.loading = false;
-      //         return;
-      //       } 
-      //     }
-      //   };
-      // },
       loadMore(){
         try{
           this.loading = false;
@@ -386,12 +353,11 @@ export default {
         this.$router.push('/viewmore?key=' + id).catch(()=>{});
       },
       async getDiscountStore(id,name){
-          this.discountName = name;
-          this.active=true;
-          this.discountStore = await DiscountService.getStore(id);
+        this.discountName = name;
+        this.active=true;
+        this.discountStore = await DiscountService.getStore(id);
       },
       getActiveTime(open,close){
-        // return this.$root.$refs.Suggest.getActiveTime(open,close);
         const today = new Date();
         const hour = today.getHours();
         const min = today.getMinutes();

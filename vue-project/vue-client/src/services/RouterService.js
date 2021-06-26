@@ -4,10 +4,10 @@ export default{
         return router.push('/'+item);
     },
     dishClicked(item){
-        router.push('/search?key='+ item)
+        return router.push('/search?key='+ item);
     },
     viewMore(id){
-        router.push('/viewmore?key=' + id).catch(()=>{});
+        return router.push('/viewmore?key=' + id).catch(()=>{});
     },
     dishViewMore(){
         return router.push('/dishtype');
@@ -16,6 +16,6 @@ export default{
        return router.push('/search?key=' + index).catch(()=>{});
     },
     onSearchClicked(keyword){
-        router.push('/search?key=' + keyword).catch(()=>{});
+        return router.push('/search?key=' + keyword).catch(()=>{});
     },
 }

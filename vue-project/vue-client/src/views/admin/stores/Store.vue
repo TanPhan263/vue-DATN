@@ -271,39 +271,67 @@
        <CCardHeader>
       <div class="row" style="width: 100%">
             <h2  style="margin-left: 12px; width: 80%">Comments</h2>
-            <CInput
-                      placeholder="Tìm comment"
-              />
       </div>
       </CCardHeader>
       <CCardBody>
-    <CDataTable
-            style="margin-left: 15px;width: 97%"
-            hover
-            border
-            striped
-            small
-            fixed
-            :items="commentList"
-            :fields="fields"
-            :items-per-page="5"
-            clickable-rows
-            :active-page="activePage"
-            @row-clicked="rowClicked"
-            :pagination="{ doubleArrows: false, align: 'center'}"
-            @page-change="pageChange"
+        <!-- <CDataTable
+          style="margin-left: 15px;width: 97%"
+          hover
+          border
+          striped
+          small
+          fixed
+          :items="commentList"
+          :fields="fields"
+          :items-per-page="5"
+          clickable-rows
+          :active-page="activePage"
+          :pagination="{ doubleArrows: false, align: 'center'}"
+          @page-change="pageChange"
           >
-            <!-- <template #status="{item}">
+          </CDataTable> -->
+          <div class="row" >
+        <div class="col-12" >
+        <table class="table table-image" >
+          <thead>
+            <tr>
+              <th scope="col">STT</th>
+              <th scope="col">Ảnh</th>
+              <th scope="col">Tên người bình luận</th>
+              <th scope="col">Nội dung</th>
+              <th scope="col">Đánh giá</th>
+               <th scope="col">Ngày</th>
+              <th scope="col" class="manage">Manage</th>
+            </tr>
+          </thead>
+          <tbody v-if="commentList">
+            <tr v-for="(comment,index) in commentList" v-bind:key="index">
+              <th scope="row">{{index + 1}}</th>
               <td>
-                <CBadge v-if="item.status === '1'" :color="getBadge(item.status)">
-                 OK
-                </CBadge>
-                <CBadge v-else :color="getBadge(item.status)">
-                  Banned
-                </CBadge>
+                <img v-lazy="comment.image" style="height: 120px;width:120px">
               </td>
-            </template> -->
-          </CDataTable>
+              <td>  
+                {{comment.userName}}
+                </td>
+              <td>
+             {{comment.content}}
+              </td>
+              <td>
+              {{comment.ratePoint}}
+              </td>
+              <td>
+                {{comment.date}}
+              </td>
+              <td>
+                 <CButtonGroup style="float:left" size="sm">
+                  <CButton @click="deleteComment(comment.commentID)" color="danger">Delete</CButton>
+                </CButtonGroup>
+              </td>
+            </tr>
+          </tbody>
+        </table>   
+        </div>
+      </div>
           </CCardBody>
       </CCard>
      </CCol>
@@ -486,6 +514,12 @@ export default {
       }
       catch{}
     },
+    async deleteComment(id){
+      if(confirm('Bạn chắc muốn xóa bình luận này?')){
+        const response = await CommentService.deleteCommentAdmin(id,localStorage.getItem('isAuthen'));
+        alert(response);
+      }
+    }
   },
    mounted(){
       const id = this.$route.params.id

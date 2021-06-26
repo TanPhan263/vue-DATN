@@ -1,12 +1,20 @@
 <template>
 <CRow>
     <CCol md="12">
-    <div v-if="status === '-1'" class="alert-red" >
+      <div v-if="status === '-1'" class="alert-red" >
             <div class="row">
               <div style="width: 100%">
               <h4>Tài khoản chưa được kích hoạt</h4> <p>Nhấn để kích hoạt </p>
-                <CButton style="margin-right: 20px"  @click="blockAccount()" class="btn_left" type="submit" size="sm" color="warning"><CIcon name="cil-check-circle"/> Kích hoạt</CButton>
+                <CButton style="margin-right: 20px"  @click="confirmAccount()" class="btn_left" type="submit" size="sm" color="warning"><CIcon name="cil-check-circle"/> Kích hoạt</CButton>
                  <CButton  @click="deleteAccount" class="btn_left" type="reset" size="sm" color="danger"><CIcon name="cil-ban"/> Xóa</CButton>
+            </div>
+          </div>
+        </div>
+      <div v-if="status === '2'" class="alert-red">
+            <div class="row">
+              <div style="width: 100%">
+              <h4>Tài khoản này đang bị chặn</h4> <p>Nhấn để bỏ chặn</p>
+                <CButton style="margin-right: 20px"  @click="unblockAccount()" class="btn_left" type="submit" size="sm" color="warning"><CIcon name="cil-check-circle"/>Bỏ chặn</CButton>
             </div>
           </div>
         </div>
@@ -43,21 +51,19 @@
                 v-model="phone"
               />
               <CInput
-             
                 label="Ngày sinh"
                 horizontal
                 v-model="birthday"
               />
               <div class="row">
-              <p style="margin-left: 15px;">Quyền</p>
+              <p class="select-lable">Quyền</p>
                 <select
                     id="usertype"
-                    style="width:345px;height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-bottom: 10px; margin-left: 75px;"
-                    class="country fl_left"
+                    style="height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-bottom: 10px; margin-left: 67px;"
+                    class="country fl_left selectbox"
                     vertical
                     v-model="userTypeID"
                     >
-
                     <option v-for="userType in userTypes" v-bind:key="userType.userTypeID" :value="userType.userTypeID">
                         {{userType.userTypeName}}
                     </option>
@@ -74,11 +80,8 @@
                 was-validated
                v-model="email"
               />
-            
             </CForm>
           </CCardBody>
-          <CCardFooter>
-          </CCardFooter>
         </CCard>
       </CCol>
       <CCol md="6">
@@ -98,19 +101,28 @@
                 </div>
                </div>
               <CCardHeader style="text-align:center; height: 50px;">
-              </CCardHeader>
-            <CRow form class="form-group" @click="status=!status" style="margin-top:20px;">
-             <h5> Ban account</h5>
+              </CCardHeader>             
+            <!-- <CRow form class="form-group" @click="status=!status" style="margin-top:20px;">
+             <h5> Ban account </h5>
               <CSwitch 
                 class="mr-1"
                 color="danger"
                 :checked="check"
                 shape="pill"
               />
-              <div style="float:right">
+              <div style="float:right;width: 40%">
                 <h5>Nhắn tin</h5> <CIcon name="cil-envelope-closed" />
               </div>
-            </CRow>
+            </CRow> -->
+            <CCardBody style="display: flex;
+              justify-content: center;
+              align-items: center;">
+            <CButtonGroup  size="sm">
+              <CButton color="primary">Nhắn tin</CButton>
+              <CButton v-if="status === '2'" @click="unblockAccount()" color="danger">Bỏ chặn</CButton>
+              <CButton @click="blockAccount()" v-else color="danger">Chặn</CButton>
+            </CButtonGroup>
+            </CCardBody>
             </CForm>
           </CCardBody>
           <CCardFooter>
@@ -157,7 +169,6 @@ export default {
         birthday: '',
         userTypeID: '',
         status: '',
-        check: false
     };
   },
   computed: {
@@ -181,18 +192,9 @@ export default {
       // if(userData[0].status == '1') this.status == false;
       // else this.status = true;
       this.status = userData[0].status;
-      this.checkStatus();
     },
     goBack() {
       this.usersOpened ? this.$router.go(-1) : this.$router.push({path: '/users'})
-      },
-      checkStatus(){
-        switch(this.status){
-          case '1': this.check = false; break;
-          case '2': this.check = true; break;
-          case '3': this.check = true; break;
-          case '-1':this.check =true; break;
-        }
       },
       previewImage(event){
           this.picture=null;
@@ -216,8 +218,6 @@ export default {
           else{ this.update();}
         },
         update(){
-          if(this.check == true) this.status = '2';
-          else this.status = '1';
           const id = this.$route.params.id;
           const credentials = {
           userName: this.userName,
@@ -238,11 +238,24 @@ export default {
           const response = await UserService.delete(this.userID,localStorage.getItem('isAuthen'))
           alert(response);
         },
+        async confirmAccount(){
+          const id = this.$route.params.id;
+          const response =  await UserService.block(localStorage.getItem('isAuthen'), id, '1');
+          alert(response);
+          this.onInit();
+        },
+        async unblockAccount(){
+          const id = this.$route.params.id;
+          const response = await UserService.block(localStorage.getItem('isAuthen'), id, '1');
+          alert(response);
+          this.onInit();
+        },
         async blockAccount(){
-        const id = this.$route.params.id;
-        const response =  await UserService.block(localStorage.getItem('isAuthen'), id, '1');
-        alert(response);
-      },
+          const id = this.$route.params.id;
+          const response = await UserService.block(localStorage.getItem('isAuthen'), id, '2');
+          alert(response);
+          this.onInit();
+        }
   },
    mounted(){
       this.onInit();
@@ -272,4 +285,11 @@ export default {
     background-color:#CD5C5C;
     color: white;
   }
+.select-lable{
+  width: 10%;
+  margin-left: 15px;
+}
+.selectbox{
+  width: 70%;
+}
 </style>

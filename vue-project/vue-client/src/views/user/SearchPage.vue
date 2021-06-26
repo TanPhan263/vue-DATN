@@ -18,12 +18,12 @@
 					<h4 style="text-align: center;">Sắp xếp kết quả</h4>
 					<i class="fa fa-map-marker" style="float: right; font-size: 20px; margin-right: 3px;"></i> 
 					<slot name="body">
-					  	<label class="container">Gần tôi
+					  	<label class="container-search">Gần tôi
 						<input  @click="sortmode='Gần tôi'" type="radio" :checked="checked1" name="radio">
 						<span class="checkmark"></span>
 						</label>
 						<i class="fa fa-star" aria-hidden="true" style="float: right;font-size: 20px;"></i>
-						<label class="container">Đánh giá cao
+						<label class="container-search">Đánh giá cao
 						<input @click="sortmode='Đánh giá cao'" :checked="checked2" type="radio" name="radio">
 						<span class="checkmark"></span>
 						</label>
@@ -210,7 +210,7 @@ export default {
 	margin-bottom: 20px;
 }
 /* The container */
-.container {
+.container-search {
   width: 600px;
   display: block;
   position: relative;
@@ -225,7 +225,7 @@ export default {
 }
 
 /* Hide the browser's default radio button */
-.container input {
+.container-search input {
   position: absolute;
   opacity: 0;
   cursor: pointer;
@@ -243,12 +243,12 @@ export default {
 }
 
 /* On mouse-over, add a grey background color */
-.container:hover input ~ .checkmark {
+.container-search:hover input ~ .checkmark {
   background-color: #ccc;
 }
 
 /* When the radio button is checked, add a blue background */
-.container input:checked ~ .checkmark {
+.container-search input:checked ~ .checkmark {
   background-color: #ec1c24;
 }
 
@@ -260,12 +260,12 @@ export default {
 }
 
 /* Show the indicator (dot/circle) when checked */
-.container input:checked ~ .checkmark:after {
+.container-search input:checked ~ .checkmark:after {
   display: block;
 }
 
 /* Style the indicator (dot/circle) */
-.container .checkmark:after {
+.container-search .checkmark:after {
  	top: 9px;
 	left: 9px;
 	width: 8px;

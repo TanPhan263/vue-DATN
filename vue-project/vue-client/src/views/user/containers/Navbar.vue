@@ -195,7 +195,7 @@ computed:{
 	  },
 	  getProvince(){
 		try{
-			localStorage.setItem('provinceId',this.provinceSelected)
+			localStorage.setItem('provinceId',this.provinceSelected);
 			this.$router.go();
 		}
 		catch(e)
@@ -239,7 +239,6 @@ computed:{
 		},
 		viewMore(index){
 			RouterService.viewMore(index);
-			this.$router.go();
 		},
 		viewMore_bussinessType(index){
 			RouterService.viewMore_Search(index);

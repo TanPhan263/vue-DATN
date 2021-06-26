@@ -97,8 +97,6 @@
 	  text-align:left;
 	  z-index:9999;  
 }
-
-
 .dropdown-hue ul.sub-menu li{
   width:99%;
   white-space:nowrap;
@@ -123,8 +121,8 @@
   width:99%;
 }
 .dropdown-hue ul.sub-menu li.nav-search{
-    padding:8px 0;
-    width:100%;
+  padding:8px 0;
+  width:100%;
 }
 .dropdown-hue ul.sub-menu li.nav-search div.icon-search{
     float:left;

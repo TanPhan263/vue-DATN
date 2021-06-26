@@ -64,12 +64,12 @@
             </div>
           </div>
           <div class="inbox_chat" v-if="result">
-            <div v-for="(cus,index) in result" v-bind:key="index" :class="[roomID === cus.roomID? 'chat_list active_chat':'chat_list']" @click="inboxClicked(cus.id,cus.roomID)">
+            <div v-for="(cus,index) in result" v-bind:key="index" :class="[roomID === cus.roomID? 'chat_list active_chat':'chat_list']" @click="inboxClicked(cus.id,cus.roomID,cus.seen)">
               <div class="chat_people">
                 <div class="chat_img"> <img v-lazy="cus.senderPic" alt="sunil"> </div>
-                <div class="chat_ib">
-                  <h5>{{cus.senderName}} <span class="time_date">{{cus.time}}</span> </h5>
-                  <p>{{cus.lastMsg}}</p>
+                <div :class="[cus.seen === 'false'? 'unseen_chat':'chat_ib']">
+                  <h5>{{cus.senderName}} </h5>
+                  <p v-if="cus.lastMsg">{{stringcut(cus.lastMsg)}} <i class="fas fa-circle" style="font-size: 4px"></i>{{cus.time}}</p>
                 </div>
               </div>
             </div>
@@ -136,6 +136,11 @@ export default {
       }
     },
     methods:{
+      stringcut(index){
+        if(index.length > 20)
+          return index.slice(0,12);
+        return index;
+      },
       saveMessage(){
         try{
           if(this.message == '' || !this.roomID || typeof this.roomID == 'undefined' || typeof this.inboxID == 'undefined') return;
@@ -153,11 +158,11 @@ export default {
           firebase
             .database()
             .ref("Messages/inboxes/"+ this.storeClickedID).child(this.inboxID)
-            .update({time:today.toString().slice(3,10),lastMsg:this.message});
+            .update({seen:'true',time:today.toString().slice(3,10),lastMsg:this.message});
           firebase
             .database()
             .ref("Messages/inboxes/"+ this.inboxID).child(this.storeClickedID)
-            .update({time:today.toString().slice(3,10),lastMsg:this.message});
+            .update({seen:'false',time:today.toString().slice(3,10),lastMsg:this.message});
           this.message = '';
           }
           catch(err){
@@ -181,7 +186,14 @@ export default {
                     date: data[key].date
                   });
                 });
-                if(this.roomID== messages[0].roomID)
+                if(messages[messages.length -1].senderID == this.inboxID)
+                  {
+                    firebase
+                    .database()
+                    .ref("Messages/inboxes/"+ this.storeClickedID).child(this.inboxID)
+                    .update({seen: 'true'});
+                  }
+                if(this.roomID == messages[0].roomID)
                   this.messages = messages;
                 else return;
               }
@@ -209,6 +221,7 @@ export default {
                     senderPic: data[key].senderPic,
                     time: data[key].time,
                     lastMsg: data[key].lastMsg,
+                    seen: data[key].seen
                   });
                 });
                 this.inboxes = inboxes;
@@ -246,8 +259,6 @@ export default {
               this.store = response.data;
               this.resultStore= this.store;
                 this.fectchInboxes(this.store[0].storeID);
-              // this.storeID=this.store[0].storeID;
-              // this.fetchUsers();
           });
         }
         catch{}
@@ -276,10 +287,17 @@ export default {
       this.storeClickedID = id;
       this.fectchInboxes(id);
     },
-    inboxClicked(inboxID, roomID){
+    inboxClicked(inboxID, roomID,seen){
       this.messages = [];
       this.inboxID = inboxID;
       // this.inboxName = inboxName;
+      if( seen == 'false')
+      {
+        firebase
+        .database()
+        .ref("Messages/inboxes/"+ this.storeClickedID).child(this.inboxID)
+        .update({seen: 'true'});
+      }
       this.roomID = roomID;
       this.fetchMessage();
     }

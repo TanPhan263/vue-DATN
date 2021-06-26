@@ -1,9 +1,9 @@
 <template>
   <div class="container">
-    <div v-if="!show" style="height:100%; width:100%; position: relative;background:white">
-       <div class="msg_history">
+    <div v-if="!show" style="background: white; width:100%; height: 100%;  border: 1px solid #c4c4c4">
+       <div class="inputEmail">
          <div class="form-outline">
-          <input v-model="user.userName"  type="text" placeholder="Please enter your email" id="formControlLg" class="form-control form-control-lg center" style="height: 40px;width: 80%" />
+          <input v-model="user.userName"  type="text" placeholder="Please enter your email" id="inputEmail" class="form-control form-control-lg center" style="height: 40px;width: 80%" />
         </div>
        </div>
        <button class="center" style="margin-top: 60px" @click="openChat" type="button">Chat</button>
@@ -16,12 +16,12 @@
             </div>
           </div>
           <div class="inbox_chat" v-if="storeList">
-            <div v-for="(store,index) in storeList" v-bind:key="index" :class="[roomID === store.roomID? 'chat_list active_chat':'chat_list']"  @click="storeClicked(store.roomID,store.id)">
-              <div class="chat_people">
+            <div v-for="(store,index) in storeList" v-bind:key="index" :class="[roomID === store.roomID? 'chat_list active_chat':'chat_list']"  @click="storeClicked(store.roomID,store.id,store.seen)">
+              <div class="chat_people" >
                 <div class="chat_img"> <img v-lazy="store.senderPic" :alt="store.storeName"> </div>
-                <div class="chat_ib">
-                  <h5>{{store.senderName}} <span class="chat_date"> {{store.time}}</span></h5>
-                   <p>{{store.lastMsg}}</p>
+                <div :class="[store.seen === 'false'? 'unseen_chat':'chat_ib']" >
+                  <h5>{{store.senderName}}</h5>
+                   <p v-if="store.lastMsg">{{store.lastMsg}} <i class="fas fa-circle" style="font-size: 4px"></i>{{store.time}}</p>
                 </div>
               </div>
             </div>
@@ -32,6 +32,7 @@
           <div class="headind_srch">
             <div class="recent_heading">
               <h5 style="width: 50%;float: left">Chat bot</h5>
+              <i @click="exitChat" class="fas fa-sign-out-alt" style="font-size: 20px;float: right"></i>
             </div>
           </div>
           <div class="msg_history" v-chat-scroll="{always: false, smooth: true}" id="messages" ref='messages'>
@@ -93,13 +94,16 @@ export default {
     },
     methods:{
         openChat(){
-            if(validateEmail(this.user.userName)){
-            this.user.userID = this.user.userName.slice(0,this.user.userName.indexOf('@'));
-            this.roomID = this.storeID + this.user.userID;
-            this.createInboxes();
-            this.fectchInboxes(this.user.userID);
-            this.fetchMessage();
-            this.show = true;
+            if(this.validateEmail(this.user.userName)){
+              this.user.userID = this.user.userName.slice(0,this.user.userName.indexOf('@'));
+              localStorage.setItem('chatUser',JSON.stringify(this.user));
+              if(this.storeID || typeof this.storeID !='undefined'){
+                this.roomID = this.storeID + this.user.userID;
+                this.createInboxes();
+              }
+              this.fectchInboxes(this.user.userID);
+              this.fetchMessage();
+              this.show = true;
           }
           else{
             alert("email không đúng, vui lòng nhập lại!!");
@@ -115,9 +119,11 @@ export default {
             this.user.userName = respone[0].userName;
             this.user.userPIc = respone[0].picture;
             this.show = true;
-            this.createInboxes();
+            if(this.storeID || typeof this.storeID !='undefined'){
+                this.roomID = this.storeID + this.user.userID;
+                this.createInboxes();
+              }
             this.fectchInboxes(this.user.userID);
-            this.roomID=this.storeID + this.user.userID;
             this.fetchMessage();
           }
           else{
@@ -181,11 +187,11 @@ export default {
             firebase
               .database()
               .ref("Messages/inboxes/"+ this.storeClickedID).child(this.user.userID)
-              .update({time:today.toString().slice(3,10),lastMsg:this.message});
+              .update({seen:'false',time:today.toString().slice(3,10),lastMsg:this.message});
             firebase
               .database()
               .ref("Messages/inboxes/"+ this.user.userID).child(this.storeClickedID)
-              .update({time:today.toString().slice(3,10),lastMsg:this.message});
+              .update({seen:'true',time:today.toString().slice(3,10),lastMsg:this.message});
             this.message = "";
             }
             catch(err){
@@ -194,7 +200,7 @@ export default {
         },
         fetchMessage(){
           try{
-            if(this.roomID){
+            if(this.roomID  || typeof this.roomID != 'undefined'){
               firebase.database().ref("Messages/chatMessages/").orderByChild('roomID').equalTo(this.roomID).on("value", snapshot => {
                 if(snapshot.exists())
                 {
@@ -209,8 +215,18 @@ export default {
                       date: data[key].date
                     });
                   });
+                  if(messages[messages.length -1].senderID == this.storeClickedID)
+                  {
+                    firebase
+                    .database()
+                    .ref("Messages/inboxes/"+ this.user.userID).child(this.storeClickedID)
+                    .update({seen: 'true'});
+                  }
                   if(this.roomID == messages[0].roomID){
                     this.messages = messages;
+                  }
+                  else{
+
                   }
                 }
                 else this.messages =[];
@@ -238,6 +254,7 @@ export default {
                       senderPic: data[key].senderPic,
                       time: data[key].time,
                       lastMsg: data[key].lastMsg,
+                      seen : data[key].seen
                     });
                   });
                   this.storeList = inboxes;
@@ -249,13 +266,32 @@ export default {
             console.log(err);
           }
         },
-        storeClicked(idRoom,idStore){
+        storeClicked(idRoom,idStore,seen){
           this.roomID = idRoom;
           this.storeClickedID = idStore;
+          if(seen == 'false')
+            {
+              firebase
+              .database()
+              .ref("Messages/inboxes/"+ this.user.userID).child(idStore)
+              .update({seen: 'true'});
+            }
           this.fetchMessage(idRoom);
         },
         exitChat(){
-          localStorage.removeItem('chatUser');
+          if(confirm('Bạn muốn đăng xuất phòng Chat?')){
+            localStorage.removeItem('chatUser');
+            this.user = {
+                userID: '',
+                userName:'',
+                userPIc:''
+              };
+            this.roomID = '';
+            this.storeClickedID = '';
+            this.storeList = [];
+            this.messages = [];
+            this.show = false;
+          }
         },
         validateEmail(mail) 
         {
@@ -272,9 +308,11 @@ export default {
             this.storeClickedID = this.storeID;
             if(localStorage.getItem('chatUser')){
               this.user = JSON.parse(localStorage.getItem('chatUser'));
-              this.roomID= this.storeID + this.user.userID;
               this.show = true;
-              this.createInboxes();
+              if(this.storeID || typeof this.storeID !='undefined'){
+                this.roomID = this.storeID + this.user.userID;
+                this.createInboxes();
+              }
               this.fectchInboxes(this.user.userID);
               this.fetchMessage();
             }
@@ -331,17 +369,25 @@ img{ max-width:100%;}
 }
 .srch_bar .input-group-addon { margin: 0 0 0 -27px;}
 
-.chat_ib h5{ font-size:12px; color:#464646; margin:0 0 0px 0;}
-.chat_ib h5 span{ font-size:12px; float:right;}
-.chat_ib p{ font-size:12px; color:#989898; margin:auto}
+.chat_ib h5{ font-size:12px; color: #484848; margin:0 0 0px 0;}
+.chat_ib p{ font-size:12px; color: #484848; margin:auto}
 .chat_img {
+  margin-top: 4px;
   float: left;
-  width: 15%;
+  width: 17%;
 }
 .chat_ib {
   float: left;
   padding: 0 0 0 5px;
-  width: 85%;
+  width: 83%;
+}
+
+.unseen_chat h5{ font-size:13px; color: black; margin:0 0 0px 0;}
+.unseen_chat p{ font-size:12px; font-weight: bold; color: black; margin:auto}
+.unseen_chat {
+  float: left;
+  padding: 0 0 0 5px;
+  width: 83%;
 }
 
 .chat_people{ overflow:hidden; clear:both;}
@@ -448,5 +494,9 @@ img{ max-width:100%;}
   left: 50%;
   -ms-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
+}
+.inputEmail{
+  height: 450px;
+  width: 940px;
 }
 </style>

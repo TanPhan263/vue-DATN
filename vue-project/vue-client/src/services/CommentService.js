@@ -15,6 +15,9 @@ export default{
     },
     deleteComment(id,token){
         return axios.post(url +'/DeleteByIDForUser?idcomment='+ id,[],{ headers: {"Authorization" : `Bearer ${token}`}}).then(response => response.data);
+    },
+    deleteCommentAdmin(id,token){
+        return axios.post(url +'/DeleteByID?id='+ id,[],{ headers: {"Authorization" : `Bearer ${token}`}}).then(response => response.data);
     }   
 
 }

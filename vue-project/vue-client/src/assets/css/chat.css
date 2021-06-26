@@ -42,8 +42,8 @@ img{ max-width:100%;}
 }
 .srch_bar .input-group-addon { margin: 0 0 0 -27px;}
 
-.chat_ib h5{ font-size:12px; color:#464646; margin:0 0 2px 0;}
-.chat_ib h5 span{ font-size:12px; float:right;}
+.chat_ib h5{ font-size:12px; color: #484848; margin:0 0 0px 0;}
+.chat_ib p{ font-size:12px; color: #484848; margin:auto}
 .chat_ib p{ font-size:12px; color:#989898; margin:auto}
 .chat_img {
   float: left;
@@ -52,6 +52,14 @@ img{ max-width:100%;}
 .chat_ib {
   float: left;
   padding: 0 0 0 15px;
+  width: 85%;
+}
+
+.unseen_chat h5{ font-size:12px; color: black; margin:0 0 0px 0;}
+.unseen_chat p{ font-size:12px; font-weight: bold; color: black; margin:auto}
+.unseen_chat {
+  float: left;
+  padding: 0 0 0 5px;
   width: 85%;
 }
 
