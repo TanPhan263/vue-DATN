@@ -11,15 +11,15 @@
         </div>
       </div>
   </transition>
-    <div v-if="storeID!=='' && storeName!=='' && storePicture!==''" @click="notify=false,chat=!chat" class="message"><i class="fa fa-envelope"></i>
+    <!-- <div v-if="storeID!=='' && storeName!=='' && storePicture!==''" @click="notify=false,chat=!chat" class="message"><i class="fa fa-envelope"></i>
     </div>
     <transition >
       <div v-show="chat" class="chat">
         <Chat v-bind:isOpen="chat" v-bind:storeID="storeID" v-bind:storeName="storeName" v-bind:storePicture="storePicture" />
       </div>
-    </transition>
+    </transition> -->
   <!-- <Header/> -->
-  <Navbar :class="scroll_nav"/>
+  <Navbar/>
   <div class="pn-microsite">
     <div id="storeInfor" class="micro-content">
       <div class="micro-header clearfix">
@@ -60,7 +60,7 @@
               <div class="res-common-add">
                 <span>
                   <a href="#map">
-                    <span>  <span class="fa fa-location-arrow locationicon fa-3x" style="font-size: 15px"></span> {{storeOpen[0]['storeAddress']}}</span>
+                    <span> <span class="fa fa-location-arrow locationicon fa-3x" style="font-size: 15px"></span> {{storeOpen[0]['storeAddress']}}</span>
                   </a>
                 </span>
               </div>
@@ -74,7 +74,8 @@
                 <div class="res-common-minmaxprice"  style="border-top: 1px solid #888;">
                   <span v-if="discountList"><span v-for="(discount,index) in discountList" v-bind:key="index" class="fa fa-tag" style="font-size: 15px; color: red; border: 1px solid red; padding: 2px;"> {{getDiscountName(discount.idDiscountType)}}</span>  </span>
                 </div>
-                 <iframe :src="'https://www.facebook.com/plugins/share_button.php?href=https%3A%2F%2Fviefood.info%2F'+storeID+'&layout=button&size=large&appId=396920051515132&width=87&height=28'" width="87" height="28" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+                  <iframe :src="'https://www.facebook.com/plugins/share_button.php?href=https%3A%2F%2Fviefood.info%2F'+storeID+'&layout=button&size=large&appId=396920051515132&width=87&height=28'" width="87" height="28" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+                    <p v-if="storeName != ''" @click="openChat" style="float: right; font-size: 15px; cursor:pointer"> <i class="fas fa-comment-alt"></i> Nhắn tin</p>
               </div>
             </div>
           </div>
@@ -237,12 +238,11 @@
 
 <script>
 import { freeSet } from '@coreui/icons';
-import Header from './containers/Header';
-import Navbar from './containers/Navbar';
-import GoogleMap from './containers/GoogleMap';
-import Comments from './containers/Comments/comments';
-import Footer from './containers/Footer'
-import Chat from '../user/chat/chatUser'
+import Header from '../containers/Header';
+import Navbar from '../navBar/Navbar';
+import GoogleMap from './GoogleMap';
+import Comments from '../comments/comments';
+import Footer from '../footer/Footer'
 import StoreService from '@/services/StoreService.js';
 import DiscountService from '@/services/DiscountService.js';
 
@@ -263,7 +263,6 @@ export default {
       //binding class
       activeClass: 'Thông tin quán',
       scrollMenu: '',
-      scroll_nav:'',
       nav: '',
       //dishChoosed
       active: false,
@@ -307,7 +306,6 @@ export default {
     GoogleMap,
     Comments,
     Footer,
-    Chat
   },
 methods:{
     // getType(index){
@@ -348,13 +346,7 @@ methods:{
     },
     onScroll(){
       window.onscroll = () => {
-        if (document.documentElement.scrollTop > 35) {
-          this.scroll_nav='sticky-nav';
-        }
-        else{
-          this.scroll_nav='';
-        }
-        if (document.documentElement.scrollTop > 335) {
+        if (document.documentElement.scrollTop > 300) {
           this.scrollMenu= 'sticky';
         } else {
           this.scrollMenu= '';
@@ -398,6 +390,9 @@ methods:{
         this.isLoaded = true;
       }
       catch{}
+    },
+    openChat(){
+      this.$root.$refs.Footer.openChat(this.storeID,this.storeName,this.storePicture);
     },
     openPopup(name) {
 			if(this.isPopup == false){
@@ -446,10 +441,10 @@ methods:{
 </script>
 
 <style>
-@import url('../../assets/css/comments.css');
-@import url('../../assets/css/style-1.css');
-@import url('../../assets/css/footer.css');
-@import url('../../assets/css/reset.css');
+@import url('../../../assets/css/comments.css');
+@import url('../../../assets/css/style-1.css');
+@import url('../../../assets/css/footer.css');
+@import url('../../../assets/css/reset.css');
 #map {
   height: 100%;
 }

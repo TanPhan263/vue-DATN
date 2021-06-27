@@ -26,23 +26,22 @@ const Store = () => import('@/views/admin/stores/Store')
 const Stores = () => import('@/views/admin/stores/Stores')
 const ConfirmStore = () => import('@/views/admin/stores/ConfirmStore')
 const inforUser = () => import('@/views/admin/inforUser/update')
-//change pass
-const Changepass = () => import('@/views/admin/change-pass/changepass')
+
 //navbar
 const Navbar = () => import('@/views/admin/navbar/navBar')
 const Provinces = () => import('@/views/admin/provinces/manageProvince')
 const Footer = () => import('@/views/admin/footer/manageFooter')
 //Homepage
-const Homepage = () => import('@/views/user/HomePage') 
-const Area = () => import('@/views/user/containers/Area') 
-const ViewMoreArea = () => import('@/views/user/containers/ViewMoreArea') 
-const Search = () => import('@/views/user/SearchPage')
-const CategoryPage= () => import('@/views/user/containers/CategoryPage') 
-const storeDetail= () => import('@/views/user/storeDetail') 
+const Homepage = () => import('@/views/user/homepage/HomePage') 
+const Area = () => import('@/views/user/homepage/Area') 
+const ViewMoreArea = () => import('@/views/user/homepage/ViewMoreArea') 
+const Search = () => import('@/views/user/homepage/SearchPage')
+const CategoryPage= () => import('@/views/user/homepage/CategoryPage') 
+const storeDetail= () => import('@/views/user/storeDetail/storeDetail') 
 const ForgetPass= () => import('@/views/user/ForgetPass') 
-const UserInfor= () => import('@/views/user/UserInfor') 
-const Homebody= () => import('@/views/user/Homebody') 
-const DishTypeSearch= () => import('@/views/user/DishTypeSearch') 
+const UserInfor= () => import('@/views/user/userInfor/UserInfor') 
+const Homebody= () => import('@/views/user/homepage/Homebody') 
+const DishTypeSearch= () => import('@/views/user/homepage/DishTypeSearch') 
 //StoreOwner
 const DashboardStoreOwner = () => import('@/views/storeOwner/DashboardStoreOwner') 
 const Dish = () => import('@/views/storeOwner/manageMenu/Dish') 
@@ -203,21 +202,6 @@ function configRoutes () {
           ]
         },
         {
-          path: 'changepass',
-          component: {
-            render(c) {
-              return c('router-view')
-            }
-          },
-          children: [
-            {
-              path: '',
-              name: 'changepass',
-              component: Changepass
-            }
-          ]
-        },
-        {
           path: 'managestores',
           meta: {
             label: 'Stores'
@@ -299,11 +283,11 @@ function configRoutes () {
           name: 'Page500',
           component: Page500
         },
-        {
-          path: 'login',
-          name: 'login',
-          component: Login
-        },
+        // {
+        //   path: 'login',
+        //   name: 'login',
+        //   component: Login
+        // },
         // {
         //   path: 'register',
         //   name: 'Register',
@@ -318,17 +302,17 @@ function configRoutes () {
     },
     {
       path: '/login',      
-      name: 'Login',
+      name: 'login',
       component: Login     
     },
     {
       path: '/register',      
-      name: 'Register',
+      name: 'register',
       component: Register     
     },
     {
       path: '/forgetpass',      
-      name: 'ForgetPass',
+      name: 'forgetpassword',
       component: ForgetPass
     },
     {
@@ -385,7 +369,6 @@ function configRoutes () {
       name: 'storeDetail',
       component: storeDetail
     },
-   
   ]
 }
 

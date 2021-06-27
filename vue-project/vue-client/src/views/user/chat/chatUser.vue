@@ -16,7 +16,7 @@
             </div>
           </div>
           <div class="inbox_chat" v-if="storeList">
-            <div v-for="(store,index) in storeList" v-bind:key="index" :class="[roomID === store.roomID? 'chat_list active_chat':'chat_list']"  @click="storeClicked(store.roomID,store.id,store.seen)">
+            <div v-for="(store,index) in storeList" v-bind:key="index" :class="[storeClickedID === store.id? 'chat_list active_chat':'chat_list']"  @click="storeClicked(store.roomID,store.id,store.seen)">
               <div class="chat_people" >
                 <div class="chat_img"> <img v-lazy="store.senderPic" :alt="store.storeName"> </div>
                 <div :class="[store.seen === 'false'? 'unseen_chat':'chat_ib']" >
@@ -83,7 +83,9 @@ export default {
             messages: [],
             show : false,
             roomID:'',
-            storeClickedID:''
+            storeClickedID:'',
+            storeClickedName:'',
+            storeClickedPicture:''
         }
     },
     props:{
@@ -92,12 +94,18 @@ export default {
       storePicture: String,
       isOpen: Boolean
     },
+    created(){
+        this.$root.$refs.chatUser = this;
+    },
     methods:{
         openChat(){
             if(this.validateEmail(this.user.userName)){
               this.user.userID = this.user.userName.slice(0,this.user.userName.indexOf('@'));
-              localStorage.setItem('chatUser',JSON.stringify(this.user));
-              if(this.storeID || typeof this.storeID !='undefined'){
+              sessionStorage.setItem('chatUser',JSON.stringify(this.user));
+              if(this.storeID && typeof this.storeID !='undefined'){
+                this.storeClickedID = this.storeID;
+                this.storeClickedName = this.storeName;
+                this.storeClickedPicture = this.storePicture;
                 this.roomID = this.storeID + this.user.userID;
                 this.createInboxes();
               }
@@ -119,10 +127,13 @@ export default {
             this.user.userName = respone[0].userName;
             this.user.userPIc = respone[0].picture;
             this.show = true;
-            if(this.storeID || typeof this.storeID !='undefined'){
+            if(this.storeID != '' && typeof this.storeID !='undefined'){
+                this.storeClickedID = this.storeID;
+                this.storeClickedName = this.storeName;
+                this.storeClickedPicture = this.storePicture;
                 this.roomID = this.storeID + this.user.userID;
                 this.createInboxes();
-              }
+            }
             this.fectchInboxes(this.user.userID);
             this.fetchMessage();
           }
@@ -130,49 +141,63 @@ export default {
             this.show = false;
           }
         },
+        createInbox(id,name,picture){
+          this.storeClickedID = id;
+          this.storeClickedName = name;
+          this.storeClickedPicture = picture;
+          this.createInboxes();
+        },
         createInboxes(){
-          firebase
-            .database()
-            .ref("Messages/inboxes/"+ this.storeClickedID).orderByChild('roomID').equalTo(this.storeClickedID+this.user.userID).on("value",snapshot => {
-              if (snapshot.exists()){
-                const userData = snapshot.val();
-                console.log("exists!", userData);
-                return;
-              }
-              else{
-                var today = new Date();
-                const inboxRecipent = {
-                  roomID: this.storeID + this.user.userID,
-                  senderID: this.user.userID,
-                  senderName:  this.user.userName,
-                  senderPic: '',
-                  time: today.toString().slice(3,10),
-                  lastMsg: '',
-                  seen: ''
-                };
-                const inboxSender = {
-                  roomID: this.storeID + this.user.userID,
-                  senderID: this.storeID,
-                  senderName:  this.storeName,
-                  senderPic: this.storePicture,
-                  time: today.toString().slice(3,10),
-                  lastMsg: '',
-                  seen: ''
-                };
-                firebase
-                  .database()
-                  .ref("Messages/inboxes/" + this.storeID).child(this.user.userID)
-                  .set(inboxRecipent);
-                firebase
-                  .database()
-                  .ref("Messages/inboxes/" + this.user.userID).child(this.storeID)
-                  .set(inboxSender);
-              }
-          });
+          try{
+          if(this.storeClickedID && this.storeClickedPicture && this.storeClickedName){
+            this.roomID =  this.storeClickedID + this.user.userID;
+            firebase
+              .database()
+              .ref("Messages/inboxes/"+ this.storeClickedID).orderByChild('roomID').equalTo(this.storeClickedID+this.user.userID).on("value",snapshot => {
+                if (snapshot.exists()){
+                  const userData = snapshot.val();
+                  console.log("exists!", userData);
+                  return;
+                }
+                else{
+                  var today = new Date();
+                  const inboxRecipent = {
+                    roomID: this.storeClickedID + this.user.userID,
+                    senderID: this.user.userID,
+                    senderName:  this.user.userName,
+                    senderPic: '',
+                    time: today.toString().slice(3,10),
+                    lastMsg: '',
+                    seen: ''
+                  };
+                  const inboxSender = {
+                    roomID: this.storeClickedID + this.user.userID,
+                    senderID: this.storeClickedID,
+                    senderName:  this.storeClickedName,
+                    senderPic: this.storeClickedPicture,
+                    time: today.toString().slice(3,10),
+                    lastMsg: '',
+                    seen: ''
+                  };
+                  firebase
+                    .database()
+                    .ref("Messages/inboxes/" + this.storeClickedID).child(this.user.userID)
+                    .set(inboxRecipent);
+                  firebase
+                    .database()
+                    .ref("Messages/inboxes/" + this.user.userID).child(this.storeClickedID)
+                    .set(inboxSender);
+                }
+              });
+            }
+            else alert('cmn')
+          }
+          catch{}
         },
         saveMessage(){
           try{
-            if(this.message == '' || !this.roomID || typeof this.roomID == 'undefined' || typeof this.user.userID == 'undefined') return;
+            if(this.message == '' || !this.roomID || typeof this.roomID == 'undefined' 
+            || typeof this.user.userID == 'undefined' || this.storeClickedID == '' || this.user.userID == '') return;
             var today = new Date();
             const mess = {
               roomID: this.roomID,
@@ -200,7 +225,7 @@ export default {
         },
         fetchMessage(){
           try{
-            if(this.roomID  || typeof this.roomID != 'undefined'){
+            if(this.roomID  && typeof this.roomID != 'undefined'){
               firebase.database().ref("Messages/chatMessages/").orderByChild('roomID').equalTo(this.roomID).on("value", snapshot => {
                 if(snapshot.exists())
                 {
@@ -224,9 +249,6 @@ export default {
                   }
                   if(this.roomID == messages[0].roomID){
                     this.messages = messages;
-                  }
-                  else{
-
                   }
                 }
                 else this.messages =[];
@@ -267,6 +289,7 @@ export default {
           }
         },
         storeClicked(idRoom,idStore,seen){
+          this.messages = [];
           this.roomID = idRoom;
           this.storeClickedID = idStore;
           if(seen == 'false')
@@ -280,7 +303,7 @@ export default {
         },
         exitChat(){
           if(confirm('Bạn muốn đăng xuất phòng Chat?')){
-            localStorage.removeItem('chatUser');
+            sessionStorage.removeItem('chatUser');
             this.user = {
                 userID: '',
                 userName:'',
@@ -304,27 +327,25 @@ export default {
             }
         },
         onInit(){
-          if(this.isOpen){
-            this.storeClickedID = this.storeID;
-            if(localStorage.getItem('chatUser')){
-              this.user = JSON.parse(localStorage.getItem('chatUser'));
-              this.show = true;
-              if(this.storeID || typeof this.storeID !='undefined'){
-                this.roomID = this.storeID + this.user.userID;
-                this.createInboxes();
-              }
-              this.fectchInboxes(this.user.userID);
-              this.fetchMessage();
+          if(sessionStorage.getItem('chatUser')){
+            this.user = JSON.parse(sessionStorage.getItem('chatUser'));
+            if(this.storeID != '' && typeof this.storeID !='undefined'){
+              this.storeClickedID = this.storeID;
+              this.storeClickedName = this.storeName;
+              this.storeClickedPicture = this.storePicture;
+              this.roomID = this.storeID + this.user.userID;
+              this.createInboxes();
             }
-            else
-              this.checkLogin();
-            }
-        },
-    },
-    created(){
-    },
+            this.fectchInboxes(this.user.userID);
+            this.fetchMessage();
+            this.show = true;
+          }
+          else
+            this.checkLogin();
+        }
+      },
     mounted(){
-     this.onInit();
+      this.onInit();
     },
 }
 </script>
@@ -459,7 +480,7 @@ img{ max-width:100%;}
 
 .type_msg { background: white;border-top: 1px solid #c4c4c4;position: relative;}
 .msg_send_btn {
-  background: blue none repeat scroll 0 0;
+  background: #FF8C00 none repeat scroll 0 0;
   border: medium none;
   border-radius: 50%;
   color: white;

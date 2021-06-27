@@ -3,8 +3,8 @@
      <div @click="chat=!chat" class="message"><i class="fa fa-envelope"></i>
       </div>
       <transition >
-        <div v-bind:isOpen="chat" v-show="chat" class="chat">
-          <Chat v-bind:isOpen="chat"/>
+        <div v-show="chat" class="chat">
+          <Chat v-bind:isOpen="chat" v-bind:storeID="storeID" v-bind:storeName="storeName" v-bind:storePicture="storePicture"/>
         </div>
       </transition>
       <div class="member-top">
@@ -38,7 +38,7 @@
 
 <script>
 import firebase from '@/firebase/init.js';
-import Chat from '../../user/chat/chatUser'
+import Chat from '../chat/chatUser'
 export default {
    name: 'Footer',
    components:{
@@ -52,7 +52,13 @@ export default {
          categories:[],
          childcategories:[],
          chat: false,
+         storeName:'',
+         storePicture:'',
+         storeID:''
       }
+   },
+   created(){
+        this.$root.$refs.Footer = this;
    },
    mounted() {
       this.getSocial();
@@ -62,6 +68,13 @@ export default {
       this.getCategoryChild();
    },
    methods:{
+      openChat(storeID,storeName,storePicture){
+        this.storeID = storeID;
+        this.storeName = storeName;
+        this.storePicture = storePicture;
+        this.chat = true;
+        this.$root.$refs.chatUser.createInbox(storeID,storeName,storePicture);
+      },
       getLogo(){
       const socialRef = firebase.database().ref("Footer/logo/");
             socialRef.on("value", snapshot => {
@@ -144,23 +157,23 @@ export default {
     },
     getCategoryChild(){
       firebase.database().ref("Footer/categories-child").on("value", snapshot => {
-            let data = snapshot.val();
-            if(data){
-              let category = [];
-              Object.keys(data).forEach(key => {
-                    category.push({
-                    id: key,
-                    lable: data[key].lable,
-                    link: data[key].link,
-                    cateId: data[key].cateId
-                    });
+        let data = snapshot.val();
+        if(data){
+          let category = [];
+          Object.keys(data).forEach(key => {
+                category.push({
+                id: key,
+                lable: data[key].lable,
+                link: data[key].link,
+                cateId: data[key].cateId
                 });
-                this.childcategories = category;
-            }
-            else{
-             this.childcategories=[];
-            }
-          });
+            });
+            this.childcategories = category;
+        }
+        else{
+          this.childcategories=[];
+        }
+      });
     },
    }
 }
@@ -197,7 +210,7 @@ i {
   bottom: 0;
   right: 0;
   text-align: center;
-  background: blue;
+  background: #FF8C00;
   height: 60px;
   width: 60px;
   border-radius: 50%;

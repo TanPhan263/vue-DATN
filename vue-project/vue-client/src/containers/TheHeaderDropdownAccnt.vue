@@ -20,16 +20,16 @@
       <strong>{{user[0].userName}}</strong>
     </CDropdownHeader>
     <CDropdownItem v-if="getRole() === true" @click="gotoProfile()">
-      <CIcon name="cil-user" /> Profile
+      <i class="fas fa-user dropdownItem"></i> Profile
     </CDropdownItem>
-     <CDropdownItem v-else to="/userinformation">
-      <CIcon name="cil-user"/> Profile
+     <CDropdownItem v-else href="/userinformation">
+      <i class="fas fa-user dropdownItem"></i> Profile
     </CDropdownItem>
-    <CDropdownItem to="/ForgetPass">
-      <CIcon name="cil-lock-locked" /> Change password
+    <CDropdownItem href="/forgetpass">
+      <i class="fa fa-lock dropdownItem" aria-hidden="true"></i> Change password
     </CDropdownItem>
     <CDropdownItem @click="logout">
-      <CIcon name="cil-account-logout" /> Logout
+      <i class="fas fa-sign-out-alt dropdownItem"></i> Logout
     </CDropdownItem>
     </div>
   </CDropdown>
@@ -77,6 +77,9 @@ export default {
     },
     gotoProfile(){
       this.$router.push('/manage/update')
+    },
+    gotoUserInfor(){
+      this.$router.push('/userinformation')
     }
   }
 }
@@ -86,4 +89,7 @@ export default {
   .c-icon {
     margin-right: 0.3rem;
   }
+.dropdownItem{
+  margin-right: 3px;
+}
 </style>

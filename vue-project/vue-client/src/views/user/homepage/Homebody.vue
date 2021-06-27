@@ -216,7 +216,7 @@ import 'vueperslides/dist/vueperslides.css';
 import StoreService from '@/services/StoreService.js';
 import RouterService from '@/services/RouterService.js';
 import { loadOptions } from '@babel/core';
-import Area from './containers/Area.vue';
+import Area from './Area.vue';
 const baseUrl='https://api.viefood.info/api/'
 import DiscountService from '@/services/DiscountService.js'
 
@@ -380,7 +380,7 @@ export default {
 </script>
 
 <style>
-@import url('../../assets/css/comments.css');
+@import url('../../../assets/css/comments.css');
   .center_div{
    text-align: center;
 } 

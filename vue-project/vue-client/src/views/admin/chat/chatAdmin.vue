@@ -14,9 +14,11 @@
         </div>
       </div>
       <div class="inbox_chat" v-if="resultStore">
-        <div v-for="(store,index) in resultStore" v-bind:key="index" :class="[storeClickedID === store.id? 'chat_list active_chat':'chat_list']" @click="storeClicked(store.roomID,store.id,store.seen)">
+        <div v-for="(store,index) in resultStore" v-bind:key="index" :class="[storeClickedID === store.id? 'chat_list active_chat':'chat_list']" @click="storeClicked(store.roomID,store.id,store.seen,store.senderPic)">
           <div class="chat_people">
-            <div class="chat_img"> <img v-lazy="store.senderPic" alt="sunil"> </div>
+            <div class="chat_img"> 
+              <img v-lazy="store.senderPic" alt="sunil">
+             </div>
             <div :class="[store.seen === 'false'? 'unseen_chat':'chat_ib']">
               <h5>{{store.senderName}}</h5>
                <p v-if="store.lastMsg">{{store.lastMsg}} <i class="fas fa-circle" style="font-size: 4px"></i>{{store.time}}</p>
@@ -32,7 +34,8 @@
             <div v-for="(mess,index) in messages" v-bind:key="index">
             <div v-if="mess.senderID !== admin.adminID" class="incoming_msg">
               <div class="incoming_msg_img">
-                <img src="../../../assets/imgs/userPic.png" alt="sunil"> 
+                <img v-if="senderPic" v-lazy="senderPic" alt="sunil"> 
+                  <img v-else src="../../../assets/imgs/userPic.png" alt="sunil"> 
               </div>
                 <div  class="received_msg">
                     <div class="received_withd_msg">
@@ -82,8 +85,7 @@ export default {
         message: null,
         messages: [],
         store:[],
-        storeName: '',
-        storePicture: '',
+        senderPic: '',
         resultStore: [],
         storeClickedID:''
       }
@@ -91,7 +93,8 @@ export default {
     methods:{
       saveMessage(){
         try{
-          if(this.message == '' || !this.roomID || typeof this.roomID == 'undefined' || typeof this.admin.adminID == 'undefined') return;
+          if(this.message == '' || !this.roomID || typeof this.roomID == 'undefined' 
+          || typeof this.admin.adminID == 'undefined' || this.storeClickedID == '' || this.admin.adminID == '') return;
           var today = new Date();
           const mess = {
             roomID: this.roomID,
@@ -183,23 +186,6 @@ export default {
           console.log(err);
         }
       },
-      deleteInboxes(id){
-        if(confirm('Bạn chắc chắn muốn xóa?'))
-        {
-          firebase
-            .database()
-            .ref("Messages/inboxes/"+ this.storeClickedID).child(this.inboxID)
-            .remove();
-          firebase
-            .database()
-            .ref("Messages/inboxes/"+ this.inboxID).child(this.storeClickedID)
-            .remove();
-          firebase
-            .database()
-            .ref("Messages/chatMessages/"+ this.roomID)
-            .remove();
-        }
-      },
       // fetchStore(){
       //   try{
       //     const url = 'https://api.viefood.info/api/Store/GetAllManage'
@@ -227,12 +213,14 @@ export default {
         return this.resultStore=this.store;
       else {
         this.resultStore = this.store.filter(function(item){
-          return item.storeName.toLowerCase().includes(key.toLowerCase());
+          return item.senderName.toLowerCase().includes(key.toLowerCase());
         })
       }
     },
-    storeClicked(idRoom,idStore,seen){
-      if(idRoom && idStore){
+    storeClicked(idRoom,idStore,seen,senderPic){
+      if(idRoom!='' && idStore != ''){
+        this.messages = [];
+        this.senderPic = senderPic;
         this.roomID = idRoom;
         this.storeClickedID = idStore;
         if(seen == 'false')
@@ -245,22 +233,6 @@ export default {
         this.fetchMessage();
       }
     },
-    // storeClicked(id,name,pic){
-    //   this.messages = [];
-    //   this.storeClickedID = id;
-    //   this.storeName = name;
-    //   this.storePicture = pic;
-    //   this.roomID = this.storeClickedID + this.admin.adminID;
-    //   this.createInboxes();
-    //   this.fetchMessage();
-    // },
-    // inboxClicked(inboxID, roomID){
-    //   this.messages = [];
-    //   this.inboxID = inboxID;
-    //   // this.inboxName = inboxName;
-    //   this.roomID = roomID;
-    //   this.fetchMessage();
-    // }
     async checkLogin(){
       let token = localStorage.getItem('isAuthen');
       let respone = await UserService.getInfo(token);
@@ -271,6 +243,9 @@ export default {
           this.admin.adminPIc = respone[0].picture;
         console.log(this.admin.adminPIc)
         this.fetchMessage();
+      }
+      else{
+        AuthService.logout();
       }
     },
   },

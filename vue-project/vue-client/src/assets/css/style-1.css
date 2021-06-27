@@ -248,7 +248,7 @@ header.header .header-wrapper{
 .pn-microsite{
 	width: 89%;
 	margin: 0 auto;
-	padding-top: 10px;
+	padding-top: 60px;
 	overflow: hidden;
 }
 .pn-microsite .micro-content{
@@ -322,7 +322,8 @@ header.header .header-wrapper{
 	text-overflow: ellipsis;
 }
 .micro-content .disableSection .res-common-add a{
-	color: #333;
+	color: #888;
+
 }
 .micro-content .disableSection .res-common-add .locationicon{
 	margin-right: 5px;
@@ -344,6 +345,7 @@ header.header .header-wrapper{
 	margin-right: 6px;
     font-size: 13px;
     padding-top: 1px;
+	color: #888;
 }
 .micro-content .disableSection .res-common-price .itsopen {
 	color: rgb(5, 205, 21);

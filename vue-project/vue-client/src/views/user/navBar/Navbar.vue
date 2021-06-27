@@ -84,7 +84,7 @@
 import firebase from '@/firebase/init.js';
 const baseUrl='https://api.viefood.info/api/'
 import TheHeaderDropdownAccnt from '@/containers/TheHeaderDropdownAccnt'
-import Suggest from './Suggest'
+import Suggest from '../homepage/Suggest'
 import AuthService from '@/services/AuthService.js';
 import UserService from '@/services/UserService.js';
 import RouterService from '@/services/RouterService.js';

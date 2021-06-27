@@ -12,7 +12,7 @@
       </div>
   </transition>
   <!-- <Header/> -->
-  <Navbar :class="scroll"/>
+  <Navbar/>
   <div class="content-banner">
 			<div class="banner">
 				<img id="banner" style="margin: auto; height: 270px;width: 100%; display: block;">
@@ -65,15 +65,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gmap-vue@1.2.2/dist/gmap-vue.min.js"></script>
 <script>
-import Header from './containers/Header'
-import Navbar from './containers/Navbar'
-import Suggest from './containers/Suggest'
+// import Header from './containers/Header'
+import Navbar from '../navBar/Navbar'
+import Suggest from './Suggest'
 import Homebody from './Homebody'
-import CategoryPage from './containers/CategoryPage'
+import CategoryPage from './CategoryPage'
 import SearchPage from './SearchPage'
-import Search from './containers/Search'
-import Footer from './containers/Footer'
-import GoogleMapHome from './containers/GoogleMapHome';
+import Search from './Search'
+import Footer from '../footer/Footer'
+import GoogleMapHome from './GoogleMapHome';
 import FormatWord from '@/services/FormatWord.js'
 import StoreService from '@/services/StoreService.js'
 import RouterService from '@/services/RouterService.js'
@@ -82,7 +82,6 @@ import AuthService from '@/services/AuthService.js'
 export default {
   name:'Home',
   components:{
-      Header,
       Navbar,
       Search,
       Footer,
@@ -105,7 +104,6 @@ export default {
       keyword: '',
       results: null,
       isDropdown: false,
-      scroll: '',
     }
   },
   created(){
@@ -181,9 +179,10 @@ export default {
 </script>
 
 <style>
-@import url('../../assets/css/style.css');
-@import url('../../assets/css/footer.css');
-@import url('../../assets/css/bootstrap.min.css');
+@import url('../../../assets/css/style.css');
+@import url('../../../assets/css/style-0.css');
+@import url('../../../assets/css/footer.css');
+@import url('../../../assets/css/bootstrap.min.css');
  .modal-mask-home {
     position: fixed;
     z-index: 999;

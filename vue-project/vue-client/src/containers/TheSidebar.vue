@@ -8,6 +8,12 @@
     <CSidebarBrand class="d-md-down-none">
       <a style="text-decoration: none;" v-show="!minimize" v-if="isAdmin()" href="/manage/dashboard" class="logo">VieFood Admin</a>
       <a style="text-decoration: none;" v-show="!minimize" v-else href="/manage/overview"  class="logo">VieFood Store Owner</a>
+      <a style="text-decoration: none;" v-show="minimize" v-if="isAdmin()" href="/manage/dashboard" class="logo">
+        <img src="../assets/imgs/vie-logo.png" alt="viefood.info">
+      </a>
+      <a style="text-decoration: none;" v-show="minimize" v-else href="/manage/overview"  class="logo">
+        <img src="../assets/imgs/vie-logo.png" alt="viefood.info">
+      </a>
     </CSidebarBrand>
     <CRenderFunction v-if="isAdmin()" flat :content-to-render="$options.nav"/>
     <CRenderFunction v-else flat :content-to-render="$options.nav_storeOwner"/>

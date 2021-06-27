@@ -477,44 +477,13 @@ export default {
 				}
 			}catch{}
 		},
-		// getAverageRate(rate){
-		// 	var total = 0;
-		// 	this.commentList.forEach(element => {
-		// 				total+=parseInt(element.ratePoint);
-		// 	});
-		// 	console.log(total);
-		// 	return (total+ parseInt(rate))/(this.commentList.length + 1);
-		// },
-		// getName(index){
-		// 	var temp = 'unknow'
-		// 	this.userCommentParent.forEach(element => {
-		// 		if(element.commentID == index)
-		// 		{
-		// 			temp = element.userName;
-		// 		}
-					
-		// 	});
-		// 	return temp;
-		// },
-		// getPicture(index){
-		// 	var temp = "http://dummyimage.com/60x60/666/ffffff&text=No+Image"
-		// 	this.userCommentParent.forEach(element => {
-		// 		if(element.commentID == index)
-		// 		{
-		// 			if(element.picture != '')
-		// 			temp = element.picture;
-		// 		}
-					
-		// 	});
-		// 	return temp;
-		// }
 	}
 }
 </script>
 
 <style>
-@import url('../../../../assets/css/comments.css');
-@import url('../../../../assets/css/bootstrap.min.css');
+@import url('../../../assets/css/comments.css');
+@import url('../../../assets/css/bootstrap.min.css');
 .center{
 	display: block;margin-left: auto;margin-right: auto;
 }

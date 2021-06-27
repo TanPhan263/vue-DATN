@@ -202,23 +202,34 @@ export default {
     });
   },
   checkUser(token){
-    return axios.get(url+ 'GetByID',{ headers: {"Authorization" : `Bearer ${token}`}}).then(respone => 
-      {
-        let user = respone.data
-        if( user[0] == 'Bạn cần đăng nhập') 
-          this.logout()
-      });
+    try{
+      return axios.get(url+ 'GetByID',{ headers: {"Authorization" : `Bearer ${token}`}}).then(respone => 
+        {
+          let user = respone.data
+          if( user[0] == 'Bạn cần đăng nhập') 
+            this.logout();
+        });
+      }
+    catch{
+      this.logout();
+    }
   },
   checkAdmin(){
-    if(!localStorage.getItem('isAuthen')) return;
-    return axios
-    .get(url + 'GetRole',{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}})
-    .then(response => {
-      if(response.data != '-MO5VBnzdGsuypsTzHaV')
-      router.push('/pages/404')
-    });
+    try{
+      if(!localStorage.getItem('isAuthen')) return;
+      return axios
+      .get(url + 'GetRole',{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}})
+      .then(response => {
+        if(response.data != '-MO5VBnzdGsuypsTzHaV')
+        router.push('/pages/404')
+      });
+    }
+    catch{
+      router.push('/login')
+    }
   },
   checkStoreOwner(){
+    try{
     if(!localStorage.getItem('isAuthen')) return;
     return axios
       .get(url + 'GetRole',{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}})
@@ -226,5 +237,9 @@ export default {
         if(response.data != '-MO5VWchsca2XwktyNAw')
         router.push('/pages/404')
       });
+    }
+    catch{
+      router.push('/login')
+    }
   },
 };

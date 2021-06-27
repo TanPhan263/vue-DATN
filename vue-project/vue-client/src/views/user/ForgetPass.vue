@@ -1,15 +1,11 @@
 <template>
+<div>
+    <Navbar/>
 <div
     class="c-app flex-row align-items-center"
   >
-  
+
   <CRow class="center_div col-md-4">
-    <!-- <div v-if="showErr" class="alert-blue" style="margin-bottom: 20px;margin-top: 20px;">
-        <span class="closebtn" @click="show=0">&times;</span> {{ msg }}
-      </div>
-       <div v-if="showSuccess" class="alert-red" style="margin-bottom: 20px;margin-top: 20px;">
-        <span class="closebtn" @click="show=0">&times;</span> {{ msg }}
-      </div> -->
        <CAlert
        style="width: 100%"
             color="danger"
@@ -101,11 +97,19 @@
   </CCard>
 </CRow>
 </div>
+<Footer/>
+</div>
 </template>
 
 <script>
 import axios from 'axios';
+import Navbar from './navBar/Navbar'
+import Footer from './footer/Footer'
 export default {
+  components:{
+    Navbar,
+    Footer
+  },
     data(){
         return{
           msg: '',
@@ -204,6 +208,10 @@ export default {
 </script>
 
 <style>
+@import url('../../assets/css/comments.css');
+@import url('../../assets/css/style-0.css');
+@import url('../../assets/css/footer.css');
+@import url('../../assets/css/reset.css');
 @import url('../../assets/css/alert.css');
 .center_div{
     margin: 0 auto;

@@ -59,7 +59,7 @@
               <p class="select-lable">Quyền</p>
                 <select
                     id="usertype"
-                    style="height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-bottom: 10px; margin-left: 67px;"
+                    style="height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-bottom: 10px; margin-left: 70px;"
                     class="country fl_left selectbox"
                     vertical
                     v-model="userTypeID"
@@ -96,7 +96,7 @@
                     margin-left: auto;
                     margin-right: auto;
                     width: 40%;"
-                    :src="picture"
+                    :v-lazy="picture"
                 />
                 </div>
                </div>
@@ -118,7 +118,6 @@
               justify-content: center;
               align-items: center;">
             <CButtonGroup  size="sm">
-              <CButton color="primary">Nhắn tin</CButton>
               <CButton v-if="status === '2'" @click="unblockAccount()" color="danger">Bỏ chặn</CButton>
               <CButton @click="blockAccount()" v-else color="danger">Chặn</CButton>
             </CButtonGroup>
@@ -140,15 +139,11 @@ import firebase from '@/firebase/init.js';
 import UserService from '@/services/UserService.js';
 import AuthService from '@/services/AuthService.js';
 export default {
-  beforeRouteEnter (to, from, next) {
-    AuthService.checkUser(localStorage.getItem('isAuthen'));
-    AuthService.checkAdmin(localStorage.getItem('isAuthen'));
-    next();
-  },
   name: 'User',
   beforeRouteEnter(to, from, next) {
     next(vm => {
-      AuthService.checkUser(localStorage.getItem('isAuthen'))
+      AuthService.checkUser(localStorage.getItem('isAuthen'));
+      AuthService.checkAdmin(localStorage.getItem('isAuthen'));
       next();
       vm.usersOpened = from.fullPath.includes('users')
     })

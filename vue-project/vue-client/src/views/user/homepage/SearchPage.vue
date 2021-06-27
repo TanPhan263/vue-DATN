@@ -56,7 +56,7 @@
 				</a>
 			</li>
           </ul>
-		  <ul v-else style="text-align: center;"><img src="../../assets/imgs/wrong.jpg" style="width:60%; margin-bottom: 50px" alt=""></ul>
+		  <ul v-else style="text-align: center;"><img src="../../../assets/imgs/wrong.jpg" style="width:60%; margin-bottom: 50px" alt=""></ul>
         </div>
 	
 			<div class="text-center pb-0 pt-3" style="font-weight: bold;">
@@ -196,7 +196,7 @@ export default {
 </script>
 
 <style>
-@import url('../../assets/css/style.css');
+@import url('../../../assets/css/style.css');
 .pagination{
 	margin: 0 auto;
 }

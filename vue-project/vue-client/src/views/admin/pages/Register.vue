@@ -31,7 +31,7 @@
           <CCard class="mx-4 mb-0">
             <CCardBody class="p-4">
               <CForm>
-                <h1>Register</h1>
+                 <img class="imglogo" :src="logo" alt="viefood.info">
                 <p class="text-muted">Already have an account?<a href="/login"><strong>Login</strong></a></p>
                 <CInput
                   placeholder="Username"
@@ -91,6 +91,7 @@
 </template>
 
 <script>
+import firebase from '@/firebase/init.js';
 import AuthService from '@/services/AuthService.js';
 import axios from 'axios';
 export default {
@@ -111,8 +112,12 @@ export default {
       pass: '', 
       retypepass:'',
       sex: '',
-      type: '-MO5VYNnWIjXtvJO4AXi' ,
+      type: '-MO5VYNnWIjXtvJO4AXi',
+      logo:'',
     };
+  },
+  mounted() {
+    this.getLogo();
   },
   methods: {
     signUp() {
@@ -196,6 +201,28 @@ export default {
        AuthService.loginFacebook();
        this.loading=false;
     },
+    getLogo(){
+		  try{
+      		const socialRef = firebase.database().ref("Footer/logo/");
+            socialRef.on("value", snapshot => {
+            let data = snapshot.val();
+            if(data){
+              let logo = [];
+              Object.keys(data).forEach(key => {
+                    logo.push({
+                      id: key,
+                      picture: data[key].picture,
+                    });
+                });
+                this.logo = logo[0].picture;
+            }
+            else{
+             this.logo='';
+            }
+          });
+        }
+        catch(err){}
+      },
   }
 };
 </script>
@@ -208,5 +235,9 @@ a{
 a:hover{
   text-decoration: none;
   color: Red;
+}
+.imglogo{
+  margin: 0 auto;
+  width: 40% ;
 }
 </style>

@@ -28,7 +28,7 @@
             <CCard class="p-4">
               <CCardBody>
                 <CForm>
-                  <img  class="imglogo" :src="logo" alt="viefood.info">
+                 <a href="/"> <img class="imglogo" :src="logo" alt="viefood.info"></a>
                   <p class="text-muted">Sign In to your account</p>
                   <CInput
                     type="email"
