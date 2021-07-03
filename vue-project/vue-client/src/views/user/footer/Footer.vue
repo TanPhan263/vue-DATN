@@ -4,15 +4,16 @@
       </div>
       <transition >
         <div v-show="chat" class="chat">
-          <Chat v-bind:isOpen="chat" v-bind:storeID="storeID" v-bind:storeName="storeName" v-bind:storePicture="storePicture"/>
+          <Chat/>
         </div>
       </transition>
       <div class="member-top">
         <div class="member">
            <h3 style="color:#df0024;">Kết nối với chúng tôi trên</h3>
            <div v-if="socials" class="social-banner">
-            <a v-for="(social,index) in socials" v-bind:key="index" :href="social.link"><img :src="social.picture" width="50" height="50"></a>
-            
+              <div v-for="(social,index) in socials" v-bind:key="index" class="social-banner-item">
+                <a  :href="social.link"><img :src="social.picture" width="50" height="50"></a>
+              </div>
             </div>
         </div>    
      </div>
@@ -52,9 +53,6 @@ export default {
          categories:[],
          childcategories:[],
          chat: false,
-         storeName:'',
-         storePicture:'',
-         storeID:''
       }
    },
    created(){
@@ -69,9 +67,9 @@ export default {
    },
    methods:{
       openChat(storeID,storeName,storePicture){
-        this.storeID = storeID;
-        this.storeName = storeName;
-        this.storePicture = storePicture;
+        // this.storeID = storeID;
+        // this.storeName = storeName;
+        // this.storePicture = storePicture;
         this.chat = true;
         this.$root.$refs.chatUser.createInbox(storeID,storeName,storePicture);
       },

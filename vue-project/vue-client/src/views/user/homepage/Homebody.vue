@@ -19,37 +19,34 @@
 				<div class="modal-container">
 				<div class="modal-header">
 					<slot name="header">
-					<h3>{{discountName}}</h3>
+					<h4>{{discountName}}</h4>
+           <i @click="active=false" class="fas fa-times" style="padding: 3px;float: right; font-size: 23px;"></i>
 					</slot>
 				</div>
-
 				<div class="modal-body">
-					<slot name="body">
+					<slot name="body" v-if="!loadingDiscount">
               <div v-on:click="storeClicked(result.storeID)" href="" class="search_suggest" v-for="result in discountStore" v-bind:key="result.storeID" style="
                 text-align: left; display: flex; border-bottom: 1px solid darkgray;cursor: pointer;padding: 4px 45px 4px 10px;">
                   <img v-lazy="result.storePicture" class="left-thing" style="border-radius:5px;">
-                  <div class="middle-thing" style="margin-left: 3px; height: 100%">
-                    <p style="margin-top: 0px; height: 15%; font-weight: bold;">{{result.storeName}}</p>
-                    <p style="margin-top: 0px;">{{subString(result.storeAddress)}}...</p>
+                  <div class="middle-thing" style="margin-left: 3px; height: 100%;">
+                    <p style="margin-top: 0px; height: 15%; font-size: 14px; font-weight: bold;">{{result.storeName}}</p>
+                    <p style="margin-top: 0px;">{{result.storeAddress}}</p>
                   </div>
                  <div v-if="getActiveTime(result.openTime,result.cLoseTime)" class="right-thing">
                     <p style="font-size: 12px;margin-top: 0px; height: 15%; color:green;">Đang hoạt động <span class="dot"></span></p>
                     <p style="color: #585858;" >{{result.khoangcach}} km</p>
                   </div>
                   <div v-else class="right-thing">
-                    <p style=" margin-top: 0px; height: 20%; color:red;">Đóng cửa <span class="dot" style="background-color:#FF0000
-  ;"></span></p>
+                    <p style=" margin-top: 0px; height: 20%; color:red;">Đóng cửa <span class="dot" style="background-color:#FF0000;"></span></p>
                     <p >{{result.khoangcach}} km</p>
                 </div>
               </div>
 					</slot>
+          <div v-show="loadingDiscount" style="margin: 0 auto;" class="loader-discount"></div>
 				</div>
 
 				<div class="modal-footer">
 					<slot name="footer">
-					<button class="btn btn-danger" @click="active=false">
-						Close
-					</button>
 					</slot>
 				</div>
 				</div>
@@ -64,7 +61,7 @@
          </div>
     </transition>
 
-   <div class="ship" style="width:88%;">
+   <div class="ship">
 	  <div  class="menu-ship">
         <div class="hero">
           <h4>MÓN NGON MỖI NGÀY</h4>
@@ -74,10 +71,10 @@
         <ul>
           <li v-for="(dish, index) in dishes" v-bind:key="index" style="height:90px;width:100px;"  @click="dishClicked(dish.dishName)">
           <a :href="'/search?key='+ dish.dishName">
-              <img v-lazy="dish.dishPicture" style="border-radius:10px 10px 10px 10px; width:102px; height:90px;cursor: pointer;"/>
+            <img v-lazy="dish.dishPicture" style="border-radius:10px 10px 10px 10px; width:102px; height:90px;cursor: pointer;"/>
           </a>
           <div @click="dishClicked(dish.dishName)" style="margin: 0 auto;text-align:center; background-color:#f6f6f6; width: 80px; padding-bottom: 20px;"> 
-                <p style="margin-top: 3px;font-family: Helvetica; font-size:14px; font-weight:bold; word-break:keep-all;">{{dish.dishName}}</p></div>
+                <p style="margin-top: 3px; font-size:15px; font-weight:bold; word-break:keep-all;">{{dish.dishName}}</p></div>
           </li>
         </ul>
     </div>
@@ -94,13 +91,27 @@
     <div class="ship" style="width:88%;">
       <div class="menu-ship">
         <div class="hero">
-          <h4 >ĐƯỢC ĐÁNH GIÁ CAO</h4>
+          <h3>ĐƯỢC ĐÁNH GIÁ CAO</h3>
         </div>
       </div>
       <div id="Giaotannoi" class="sub-menu-ship" >
         <ul v-if="!show">
           <li v-for="(store, index ) in rates" v-bind:key="index"  style="position: relative">
-           
+              <div v-if="store.discount === true" class="top-left">
+                <div class="popup"  @click="openPopup('danhgiacao'+ store.storeID,store.storeID)"
+                 @mouseleave="closePopup('danhgiacao'+ store.storeID)">
+                    <span class="fa-stack fa-lg">
+                        <i class="fa fa-certificate fa-stack-2x"></i>
+                        <i class="fa fa-tag fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <span class="popuptext" :id="'danhgiacao'+ store.storeID">
+                       <div v-show="loadingStoreDiscount" style="margin: 0 auto;" class="loader-small"></div>
+                      <span v-show="!loadingStoreDiscount" v-if="discountList">
+                        <span v-for="(dis,index) in discountList" v-bind:key="index"> <i class="fa fa-tag" style="font-size: 15px; color: red; padding: 2px;"/> {{getDiscountName(dis.idDiscountType)}} <br></span>
+                      </span>
+                    </span>
+                </div>
+              </div>
             <!-- <a v-on:click="storeClicked(store.storeID)">
               href="/Homepage/" -->
             <a class="image" :href="'/'+store.storeID" >
@@ -114,7 +125,8 @@
               <div style="color: black; float:right;">{{store.khoangcach}} km</div>
               </div>
                 <div class="address-store"> <span class="fas fa-utensils"></span> {{ getType(store.businessTypeID) }}
-                <div style="color: black; float:right;">{{Math.ceil(store.ratePoint*100)/100}} <span class="fa fa-star" style="color: orange"></span></div>
+                <div v-if="store.ratePoint === 'NaN'" style="color: #585858; float:right;">{{0}} <span class="fa fa-star" style="color: orange"></span></div>
+                  <div v-else style="color: #585858; float:right;">{{Math.ceil(store.ratePoint*100)/100}} <span class="fa fa-star" style="color: orange"></span></div>
                 </div>
               <div class="intro"></div>
             </a>
@@ -135,12 +147,27 @@
      <div class="ship">
       <div class="menu-ship">
         <div class="hero">
-          <h4>GẦN BẠN NHẤT</h4>
+          <h3>GẦN BẠN NHẤT</h3>
         </div>
       </div>
       <div id="Giaotannoi" class="sub-menu-ship" >
         <ul v-if="!show">
           <li vi v-for="(store, index) in nearest" v-bind:key="index">
+             <div v-if="store.discount === true" class="top-left">
+                <div class="popup"  @click="openPopup('gantoi'+ store.storeID,store.storeID)"
+                 @mouseleave="closePopup('gantoi'+ store.storeID)">
+                    <span class="fa-stack fa-lg">
+                        <i class="fa fa-certificate fa-stack-2x"></i>
+                        <i class="fa fa-tag fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <span class="popuptext" :id="'gantoi'+ store.storeID">
+                       <div v-show="loadingStoreDiscount" style="margin: 0 auto;" class="loader-small"></div>
+                      <span v-show="!loadingStoreDiscount" v-if="discountList">
+                        <span v-for="(dis,index) in discountList" v-bind:key="index"> <i class="fa fa-tag" style="font-size: 15px; color: red; padding: 2px;"/> {{getDiscountName(dis.idDiscountType)}} <br></span>
+                      </span>
+                    </span>
+                </div>
+              </div>
             <a :href="'/'+store.storeID">
               <img v-lazy="store.storePicture" />
               <div class="middle">
@@ -150,7 +177,8 @@
               <div class="address-store"><i class="fa fa-map-marker"  style="color: red"></i>  {{ subString(store.storeAddress) }}...
               <div style="color: black; float:right;">{{store.khoangcach}} km</div></div>
                 <div class="address-store"> <span class="fas fa-utensils"></span>  {{ getType(store.businessTypeID) }}
-                <div style="color: black; float:right;">{{Math.ceil(store.ratePoint*100)/100}} <span class="fa fa-star" style="color: orange"></span></div>
+                 <div v-if="store.ratePoint === 'NaN'" style="color: #585858; float:right;">{{0}} <span class="fa fa-star" style="color: orange"></span></div>
+                  <div v-else style="color: #585858; float:right;">{{Math.ceil(store.ratePoint*100)/100}} <span class="fa fa-star" style="color: orange"></span></div>
                 </div>
               <div class="intro"></div>
             </a>
@@ -168,17 +196,32 @@
           </div>  
       </div>
     </div>
-    <Area v-bind:type="type"/>
-    <div v-infinite-scroll="loadMore" infinite-scroll-disabled="disabled"  infinite-scroll-distance="100" style="margin-top: 20px;">
+    <Area v-bind:type="type" v-bind:discount="discount" v-bind:discountList="discountList" v-bind:loadingStoreDiscount="loadingStoreDiscount"/>
+    <div v-infinite-scroll="loadMore" infinite-scroll-disabled="disabled"  infinite-scroll-distance="100" style="margin-top: 20px;" >
       <div v-for="(list, index) in loadMoreList" v-bind:key="index" class="ship">
         <div class="menu-ship">
           <div class="hero" style="width:30%">
-            <h4 v-if="list && list.length > 0" style="text-align:left"> {{ getType(list[0].businessTypeID) }}</h4>
+            <h3 v-if="list && list.length > 0" style="text-align:left"> {{ getType(list[0].businessTypeID) }}</h3>
           </div>
         </div>
         <div v-if="list" class="sub-menu-ship">
           <ul>
-            <li v-for="(store,index) in list" v-bind:key="index">
+            <li v-for="(store,index2) in list" v-bind:key="index2">
+              <div v-if="store.discount === true" class="top-left">
+                <div class="popup"  @click="openPopup('myPopup'+ store.storeID,store.storeID)"
+                 @mouseleave="closePopup('myPopup'+ store.storeID)">
+                    <span class="fa-stack fa-lg">
+                        <i class="fa fa-certificate fa-stack-2x"></i>
+                        <i class="fa fa-tag fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <span class="popuptext" :id="'myPopup'+ store.storeID">
+                       <div v-show="loadingStoreDiscount" style="margin: 0 auto;" class="loader-small"></div>
+                      <span v-show="!loadingStoreDiscount" v-if="discountList">
+                       <span v-for="(dis,index) in discountList" v-bind:key="index"> <i class="fa fa-tag" style="font-size: 15px; color: red; padding: 2px;"/> {{getDiscountName(dis.idDiscountType)}} <br></span>
+                      </span>
+                    </span>
+                </div>
+              </div>
               <a :href="'/'+store.storeID">
                 <img v-lazy="store.storePicture"/>
               <div class="middle">
@@ -189,7 +232,8 @@
                   <div style="color: #585858; float:right;">{{store.khoangcach}} km</div>
                 </div>
                   <div class="address-store"> <span class="fas fa-utensils"></span>  {{ getType(store.businessTypeID) }}
-                  <div style="color: #585858; float:right;">{{Math.ceil(store.ratePoint*100)/100}} <span class="fa fa-star" style="color: orange"></span></div>
+                   <div v-if="store.ratePoint === 'NaN'" style="color: #585858; float:right;">{{0}} <span class="fa fa-star" style="color: orange"></span></div>
+                  <div v-else style="color: #585858; float:right;">{{Math.ceil(store.ratePoint*100)/100}} <span class="fa fa-star" style="color: orange"></span></div>
                   </div>
                 <div class="intro"></div>
               </a>
@@ -229,6 +273,8 @@ export default {
         return {
           margin: 150,
           loading: false,
+          loadingDiscount: false,
+          loadingStoreDiscount: false,
           index: 0,
           stores: [],
           provinceID: '',
@@ -243,6 +289,9 @@ export default {
           discountStore: [],
           show: true,
           discountName:'',
+          discountList:[],
+          currDiscount:'',
+          clicked: false,
         }
       },
       created(){
@@ -261,7 +310,6 @@ export default {
         async onInit(){
           try{
             this.discount = await DiscountService.getAll();
-            console.log(this.discount);
             var id = localStorage.getItem('provinceId');
             this.provinceID = id;
             this.stores = await StoreService.getByProvince(id)
@@ -353,9 +401,11 @@ export default {
         this.$router.push('/viewmore?key=' + id).catch(()=>{});
       },
       async getDiscountStore(id,name){
+        this.loadingDiscount = true;
         this.discountName = name;
         this.active=true;
-        this.discountStore = await DiscountService.getStore(id);
+        this.discountStore = await DiscountService.getStore(id)
+        this.loadingDiscount = false;
       },
       getActiveTime(open,close){
         const today = new Date();
@@ -372,7 +422,47 @@ export default {
         else if(hour == openHour && min >= openMin)
             return true;
         else return false;
-      }
+      },
+      openPopup(name,id) {
+        this.loadingStoreDiscount = true;
+        // if(this.currDiscount){
+        //   var popupcurr = document.getElementById(this.currDiscount);
+        //   popupcurr.classList.toggle("show");
+        // }
+        var popupnew = document.getElementById(name);
+        popupnew.classList.toggle("show");
+        this.currDiscount = name;
+        this.clicked = true;
+        this.getDisCount(id);
+      },
+      closePopup(name) {
+        if(this.clicked == true){
+          this.discountList = [];
+          this.loadingStoreDiscount = false;
+          this.currDiscount = '';
+          var popupnew = document.getElementById(name);
+          popupnew.classList.toggle("show");
+          this.clicked = false;
+        }
+      },
+      async getDisCount(id){
+        try{
+          this.discountList = [];
+          this.discountList = await DiscountService.getDiscountbyStore(id);
+          this.loadingStoreDiscount = false;
+        }
+        catch(err){
+          console.log(err)
+        }
+      },
+      getDiscountName(id){
+        let temp = ''
+        this.discount.forEach(element => {
+          if(element.discountTypeID == id)
+            temp = element.discountTypeName;
+        });
+        return temp;
+      },
     },
     updated(){
     }
@@ -381,6 +471,7 @@ export default {
 
 <style>
 @import url('../../../assets/css/comments.css');
+@import url('../../../assets/css/multiple-creens.css');
   .center_div{
    text-align: center;
 } 
@@ -389,5 +480,33 @@ export default {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+.loader-discount {
+  border: 10px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 10px solid #ec1c24;
+  width: 80px;
+  height: 80px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+.loader-small {
+  border: 3px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 3px solid #ec1c24;
+  width: 20px;
+  height: 20px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>

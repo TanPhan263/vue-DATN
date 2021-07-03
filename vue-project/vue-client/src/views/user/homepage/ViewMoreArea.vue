@@ -1,4 +1,5 @@
 <template>
+<div class="main">
     <div class="discover">
       <div class="artical" style="width: 100%">
         <div class="menu-artical" >
@@ -39,6 +40,21 @@
         <div v-if="!show" class="slider" style="width:100%">
           <ul v-if="pageOfItems && pageOfItems.length> 0">
 			<li v-for="(store, index ) in pageOfItems" v-bind:key="index">
+				<div v-if="store.discount === true" class="top-left">
+					<div class="popup"  @click="openPopup('myPopup'+ store.storeID,store.storeID)"
+					@mouseleave="closePopup('myPopup'+ store.storeID)">
+						<span class="fa-stack fa-lg">
+							<i class="fa fa-certificate fa-stack-2x"></i>
+							<i class="fa fa-tag fa-stack-1x fa-inverse"></i>
+						</span>
+						<span class="popuptext" :id="'myPopup'+ store.storeID">
+						<div v-show="loadingStoreDiscount" style="margin: 0 auto;" class="loader-small"></div>
+						<span v-show="!loadingStoreDiscount" v-if="discountList">
+							<span v-for="(dis,index) in discountList" v-bind:key="index"> <i class="fa fa-tag" style="font-size: 15px; color: red; padding: 2px;"/> {{getDiscountName(dis.idDiscountType)}} <br></span>
+							</span>
+						</span>
+					</div>
+              	</div>
 				<a v-on:click="storeClicked(store.storeID)">
 				<img :src="store.storePicture"/>
 				<div class="middle">
@@ -57,26 +73,21 @@
           </ul>
 		  <ul v-else><img src="../../../assets/imgs/wrong.jpg" alt=""></ul>
         </div>
-			<div class="text-center pb-0 pt-3" style="font-weight: bold;">
-				<jw-pagination :items="stores" @changePage="onChangePage" v-bind:pageSize="pageSize" :labels="customLabels"></jw-pagination>
-			</div>
 		 <div  v-show="show" style="margin: 0 auto;" class="loader"></div>
       </div>
-	  
-	  <div style="margin-bottom: 300px;">
       <div class="ship">
-        <div class="menu-ship">
-          <div class="hero" style="width:100%; height: 300px">
-          </div>
-        </div>
-      </div>  
+		  <div class="text-center pb-0 pt-3" style="font-weight: bold;">
+				<jw-pagination :items="stores" @changePage="onChangePage" v-bind:pageSize="pageSize" :labels="customLabels"></jw-pagination>
+		</div>
+      </div>
     </div>
-    </div>
+	</div>
 </template>
 
 <script>
 import StoreService from '@/services/StoreService.js';
 import RouterService from '@/services/RouterService.js';
+import DiscountService from '@/services/DiscountService.js';
 const customLabels = {
     first: '<<',
     last: '>>',
@@ -95,7 +106,12 @@ export default {
             show:true,
             pageOfItems: [],
             pageSize: 18,
-            customLabels
+            customLabels,
+			loadingStoreDiscount: false,
+			discount: [],
+			discountList:[],
+			currDiscount:'',
+			clicked: false,
 		}
 	},
 	created(){
@@ -137,6 +153,7 @@ export default {
 		},
 		async onInit(){
 			this.type = await StoreService.getAllBussinessType();
+			this.discount = await DiscountService.getAll();
 			const id = this.$route.params.id;
             this.stores = await StoreService.getByDistrict(id);
             console.log(this.stores)
@@ -170,7 +187,47 @@ export default {
 		},
 		sortProvince(store){
 			return store.provinceID == localStorage.getItem('provinceId');
-		}
+		},
+		openPopup(name,id) {
+			this.loadingStoreDiscount = true;
+			// if(this.currDiscount){
+			//   var popupcurr = document.getElementById(this.currDiscount);
+			//   popupcurr.classList.toggle("show");
+			// }
+			var popupnew = document.getElementById(name);
+			popupnew.classList.toggle("show");
+			this.currDiscount = name;
+			this.clicked = true;
+			this.getDisCount(id);
+		},
+		closePopup(name) {
+			if(this.clicked == true){
+			this.discountList = [];
+			this.loadingStoreDiscount = false;
+			this.currDiscount = '';
+			var popupnew = document.getElementById(name);
+			popupnew.classList.toggle("show");
+			this.clicked = false;
+			}
+		},
+		async getDisCount(id){
+			try{
+			this.discountList = [];
+			this.discountList = await DiscountService.getDiscountbyStore(id);
+			this.loadingStoreDiscount = false;
+			}
+			catch(err){
+			console.log(err)
+			}
+		},
+		getDiscountName(id){
+			let temp = ''
+			this.discount.forEach(element => {
+			if(element.discountTypeID == id)
+				temp = element.discountTypeName;
+			});
+			return temp;
+		},
 	}
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
 <div class="wraper" @click="disableDropdown">
-  <transition name="fade" mode="out-in" >
+  <!-- <transition name="fade" mode="out-in" >
       <div v-show="!isLoaded" class="modal-mask-home" style="background: white; text-align:center;">
         <div class="modal-wrapper">
           <div>
@@ -10,21 +10,21 @@
           </div>
         </div>
       </div>
-  </transition>
+  </transition> -->
   <!-- <Header/> -->
   <Navbar/>
   <div class="content-banner">
-			<div class="banner">
+			<div class="banner col-12">
 				<img id="banner" style="margin: auto; height: 270px;width: 100%; display: block;">
 			</div>
 			<div class="search">
 				<form action="#" id="searchform" method="#" style="padding:10px;">
 					<div class="search-1 clearfix">
-            <div id="vitri" class="vitri" @click="active=true">
+            <div id="vitri" class="vitri" @click="openMap">
               <i class="fa fa-map-marker" style="color: red; font-size: 35px;text-shadow: 2px 2px 3px #585858;"></i>
-              <p style="color:white;line-height: 20px;font-size: 17px; font-weight: bold;font-family:Helvetica;
-              border-bottom:2px solid white;
-              text-shadow: 2px 2px 3px #585858;"> {{ location }} 
+              <p style="color:white;line-height: 20px;font-size: 18px; font-weight: bold;
+                border-bottom:2px solid white;
+                text-shadow: 2px 2px 3px #585858;"> {{location}} 
               </p>
             </div>
             <input v-model="keyword" type="text" placeholder="Tìm kiếm món ăn, quán ăn,..."  v-on:keyup="onkeychange(keyword)">
@@ -36,8 +36,8 @@
               <div v-show="loading" name="fade" mode="out-in" style="width:100%; background-color: #fff; border-radius:7px;">
                 <div class="lds-facebook"><div></div><div></div><div></div><div></div><div></div></div>
               </div>
-              <div v-if="results && !loading">
-                <Suggest v-bind:results="results" @click-store="storeClicked" />
+              <div class="col-6" v-if="results && !loading">
+                <Suggest v-bind:results="results" @click-store="storeClicked"/>
               </div>
             </div>
             </div>
@@ -46,12 +46,12 @@
 			</div>
 	</div>
 
-    <transition v-if="active">
+    <transition v-if="active === true">
       <div class="modal-mask-home">
         <div class="modal-wrapper">
           <div class="modal-container">
               <i v-on:click="active=false" class="fas fa-times" style="padding: 3px;float: right; font-size: 23px;"></i>
-              <GoogleMapHome :place="location" v-bind:lat="lat" v-bind:lng="lng" @send-place="getPlace"/>
+              <GoogleMapHome @send-place="getPlace"/>
           </div>
         </div>
       </div>
@@ -165,7 +165,6 @@ export default {
     },
     async getPlace(place,lat,long){
       try{
-        console.log('place:' + place + 'close:'+close)
         this.location = place; 
         this.lat= lat;
         this.lng = long
@@ -174,6 +173,9 @@ export default {
       }
       catch(err){console.log(err)}
     },
+    openMap(){
+      this.active = true;
+    }
   }
 }
 </script>
@@ -237,5 +239,23 @@ export default {
     top: 24px;
     height: 32px;
   }
+}
+[class*="col-"] {
+  width: 100%;
+}
+@media only screen and (min-width: 768px) {
+  /* For desktop: */
+  .col-1 {width: 8.33%;}
+  .col-2 {width: 16.66%;}
+  .col-3 {width: 25%;}
+  .col-4 {width: 33.33%;}
+  .col-5 {width: 41.66%;}
+  .col-6 {width: 50%;}
+  .col-7 {width: 58.33%;}
+  .col-8 {width: 66.66%;}
+  .col-9 {width: 75%;}
+  .col-10 {width: 83.33%;}
+  .col-11 {width: 91.66%;}
+  .col-12 {width: 100%;}
 }
 </style>

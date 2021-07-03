@@ -12,3 +12,22 @@ export default firebase.initializeApp({
     measurementId: "G-RC7XRDEM86"
   });
 const messaging = firebase.messaging();
+
+messaging.setBackgroundMessagingHandler(function(payload){
+  console.log(payload);
+  const notificationOption ={
+    body: payload.notification.body,
+    icon: payload.notification.icon,
+  }
+  if(Notification.permission == "granted")
+  {
+    Vue.notify({
+      title: payload.notification.title,
+      text: payload.notification.body,
+    });
+    // notification.onclick = function(event) {
+    //   event.preventDefault(); // prevent the browser from focusing the Notification's tab
+    //   window.open('http://www.google.com', '_blank');
+    // }
+  }
+})

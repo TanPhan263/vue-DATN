@@ -21,7 +21,7 @@
 	float:left;
 }
 .footer .menu-footer .colume-two a{
-	font-size:15px;
+	font-size:16px;
 	color: darkgray;
 }
 .footer .menu-footer .colume-three{
@@ -37,7 +37,7 @@
 .footer .menu-footer a{
 	display:block;
 	color:#000;
-	font-size:14px;
+	font-size:16px;
 	margin-top:-5px;
 	text-decoration:none;    
 }
@@ -50,25 +50,29 @@
 	min-height:150px;
 	clear:both;
 	text-align:left; 
-  margin-bottom: 20px;
+  	margin-bottom: 20px;
+	
 }
 .member-top .member{
 	width:85%;
 	margin:auto; 
 	padding-top:30px; 
+	text-align: center;
 }
 .member-top .member .social-banner{
-	width: 65%;
+	width: 100%;
+	text-align: center;
+}
+.social-banner-item{
+	display:inline-block;
+    margin:5px 5px;
+    padding:5px;
 }
 .member-top .member a{
-	float:right; 
-	padding-right:20px;  
 	text-decoration:none;
-	display:block;  
 }
 .member-top .member img{
 	border-radius:50px;
-	display: block;
-	margin-right: auto;
 	margin-left: auto;
+	margin-right: auto;
 }

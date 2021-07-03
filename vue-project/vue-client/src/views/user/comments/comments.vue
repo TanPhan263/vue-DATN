@@ -55,54 +55,49 @@
 					<b-form-rating v-model="averageRate" size="lg" variant="warning" class="mb-2" :readonly="true"></b-form-rating>
 			</div>
 				<div class="col-sm-7">
-					<div class="row">
+					<div class="row" >
 						<p  style="margin-right:5px;font-size: 15px;">5 <CIcon height="20" name="cil-star"/></p>
 						<CProgress
-							style="width: 500px;"
 							:value="rate5" :max="commentList.length"
 							color="success"
 							:striped="striped"
-							class="mb-2"
+							class="mb-2 col-11"
 						/>
 					</div>
 					<div class="row">
 						<p  style="margin-right:5px; font-size: 15px;">4 <CIcon height="20" name="cil-star"/></p>
 					<CProgress
-						style="width: 500px;"
 						:value="rate4" :max="commentList.length"
 						color="info"
 						:striped="striped"
-						class="mb-2"
+						class="mb-2 col-11"
 					/>
 					</div>
 					<div class="row">
 						<p  style="margin-right:5px; font-size: 15px;">3 <CIcon height="20" name="cil-star"/></p>
 					<CProgress
-					style="width: 500px;"
 						:value="rate3" :max="commentList.length"
 						color="warning"
 						:striped="striped"
-						class="mb-2"
+						class="mb-2 col-11"
 					/>
 					</div>
 					<div class="row">
 						<p style="margin-right:5px; font-size: 15px;">2 <CIcon height="20" name="cil-star"/></p>
 					<CProgress
-					style="width: 500px;"
 						:value="rate2" :max="commentList.length"
 						color="danger"
 						:striped="striped"
-						class="mb-2"
+						class="mb-2 col-11"
 					/>
 					</div>
 					<div class="row">
-						<p  style="margin-right:5px; font-size: 15px;">1 <CIcon height="20" name="cil-star"/></p>
+						<p style="margin-right:5px; font-size: 15px;">1 <CIcon height="20" name="cil-star"/></p>
 					<CProgress
-					style="width: 500px;"
 						:value="rate1" :max="commentList.length"
 						color="danger"
 						:striped="striped"
-						class="mb-2"
+						class="mb-2 col-11"
 					/>
 					</div>
 				</div>	

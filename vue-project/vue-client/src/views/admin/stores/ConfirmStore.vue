@@ -31,7 +31,7 @@
             <template #status="{item}">
               <td>
                 <CBadge v-if="item.status === '-1'" :color="getBadge(item.status)">
-                 OK
+                 Not confirmed
                 </CBadge>
                 <CBadge v-else :color="getBadge(item.status)">
                   Banned

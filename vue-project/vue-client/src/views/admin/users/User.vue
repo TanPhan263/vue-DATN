@@ -70,7 +70,6 @@
                 </select>
                 </div>
               <CInput
-             
                 label="Email "
                 placeholder="Enter your email"
                 type="email"

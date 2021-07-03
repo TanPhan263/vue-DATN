@@ -17,8 +17,10 @@ import { faUserSecret } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import VueLazyload from 'vue-lazyload'
 import VueChatScroll from 'vue-chat-scroll'
+import Notifications from 'vue-notification'
  
 Vue.use(VueChatScroll);
+Vue.use(Notifications);
 // lazyload image with options
 const loadimage = require('./assets/imgs/loading.gif')
 const errorimage = require('./assets/imgs/error.png')
@@ -39,6 +41,7 @@ import JwPagination from 'jw-vue-pagination';
 Vue.component('jw-pagination', JwPagination);
 
 //GoogleMap
+//	 AIzaSyAcDDET59ANwEhTdub24KMtGk5C2-CNnDE
 Vue.use(VueGoogleMaps, {
   load: {
     key: "AIzaSyDNI_ZWPqvdS6r6gPVO50I4TlYkfkZdXh8",

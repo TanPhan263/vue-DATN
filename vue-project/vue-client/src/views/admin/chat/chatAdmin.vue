@@ -146,7 +146,13 @@ export default {
                   }
                 if(this.roomID == messages[0].roomID)
                   this.messages = messages;
-                else return;
+                else{
+                  this.$notify({
+                    title:'Có tin nhắn mới từ '+ this.getStoreName(messages[messages.length -1].senderID),
+                    text: messages[messages.length -1].msg
+                  });
+                  return;
+                }
               }
           }); 
           }
@@ -177,6 +183,11 @@ export default {
                 });
                 this.store = inboxes;
                 this.resultStore= this.store;
+                if(this.storeClickedID == ''){
+                  this.storeClickedID = inboxes[0].senderID;
+                  this.roomID = inboxes[0].roomID;
+                  this.fetchMessage();
+                }
             }
             else
             { this.inboxes = [];this.result= [];}
@@ -206,7 +217,6 @@ export default {
           return item.id.toLowerCase().includes(key.toLowerCase());
         })
       }
-      
     },
     onChangeStore(key){
       if(key == '' || key == null)
@@ -232,6 +242,17 @@ export default {
           }
         this.fetchMessage();
       }
+    },
+    getStoreName(id){
+        if(this.store)
+        {
+          let temp = ''
+          this.store.forEach(element => {
+            if(element.senderID == id)
+              temp = element.senderName;
+          });
+          return temp;
+        }
     },
     async checkLogin(){
       let token = localStorage.getItem('isAuthen');

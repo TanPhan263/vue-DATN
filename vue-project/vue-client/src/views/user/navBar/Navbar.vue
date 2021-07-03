@@ -7,7 +7,7 @@
 				</a>
 				<select
 				id="province"
-				style="width:180px; font-weight:bold; font-size: 15px;"
+				style="width:160px; font-weight:bold; font-size: 15px;"
 				class="country provinces"
 				vertical
 				v-model="provinceSelected"
@@ -272,11 +272,13 @@ computed:{
 .provinces{
 	height: 32px;
 	display:inline-block;
-	font-size: 14px;
+	font-size: 16px !important;
+	font-weight: bold;
 	line-height: 30px;
-	color:#505050; 
+	color:	#303030; 
 	background:#F0F0F0;
 	border: none;
+	font-family: 'Dosis', sans-serif !important;
 }
 .search_suggest{
 	width: 600px;

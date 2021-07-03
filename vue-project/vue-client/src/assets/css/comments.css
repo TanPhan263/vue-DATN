@@ -113,12 +113,11 @@ body {
   .modal-container {
     width: 600px;
     margin: 0px auto;
-  
     background-color: #fff;
     border-radius: 6px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
     transition: all .3s ease;
-    font-family: Helvetica, Arial, sans-serif;
+    font-family: 'Dosis', sans-serif !important;
   }
   .modal-container2 {
     width: 800px;
@@ -126,7 +125,7 @@ body {
     padding: 20px 30px;
     background-color: transparent;
     transition: all .3s ease;
-    font-family: Helvetica, Arial, sans-serif;
+    font-family: 'Dosis', sans-serif !important;
   }
   .modal-container2 input {
     width: 100%;
@@ -195,18 +194,17 @@ body {
 
 /* The actual popup */
 .popup .popuptext {
+  width: 180px;
   visibility: hidden;
-  width: 500px;
-  background-color: #555;
-  color: #fff;
-  text-align: center;
+  background-color: #fff;
+  text-align: left;
   border-radius: 6px;
-  padding: 8px 0;
+  padding: 5px 5px 5px 5px;
   position: absolute;
   z-index: 1;
-  bottom: 125%;
-  left: -25%;
-  margin-left: -80px;
+  bottom: 110%;
+  left: 25%;
+  box-shadow: 3px 3px 3px #AAA;
 }
 
 /* Popup arrow */
@@ -215,11 +213,12 @@ body {
   content: "";
   position: absolute;
   top: 100%;
-  left: 50%;
+  left: 5%;
   margin-left: -5px;
   border-width: 5px;
   border-style: solid;
-  border-color: #555 transparent transparent transparent;
+  border-color: #fff transparent transparent transparent;
+  box-shadow: 5px 5px 5px #eee;
 }
 
 /* Toggle this class - hide and show the popup */
@@ -248,7 +247,17 @@ body {
   from {opacity: 0;}
   to {opacity:1 ;}
 }
-  
+
+.top-left {
+  z-index: 1;
+  position: absolute;
+  top: 3%;
+  left: 5%;
+  color: red;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  text-align: left;
+}
 .middle {
   transition: .5s ease;
   opacity: 0;

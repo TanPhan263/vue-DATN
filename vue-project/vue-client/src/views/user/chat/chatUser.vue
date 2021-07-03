@@ -88,12 +88,6 @@ export default {
             storeClickedPicture:''
         }
     },
-    props:{
-      storeID: String,
-      storeName: String,
-      storePicture: String,
-      isOpen: Boolean
-    },
     created(){
         this.$root.$refs.chatUser = this;
     },
@@ -102,13 +96,13 @@ export default {
             if(this.validateEmail(this.user.userName)){
               this.user.userID = this.user.userName.slice(0,this.user.userName.indexOf('@'));
               sessionStorage.setItem('chatUser',JSON.stringify(this.user));
-              if(this.storeID && typeof this.storeID !='undefined'){
-                this.storeClickedID = this.storeID;
-                this.storeClickedName = this.storeName;
-                this.storeClickedPicture = this.storePicture;
-                this.roomID = this.storeID + this.user.userID;
-                this.createInboxes();
-              }
+              // if(this.storeID && typeof this.storeID !='undefined'){
+              //   this.storeClickedID = this.storeID;
+              //   this.storeClickedName = this.storeName;
+              //   this.storeClickedPicture = this.storePicture;
+              //   this.roomID = this.storeID + this.user.userID;
+              //   // this.createInboxes();
+              // }
               this.fectchInboxes(this.user.userID);
               this.fetchMessage();
               this.show = true;
@@ -127,13 +121,13 @@ export default {
             this.user.userName = respone[0].userName;
             this.user.userPIc = respone[0].picture;
             this.show = true;
-            if(this.storeID != '' && typeof this.storeID !='undefined'){
-                this.storeClickedID = this.storeID;
-                this.storeClickedName = this.storeName;
-                this.storeClickedPicture = this.storePicture;
-                this.roomID = this.storeID + this.user.userID;
-                this.createInboxes();
-            }
+            // if(this.storeID != '' && typeof this.storeID !='undefined'){
+            //     this.storeClickedID = this.storeID;
+            //     this.storeClickedName = this.storeName;
+            //     this.storeClickedPicture = this.storePicture;
+            //     this.roomID = this.storeID + this.user.userID;
+            //     // this.createInboxes();
+            // }
             this.fectchInboxes(this.user.userID);
             this.fetchMessage();
           }
@@ -142,14 +136,17 @@ export default {
           }
         },
         createInbox(id,name,picture){
-          this.storeClickedID = id;
-          this.storeClickedName = name;
-          this.storeClickedPicture = picture;
-          this.createInboxes();
+          if(id && name && picture){
+            this.storeClickedID = id;
+            this.storeClickedName = name;
+            this.storeClickedPicture = picture;
+            this.createInboxes();
+            this.fetchMessage();
+          }
         },
         createInboxes(){
           try{
-          if(this.storeClickedID && this.storeClickedPicture && this.storeClickedName){
+          if(this.storeClickedID && this.storeClickedPicture && this.storeClickedName && this.user.userID){
             this.roomID =  this.storeClickedID + this.user.userID;
             firebase
               .database()
@@ -190,7 +187,7 @@ export default {
                 }
               });
             }
-            else alert('cmn')
+            else alert('Mời bạn nhập Email');
           }
           catch{}
         },
@@ -250,6 +247,13 @@ export default {
                   if(this.roomID == messages[0].roomID){
                     this.messages = messages;
                   }
+                  else{
+                    this.$notify({
+                      title:'Có tin nhắn mới từ '+ this.getStoreName(messages[messages.length -1].senderID),
+                      text: messages[messages.length -1].msg
+                    });
+                    return;
+                  }
                 }
                 else this.messages =[];
             }); 
@@ -280,6 +284,11 @@ export default {
                     });
                   });
                   this.storeList = inboxes;
+                  if(this.storeClickedID == ''){
+                    this.storeClickedID = inboxes[0].senderID;
+                    this.roomID = inboxes[0].roomID;
+                    this.fetchMessage();
+                  }
               }
               else this.storeList = [];
             }); 
@@ -326,16 +335,27 @@ export default {
                 return false;
             }
         },
+        getStoreName(id){
+          if(this.storeList)
+          {
+            let temp = ''
+            this.storeList.forEach(element => {
+              if(element.senderID == id)
+                temp = element.senderName;
+            });
+            return temp;
+          }
+        },
         onInit(){
           if(sessionStorage.getItem('chatUser')){
             this.user = JSON.parse(sessionStorage.getItem('chatUser'));
-            if(this.storeID != '' && typeof this.storeID !='undefined'){
-              this.storeClickedID = this.storeID;
-              this.storeClickedName = this.storeName;
-              this.storeClickedPicture = this.storePicture;
-              this.roomID = this.storeID + this.user.userID;
-              this.createInboxes();
-            }
+            // if(this.storeID != '' && typeof this.storeID !='undefined'){
+            //   this.storeClickedID = this.storeID;
+            //   this.storeClickedName = this.storeName;
+            //   this.storeClickedPicture = this.storePicture;
+            //   this.roomID = this.storeID + this.user.userID;
+            //   // this.createInboxes();
+            // }
             this.fectchInboxes(this.user.userID);
             this.fetchMessage();
             this.show = true;

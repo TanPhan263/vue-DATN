@@ -122,7 +122,7 @@ export default {
       user:'',
       store:'',
       comments:'',
-      dishes:''
+      dishes:'',
       // tableItems: [
       //   {
       //     avatar: { url: 'img/avatars/1.jpg', status: 'success' },

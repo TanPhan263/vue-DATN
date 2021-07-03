@@ -37,30 +37,48 @@ export default {
     return {
       //mặc định là UTE
       center: { lat: 10.851170, lng: 106.755493 },
-      markers: [],
-      places: '',
+      places: '1 Võ Văn Ngân, Linh Chiểu, Thủ Đức, Thành phố Hồ Chí Minh, Vietnam',
       currentPlace: null
     };
   },
-props:{
-    place:String,
-    lat: String,
-    lng: String
-},
-  mounted() {
-    this.reserveGeocode();
+// props:{
+//     place:String,
+//     lat: Number,
+//     lng: Number
+// },
+  created() {
+   this.$root.$refs.GoogleMapHome = this; 
+   this.onInit();
   },
   methods: {
+    onInit(){
+      try{
+        if(sessionStorage.getItem('place')){
+        let tempplace = JSON.parse(sessionStorage.getItem('place'));
+        console.log(tempplace)
+        this.places = tempplace.formatted_address;
+        console.log(this.places)
+        const marker = {
+          lat: tempplace.geometry.location.lat,
+          lng: tempplace.geometry.location.lng
+        };
+        console.log(marker)
+        this.center = marker;
+        this.reserveGeocode();
+        }
+      }
+      catch{
+
+      }
+    },
     // nhận địa điểm thông qua autocomplete component
     setPlace(place) {
       this.currentPlace = place;
-      console.log(this.currentPlace.formatted_address);
     },
     sendPlace(place) {
-      console.log(this.center)
       this.$emit('send-place',place,this.center.lat,this.center.lng);
       this.$root.$refs.Homebody.changePlace(this.center.lat,this.center.lng);
-      },
+    },
     changeMarker() {
         if (this.currentPlace) {
         const marker = {
@@ -68,6 +86,7 @@ props:{
           lng: this.currentPlace.geometry.location.lng()
         };
         this.center = marker;
+        // sessionStorage.setItem('place',JSON.stringify(this.currentPlace));
         this.reserveGeocode();
         this.currentPlace = null;
       }
@@ -82,16 +101,16 @@ props:{
     },
     reserveGeocode(){
       try{
-        // this.places = this.place;
-        if(this.lat != '' && this.lng != '') this.center = {lat:parseFloat(this.lat) , lng:parseFloat(this.lng)}
+        // if(this.lat != '' && this.lng != '') this.center = {lat:parseFloat(this.lat) , lng:parseFloat(this.lng)}
         this.$gmapApiPromiseLazy().then(() => {
             var geocoder = new google.maps.Geocoder();
             geocoder.geocode({ location: this.center }, (results, status) => {
               if (status === "OK") {
                 if (results[0]) {
-                let place=results[0].formatted_address;
-                this.places = place;
-                this.sendPlace(this.places);
+                  sessionStorage.setItem('place',JSON.stringify(results[0]));
+                  let place=results[0].formatted_address;
+                  this.places = place;
+                  this.sendPlace(this.places);
                 } else {
                   window.alert("No results found");
                 }

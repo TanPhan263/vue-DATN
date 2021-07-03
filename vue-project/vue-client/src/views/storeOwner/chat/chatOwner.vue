@@ -195,7 +195,13 @@ export default {
                   }
                 if(this.roomID == messages[0].roomID)
                   this.messages = messages;
-                else return;
+                else{
+                  this.$notify({
+                    title:'Có tin nhắn mới từ '+ this.getUserName(messages[messages.length -1].senderID),
+                    text: messages[messages.length -1].msg
+                  })
+                  return;
+                } 
               }
           }); 
           }
@@ -226,6 +232,11 @@ export default {
                 });
                 this.inboxes = inboxes;
                 this.result= this.inboxes;
+                if(this.inboxID == ''){
+                  this.inboxID = inboxes[0].senderID;
+                  this.roomID = inboxes[0].roomID;
+                  this.fetchMessage();
+                }
             }
             else
             { this.inboxes = [];this.result= [];}
@@ -233,23 +244,6 @@ export default {
         }
         catch(err){
           console.log(err);
-        }
-      },
-      deleteInboxes(id){
-        if(confirm('Bạn chắc chắn muốn xóa?'))
-        {
-          firebase
-            .database()
-            .ref("Messages/inboxes/"+ this.storeClickedID).child(this.inboxID)
-            .remove();
-          firebase
-            .database()
-            .ref("Messages/inboxes/"+ this.inboxID).child(this.storeClickedID)
-            .remove();
-          firebase
-            .database()
-            .ref("Messages/chatMessages/"+ this.roomID)
-            .remove();
         }
       },
       fetchStore(){
@@ -300,7 +294,18 @@ export default {
       }
       this.roomID = roomID;
       this.fetchMessage();
-    }
+    },
+    getUserName(id){
+        if(this.inboxes)
+        {
+          let temp = ''
+          this.inboxes.forEach(element => {
+            if(element.senderID == id)
+              temp = element.senderName;
+          });
+          return temp;
+        }
+    },
   },
   mounted(){
     this.fetchStore();

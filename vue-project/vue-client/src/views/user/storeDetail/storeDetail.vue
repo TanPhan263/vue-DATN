@@ -20,7 +20,7 @@
     </transition> -->
   <!-- <Header/> -->
   <Navbar/>
-  <div class="pn-microsite">
+  <div v-if="isLoaded" class="pn-microsite">
     <div id="storeInfor" class="micro-content">
       <div class="micro-header clearfix">
         <div class="main-image fl_left">
@@ -69,10 +69,10 @@
                   <span class="fa fa-clock-o houricon" style="font-size: 15px"></span>
                   <span v-if="getActiveTime(storeOpen[0].openTime,storeOpen[0].cLoseTime)" class="itsopen">Mở cửa </span>
                   <span v-else class="itsclose" >Đóng cửa </span>
-                  <span >{{storeOpen[0].openTime}} - {{storeOpen[0].cLoseTime}}</span>
+                  <span style="font-size:medium" >{{storeOpen[0].openTime}} - {{storeOpen[0].cLoseTime}}</span>
                 </div>
                 <div class="res-common-minmaxprice"  style="border-top: 1px solid #888;">
-                  <span v-if="discountList"><span v-for="(discount,index) in discountList" v-bind:key="index" class="fa fa-tag" style="font-size: 15px; color: red; border: 1px solid red; padding: 2px;"> {{getDiscountName(discount.idDiscountType)}}</span>  </span>
+                  <span v-if="discountList"><span v-for="(discount,index) in discountList" v-bind:key="index" style="font-size: 15px; color: red; border: 1px solid red; padding: 2px; margin-right: 3px;"> <i class="fa fa-tag"/> {{getDiscountName(discount.idDiscountType)}}</span>  </span>
                 </div>
                   <iframe :src="'https://www.facebook.com/plugins/share_button.php?href=https%3A%2F%2Fviefood.info%2F'+storeID+'&layout=button&size=large&appId=396920051515132&width=87&height=28'" width="87" height="28" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
                     <p v-if="storeName != ''" @click="openChat" style="float: right; font-size: 15px; cursor:pointer"> <i class="fas fa-comment-alt"></i> Nhắn tin</p>
@@ -147,11 +147,8 @@
           <div class="tb-offers-box">
             <div class="tb-content" >
               <div v-for="(dish,index) in storeMenu" v-bind:key="index" class="tb-offer-item">
-                <div class="tb-item-left" style="margin-left: 20px">
-                  <div class="popup" @click="showDishChoosed(dish,index)" @mouseover="openPopup('myPopup'+ index)" @mouseleave="closePopup('myPopup'+ index)">
+                <div @click="showDishChoosed(dish,index)" class="tb-item-left" style="margin-left: 20px">
                   <img v-lazy="dish.dishPicture" style="width: 120px; height: 110px; border-radius:10px; cursor:pointer;"/>
-                    <span class="popuptext" :id="'myPopup'+ index"><img height="500" width="800"  v-lazy="dish.dishPicture" ></span>
-                  </div>
                 </div>
                   <div class="tb-item-mid" style="">
                     <a @click="showDishChoosed(dish, index)" style="color: #000" class="tb-oi-time">
@@ -168,7 +165,7 @@
                 <!-- <p style="text-align: center; margin-top: 7px;"><span class="fa fa-plus fl-right" style="color:white;"></span></p> -->
                 <div style="float:right">
                   <div class="res-common-minmaxprice"  v-if="dishDiscountList[index]">
-                      <span v-for="(discount,index) in dishDiscountList[index]" v-bind:key="index" style="margin-right: 5px; padding: 3px;"><span  class="fa fa-tag" style="font-size: 17px; color: red"> {{getDiscountName(discount.dishcountTypeID)}}</span>
+                      <span v-for="(discount,index) in dishDiscountList[index]" v-bind:key="index" style="margin-right: 5px; padding: 3px;"><span style="font-size: 17px; color: red"> <i class="fa fa-tag"/> {{getDiscountName(discount.dishcountTypeID)}}</span>
                     </span>
                   </div>
                 </div>
@@ -197,12 +194,12 @@
                   <img v-lazy="dishChoosed.dishPicture" style="width: 300px; height: 200px; border-radius:3px" />
                   </div>
                   <div class="tb-item-mid col-sm-4">
-                    <a class="tb-shorttitle">
+                    <a class="tb-shorttitle" style="font-size:medium">
                         <strong><span>Giá gốc:</span><span>{{dishChoosed.dishPrice}}</span></strong>
                         <br>
-                        <h6>Khuyến mãi đang áp dụng:</h6>
+                        <h5>Khuyến mãi đang áp dụng:</h5>
                         <div class="res-common-minmaxprice"  v-if="dishDiscountList[dishChoosedIndex]">
-                        <span v-for="(discount,index) in dishDiscountList[dishChoosedIndex]" v-bind:key="index" style="margin-right: 5px; padding: 3px;"><span  class="fa fa-tag" style="font-size: 17px; color: red"> {{getDiscountName(discount.dishcountTypeID)}}</span><br>
+                        <span v-for="(discount,index) in dishDiscountList[dishChoosedIndex]" v-bind:key="index" style="margin-right: 5px; padding: 3px;"><span style="font-size: 17px; color: red"> <i class="fa fa-tag"></i> {{getDiscountName(discount.dishcountTypeID)}} <br></span>
                         </span>
                         </div>
                     </a>
@@ -231,6 +228,9 @@
       </div>
     </div>
   </div>
+<!-- Carousel-->
+  <RelativeStore/>
+<!--End-->
   <Footer style="margin-top: 200px;"/>
   
 </div>
@@ -241,6 +241,7 @@ import { freeSet } from '@coreui/icons';
 import Header from '../containers/Header';
 import Navbar from '../navBar/Navbar';
 import GoogleMap from './GoogleMap';
+import RelativeStore from './RelativeStore';
 import Comments from '../comments/comments';
 import Footer from '../footer/Footer'
 import StoreService from '@/services/StoreService.js';
@@ -249,21 +250,19 @@ import DiscountService from '@/services/DiscountService.js';
 export default {
   name: 'storeDetail',
    icons: { freeSet },
-   beforeRouteEnter(to, from, next) {
-    next(vm => {
-      vm.usersOpened = from.fullPath.includes('Homepage')
-    })
-  },
+  //  beforeRouteEnter(to, from, next) {
+  //   next(vm => {
+  //     vm.usersOpened = from.fullPath.includes('Homepage')
+  //   })
+  // },
   data(){
     return{
-      notify: false,
       isLoaded: false,
-      chat: false,
-      address: '',
+      // chat: false,
+      // address: '',
       //binding class
       activeClass: 'Thông tin quán',
       scrollMenu: '',
-      nav: '',
       //dishChoosed
       active: false,
       dishChoosed:'',
@@ -273,28 +272,28 @@ export default {
       storePicture: '',
       storeRate:0,
       storeOpen: [
-        {
-        storeID: String,
-        storeAddress: String,
-        storeName: String,
-        storePicture: String,
-        openTime: String,
-        cLoseTime: String ,
-        userID: String,
-        provinceID:String ,
-        menuID: String,
-        businessTypeID:String,
-        ratePoint: String,
-        }
+        // {
+        // storeID: String,
+        // storeAddress: String,
+        // storeName: String,
+        // storePicture: String,
+        // openTime: String,
+        // cLoseTime: String ,
+        // userID: String,
+        // provinceID:String ,
+        // menuID: String,
+        // businessTypeID:String,
+        // ratePoint: String,
+        // }
       ],
       storeMenu:[],
-      menuId: '',
-      isMapOpen: false,
-      provinces: [],
+      // menuId: '',
+      // isMapOpen: false,
+      // provinces: [],
       businessTypeName:'',
-      ratePoint:[],
-      totalRate:5,
-      commentList:[],
+      // ratePoint:[],
+      // totalRate:5,
+      // commentList:[],
       discountList:[],
       discountAll:[],
       dishDiscountList:[]
@@ -306,6 +305,7 @@ export default {
     GoogleMap,
     Comments,
     Footer,
+    RelativeStore
   },
 methods:{
     // getType(index){
@@ -355,13 +355,12 @@ methods:{
     },
     async getDisCount(id,array){
       try{
-      this.discountList = await DiscountService.getDiscountbyStore(id);
-      this.discountAll =  await DiscountService.getAll();
-      for (let i = 0; i < array.length ; i++) {
-        let discount = await DiscountService.getDishDiscounts(array[i].dish_ID)
-        this.dishDiscountList.push(discount);
-      };
-      console.log(this.dishDiscountList)
+        this.discountList = await DiscountService.getDiscountbyStore(id);
+        this.discountAll =  await DiscountService.getAll();
+        for (let i = 0; i < array.length ; i++) {
+          let discount = await DiscountService.getDishDiscounts(array[i].dish_ID)
+          this.dishDiscountList.push(discount);
+        };
       }
       catch(err){
         console.log(err)
@@ -377,9 +376,9 @@ methods:{
     },
     async onInit(){
       try{
-        this.storeID = this.$route.params.id;
         this.storeOpen = await StoreService.getByID(this.storeID);
         this.storeName=this.storeOpen[0].storeName;
+        document.title = this.storeName;
         this.storePicture=this.storeOpen[0].storePicture;
         this.address=this.storeOpen[0].storeAddress;
         this.storeRate = this.storeOpen[0].ratePoint;
@@ -394,20 +393,6 @@ methods:{
     openChat(){
       this.$root.$refs.Footer.openChat(this.storeID,this.storeName,this.storePicture);
     },
-    openPopup(name) {
-			if(this.isPopup == false){
-        this.isPopup = true;
-        var popup = document.getElementById(name);
-        popup.classList.toggle("show");
-			}
-		},
-		closePopup(name) {
-			if(this.isPopup == true){
-				var popup = document.getElementById(name);
-				popup.classList.toggle("show");
-				this.isPopup = false;
-			}
-		},
   },
   created(){
     this.storeID=this.$route.params.id;
@@ -454,42 +439,6 @@ html {
 .sticky {
   position: fixed;
   top: 50px;
-}
-.sticky-nav {
-  position: fixed;
-  top: 0px;
-}
-.message{
-  z-index: 3;
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  text-align: center;
-  background: blue;
-  height: 60px;
-  width: 60px;
-  border-radius: 50%;
-}
-.message i {
-  margin: 13px;
-  color: white;
-  font-size: 30px;
-}
-.chat{
-  z-index: 2;
-  height: 450px;
-  width: 950px;
-  position: fixed;
-  bottom: 0;
-  right: 0;
-}
-.chatArea{
-  z-index: 1;
-  height: 500px;
-  width: 700px;
-  position: fixed;
-  bottom: 0;
-  right: 0;
 }
 .left-thing{
 	width: 10%; 

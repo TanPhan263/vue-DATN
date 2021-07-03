@@ -72,7 +72,7 @@ export default{
     },
     registerStore(credentials){
         return axios
-        .post(url + '/CreateStoreOwner', credentials)
+        .post( url + '/CreateStoreOwner', credentials)
         .then(response => response.data);
     },
     deleteDish(id){

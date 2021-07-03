@@ -8,7 +8,6 @@ Vue.use(Vuex)
 const state = {
   sidebarShow: 'responsive',
   sidebarMinimize: false
-  
 }
 
 const getDefaultState = () => {

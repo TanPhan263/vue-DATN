@@ -2,17 +2,16 @@
   <div>
       <div v-on:click="storeClicked(result.storeID)" href="" class="search_suggest" v-for="result in results" v-bind:key="result.storeID" style="
     text-align: left; display: flex; border-bottom: 1px solid darkgray;cursor: pointer;padding: 4px;">
-    
       <img :src="result.storePicture" class="left-thing" style="border-radius:5px;">
       <div class="middle-thing" style="margin-left: 3px; height: 100%">
         <p style="margin-top: 0px; height: 15%; font-weight: bold;">{{result.storeName}}</p>
-        <p style="margin-top: 0px;">{{subString(result.storeAddress)}}...</p>
+        <p style="margin-top: 0px;">{{result.storeAddress}}</p>
       </div>
-      <div v-if="getActiveTime(result.openTime,result.cLoseTime)" class="right-thing">
+      <div v-if="getActiveTime(result.openTime,result.cLoseTime)" class="right-thing" style="padding-right: 15px">
         <p style="font-size: 12px;margin-top: 0px; height: 15%; color:green;">Đang hoạt động <span class="dot"></span></p>
         <p style="color: #585858;" >{{result.khoangcach}} km</p>
       </div>
-      <div v-else class="right-thing">
+      <div v-else class="right-thing" style="padding-right: 15px">
         <p style="margin-top: 0px; height: 20%; color:red;">Đóng cửa <span class="dot" style="background-color:#FF0000
 ;"></span></p>
         <p >{{result.khoangcach}} km</p>
