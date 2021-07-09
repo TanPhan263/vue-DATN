@@ -58,46 +58,51 @@
 					<div class="row" >
 						<p  style="margin-right:5px;font-size: 15px;">5 <CIcon height="20" name="cil-star"/></p>
 						<CProgress
+							style="width:500px"
 							:value="rate5" :max="commentList.length"
 							color="success"
 							:striped="striped"
-							class="mb-2 col-11"
+							class="mb-2"
 						/>
 					</div>
 					<div class="row">
 						<p  style="margin-right:5px; font-size: 15px;">4 <CIcon height="20" name="cil-star"/></p>
 					<CProgress
+						style="width:500px"
 						:value="rate4" :max="commentList.length"
 						color="info"
 						:striped="striped"
-						class="mb-2 col-11"
+						class="mb-2"
 					/>
 					</div>
 					<div class="row">
 						<p  style="margin-right:5px; font-size: 15px;">3 <CIcon height="20" name="cil-star"/></p>
 					<CProgress
+						style="width:500px"
 						:value="rate3" :max="commentList.length"
 						color="warning"
 						:striped="striped"
-						class="mb-2 col-11"
+						class="mb-2"
 					/>
 					</div>
 					<div class="row">
 						<p style="margin-right:5px; font-size: 15px;">2 <CIcon height="20" name="cil-star"/></p>
 					<CProgress
+						style="width:500px"
 						:value="rate2" :max="commentList.length"
 						color="danger"
 						:striped="striped"
-						class="mb-2 col-11"
+						class="mb-2"
 					/>
 					</div>
 					<div class="row">
 						<p style="margin-right:5px; font-size: 15px;">1 <CIcon height="20" name="cil-star"/></p>
 					<CProgress
+						style="width:500px"
 						:value="rate1" :max="commentList.length"
 						color="danger"
 						:striped="striped"
-						class="mb-2 col-11"
+						class="mb-2"
 					/>
 					</div>
 				</div>	

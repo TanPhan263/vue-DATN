@@ -34,5 +34,8 @@ export default{
         return axios
         .post(url + 'BlockAccount?id='+ id+ '&status='+status,[],{ headers: {"Authorization" : `Bearer ${token}`}})
         .then(response => response.data);
+    },
+    getOnlineUser(){
+        return axios.get(url+ 'ThongKeNguoiOnline').then(respone => respone.data);
     }
 };

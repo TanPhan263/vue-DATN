@@ -11,14 +11,6 @@
         </div>
       </div>
   </transition>
-    <!-- <div v-if="storeID!=='' && storeName!=='' && storePicture!==''" @click="notify=false,chat=!chat" class="message"><i class="fa fa-envelope"></i>
-    </div>
-    <transition >
-      <div v-show="chat" class="chat">
-        <Chat v-bind:isOpen="chat" v-bind:storeID="storeID" v-bind:storeName="storeName" v-bind:storePicture="storePicture" />
-      </div>
-    </transition> -->
-  <!-- <Header/> -->
   <Navbar/>
   <div v-if="isLoaded" class="pn-microsite">
     <div id="storeInfor" class="micro-content">
@@ -130,41 +122,32 @@
     </div>
   
     <div class="micro-right fl_right">
-      <div class="micro-main-content"
-        style="clear: both; position: static; min-height: 700px">
-        <div id="menu" class="microsite-table-book">
+      <div class="micro-main-content" >
+        <div v-if="storeMenu" id="menu" class="microsite-table-book" style="overflow: hidden;
+          margin-bottom: 15px;
+          border-radius: 15px;
+        width: 985px;">
           <div class="tb-title">
             <h2 style="font-size: 17px; padding: 5px 0; cursor: pointer">
-              <a
-                href=""
-                title="Menu"
-                target="_blank"
-                style="color: #000"
-                >MENU</a
-              >
+              MENU
             </h2>
           </div>
           <div class="tb-offers-box">
-            <div class="tb-content" >
+            <div class="tb-content">
               <div v-for="(dish,index) in storeMenu" v-bind:key="index" class="tb-offer-item">
                 <div @click="showDishChoosed(dish,index)" class="tb-item-left" style="margin-left: 20px">
                   <img v-lazy="dish.dishPicture" style="width: 120px; height: 110px; border-radius:10px; cursor:pointer;"/>
                 </div>
-                  <div class="tb-item-mid" style="">
-                    <a @click="showDishChoosed(dish, index)" style="color: #000" class="tb-oi-time">
-                    <span class="">{{dish.dishName}}</span>
-                    <span class=""></span>
-                  </a>
-                  <a style="color: #000; font-size: 15px;"  class="tb-oi-time">
-                    <span>
-                      {{dish.dishPrice}}</span
-                    >
-                  </a>
+                  <div class="tb-item-mid">
+                  <p @click="showDishChoosed(dish, index)" class="tb-oi-time">
+                    <span>{{dish.dishName}}</span>
+                  </p>
+                  <p style="font-size: 15px;" class="tb-oi-time">
+                    <span>{{dish.dishPrice}}</span>
+                  </p>
                 </div>
-                <!-- <div style="width: 30px; height:30px; background-color: red; float:right; border-radius: 5px;"> -->
-                <!-- <p style="text-align: center; margin-top: 7px;"><span class="fa fa-plus fl-right" style="color:white;"></span></p> -->
-                <div style="float:right">
-                  <div class="res-common-minmaxprice"  v-if="dishDiscountList[index]">
+                <div style="float:right;">
+                  <div class="res-common-minmaxprice"  v-if="dishDiscountList[index]" >
                       <span v-for="(discount,index) in dishDiscountList[index]" v-bind:key="index" style="margin-right: 5px; padding: 3px;"><span style="font-size: 17px; color: red"> <i class="fa fa-tag"/> {{getDiscountName(discount.dishcountTypeID)}}</span>
                     </span>
                   </div>
@@ -186,12 +169,11 @@
                       <i v-on:click="active=false" class="fas fa-times" style="float: right; font-size: 20px;"></i>
                     </a>
                 </div>
-
                 <div class="modal-body">
                 <slot name="body">
                   <div class="row">
                   <div class="tb-item-left col-sm-6">
-                  <img v-lazy="dishChoosed.dishPicture" style="width: 300px; height: 200px; border-radius:3px" />
+                  <img v-lazy="dishChoosed.dishPicture" style="width: 300px; height: auto; border-radius:3px" />
                   </div>
                   <div class="tb-item-mid col-sm-4">
                     <a class="tb-shorttitle" style="font-size:medium">
@@ -214,7 +196,7 @@
               </div>
               </div>
         </transition>
-            <Comments v-bind:storeID="storeID" />
+          <Comments v-bind:storeID="storeID" />
           <div id="map" class="microsite-gallery" style="margin-top: 15px">
             <div style="margin-bottom: 40px">
               <h4>BẢN ĐỒ</h4>
@@ -225,13 +207,18 @@
             <GoogleMap v-if="storeOpen[0].lat" v-bind:lat="storeOpen[0].lat" v-bind:lng="storeOpen[0].long"/>
             <div id="map"></div>
         </div>
+        <!-- <div id="realtive" class="microsite-gallery" style="margin-top: 15px; overflow:visible">
+            <div style="margin-bottom: 40px">
+              <h4>QUÁN CÙNG LOẠI</h4>
+            </div>
+         
+            <div id="map"></div>
+        </div> -->
+           <RelativeStore id="relative" v-if="storeOpen[0]"  v-bind:bussinessTypeID="storeOpen[0].businessTypeID" />
       </div>
     </div>
   </div>
-<!-- Carousel-->
-  <RelativeStore/>
-<!--End-->
-  <Footer style="margin-top: 200px;"/>
+  <Footer id="footer" style="margin-top: 200px;"/>
   
 </div>
 </template>
@@ -250,11 +237,6 @@ import DiscountService from '@/services/DiscountService.js';
 export default {
   name: 'storeDetail',
    icons: { freeSet },
-  //  beforeRouteEnter(to, from, next) {
-  //   next(vm => {
-  //     vm.usersOpened = from.fullPath.includes('Homepage')
-  //   })
-  // },
   data(){
     return{
       isLoaded: false,
@@ -346,7 +328,8 @@ methods:{
     },
     onScroll(){
       window.onscroll = () => {
-        if (document.documentElement.scrollTop > 300) {
+        var relative_bot = document.getElementById('relative').offsetTop + document.getElementById('relative').offsetHeight;
+        if(document.documentElement.scrollTop > 300 && document.documentElement.scrollTop <  (relative_bot - 100)) {
           this.scrollMenu= 'sticky';
         } else {
           this.scrollMenu= '';
@@ -382,16 +365,17 @@ methods:{
         this.storePicture=this.storeOpen[0].storePicture;
         this.address=this.storeOpen[0].storeAddress;
         this.storeRate = this.storeOpen[0].ratePoint;
+        this.isLoaded = true;
         if(this.storeRate == null || this.storeRate == 'NaN' ) this.storeRate = 0;
         this.storeMenu = await StoreService.getDishByStore(this.storeID);
         this.businessTypeName = await StoreService.getBussinessTypeById(this.storeOpen[0].businessTypeID);
         this.getDisCount(this.storeID,this.storeMenu);
-        this.isLoaded = true;
+       
       }
       catch{}
     },
     openChat(){
-      this.$root.$refs.Footer.openChat(this.storeID,this.storeName,this.storePicture);
+      this.$root.$refs.Footer.openChat(this.storeID,this.storeName,this.storePicture,this.storeOpen[0].userID);
     },
   },
   created(){
@@ -425,11 +409,10 @@ methods:{
 }
 </script>
 
-<style>
-@import url('../../../assets/css/comments.css');
+<style scoped>
 @import url('../../../assets/css/style-1.css');
-@import url('../../../assets/css/footer.css');
-@import url('../../../assets/css/reset.css');
+/* @import url('../../../assets/css/comments.css'); */
+
 #map {
   height: 100%;
 }
@@ -463,4 +446,17 @@ html {
     font-weight: bold;
     color: white;
 } 
+.tb-oi-time{
+	display: block;
+  font-size: 18px;
+  font-weight: bold;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 5px 0;
+  line-height: 1.4em;
+	height: 30px;
+	cursor: pointer;
+	color: #000;
+}
 </style>

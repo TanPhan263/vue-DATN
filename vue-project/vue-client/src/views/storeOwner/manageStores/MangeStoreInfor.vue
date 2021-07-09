@@ -185,14 +185,15 @@
       </CCard>
     </CCol>
     <CCol md="12">
-      <CCard>
+      <CCard  class="center_div" style="padding:20px; margin-bottom: 20px">
          <CCardHeader>
-          <div class="row" style="width: 100%">
-          <h2 style="margin-left: 12px; width: 80%">Khuyến mãi</h2>
+            <div class="row" style="float:left;">
+            <h2>Khuyến mãi</h2> 
+          </div>
           <div class="row" style="float:right;">
-            <CButton color="primary" @click="openAddDiscount">Thêm Khuyến mãi</CButton>
+            <CButton color="primary" @click="openAddDiscount">Thêm khuyến mãi</CButton>
           </div>
-          </div>
+          
          </CCardHeader>
          <CCardBody>
             <div class="res-common-minmaxprice"  v-if="discountList">
@@ -203,7 +204,7 @@
       </CCard>
      </CCol>
      <CCol col="12">
-     <MangeMenu v-if="storeID" v-bind:menuID="storeID"/>
+     <MangeMenu style=" margin-bottom: 20px" v-if="storeID" v-bind:menuID="storeID"/>
      <CCard class="center_div" style="padding: 20px;">
        <CCardHeader>
       <div class="row" style="width: 100%">
@@ -211,7 +212,43 @@
       </div>
       </CCardHeader>
        <CCardBody>
-      <CDataTable
+        <div class="row" >
+         <div class="col-12" >
+        <table class="table table-image" >
+          <thead>
+            <tr>
+              <th scope="col">STT</th>
+              <th scope="col">Ảnh</th>
+              <th scope="col">Tên người bình luận</th>
+              <th scope="col">Nội dung</th>
+              <th scope="col">Đánh giá</th>
+              <th scope="col">Ngày</th>
+            </tr>
+          </thead>
+          <tbody v-if="commentList">
+            <tr v-for="(comment,index) in commentList" v-bind:key="index">
+              <th scope="row">{{index + 1}}</th>
+              <td>
+                <img v-lazy="comment.image" style="height: 120px;width:120px">
+              </td>
+              <td>  
+                {{comment.userName}}
+                </td>
+              <td>
+             {{comment.content}}
+              </td>
+              <td>
+              {{comment.ratePoint}}
+              </td>
+              <td>
+                {{comment.date}}
+              </td>
+            </tr>
+          </tbody>
+        </table>   
+        </div>
+      </div>
+      <!-- <CDataTable
             style="margin-left: 15px;width: 97%"
             hover
             border
@@ -226,33 +263,9 @@
             :pagination="{ doubleArrows: false, align: 'center'}"
             @page-change="pageChange"
           >
-            <!-- <template #status="{item}">
-              <td>
-                <CBadge v-if="item.status === '1'" :color="getBadge(item.status)">
-                 OK
-                </CBadge>
-                <CBadge v-else :color="getBadge(item.status)">
-                  Banned
-                </CBadge>
-              </td>
-            </template> -->
-          </CDataTable>
+          </CDataTable> -->
           </CCardBody>
         </CCard>
-      </CCol>
-      <CCol md="12" v-if="commentList">
-         <CCardHeader>
-          <div style="width: 100%">
-                <h2  style="margin-left: 12px; width: 80%">Hình ảnh từ bình luận</h2>
-          </div>
-        </CCardHeader>
-       <CCardBody class="row">
-        <div v-for="(dish,index) in commentList " v-bind:key="index" class="prof-photos-items" style="overflow: visible;">
-						<img v-if="dish.image" style="width: 245px; height: 150px; margin-right: 10px"
-						:src="dish.image"
-					/>
-        </div>
-       </CCardBody>
       </CCol>
   </CRow>
 </template>

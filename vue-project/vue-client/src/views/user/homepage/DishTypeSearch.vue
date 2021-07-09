@@ -69,5 +69,5 @@ export default {
 </script>
 
 <style scope>
-@import url('../../../assets/css/style.css');
+/* @import url('../../../assets/css/style.css'); */
 </style>

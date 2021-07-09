@@ -50,7 +50,7 @@
 					 <div style="color:black;" v-if="user">Xin chào {{ user.userName }}</div>	
 					</CHeaderNavLink>
 				</CHeaderNavItem>
-				<TheHeaderDropdownAccnt style="" v-bind:avt="getAvt"/>
+				<TheHeaderDropdownAccnt v-bind:avt="getAvt"/>
 			  </CHeaderNav>
 			</div>
 			<div v-else id="login" class="fl_right">
@@ -207,7 +207,7 @@ computed:{
 		  if(this.user!='null')
 			  if(this.user.picture =='') return '../assets/imgs/userPic.png';
 		  return this.user.picture;
-	  },
+	  	},
 	  	getProvinceSelected(){
 		  if(this.provinces!=''){
 			this.provinces.forEach(element => {
@@ -264,7 +264,9 @@ computed:{
 </script>
 
 <style>
-@import url('../../../assets/css/comments.css');
+@import url('../../../assets/css/style-0.css');
+@import url('../../../assets/css/reset.css');
+/* @import url('../../../assets/css/comments.css'); */
 .options{
     width: 100px;
     height: 20px;

@@ -69,7 +69,7 @@
                 <div class="chat_img"> <img v-lazy="cus.senderPic" alt="sunil"> </div>
                 <div :class="[cus.seen === 'false'? 'unseen_chat':'chat_ib']">
                   <h5>{{cus.senderName}} </h5>
-                  <p v-if="cus.lastMsg">{{stringcut(cus.lastMsg)}} <i class="fas fa-circle" style="font-size: 4px"></i>{{cus.time}}</p>
+                  <p v-if="cus.lastMsg">{{stringcut(cus.lastMsg)}} <i class="fas fa-circle" style="font-size: 4px"></i>{{getDate(cus.time)}}</p>
                 </div>
               </div>
             </div>
@@ -113,6 +113,7 @@
 <script>
 import firebase from '@/firebase/init.js';
 import AuthService from '@/services/AuthService.js'
+import StoreService from '@/services/StoreService.js'
 export default {
     beforeRouteEnter (to, from, next) {
       AuthService.checkUser(localStorage.getItem('isAuthen'))
@@ -121,6 +122,7 @@ export default {
     },
     data(){
       return{
+        ownerID:'',
         keyword:'',
         keywordStore:'',
         message: null,
@@ -141,37 +143,50 @@ export default {
           return index.slice(0,12);
         return index;
       },
+      getDate(sec){
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+          ];
+          var date = new Date(sec);
+          var currdate = new Date();
+          if(date.getDate() == currdate.getDate())
+            return date.getHours() + ':' + date.getMinutes();
+          else 
+            return ' ' + monthNames[date.getMonth() +1] + ' ' + date.getDate();
+        },
       saveMessage(){
         try{
-          if(this.message == '' || !this.roomID || typeof this.roomID == 'undefined' || typeof this.inboxID == 'undefined') return;
-          var today = new Date();
-          const mess = {
-            roomID: this.roomID,
-            senderID: this.storeClickedID,
-            msg: this.message,
-            date: today.toString().slice(3,21)
-          };
-          firebase
-            .database()
-            .ref("Messages/chatMessages/")
-            .push(mess);
-          firebase
-            .database()
-            .ref("Messages/inboxes/"+ this.storeClickedID).child(this.inboxID)
-            .update({seen:'true',time:today.toString().slice(3,10),lastMsg:this.message});
-          firebase
-            .database()
-            .ref("Messages/inboxes/"+ this.inboxID).child(this.storeClickedID)
-            .update({seen:'false',time:today.toString().slice(3,10),lastMsg:this.message});
-          this.message = '';
+          if(this.message && this.roomID && this.inboxID && this.storeClickedID && this.ownerID){
+            var today = new Date();
+            const mess = {
+              roomID: this.roomID,
+              senderID: this.storeClickedID,
+              msg: this.message,
+              date: today.toString().slice(3,21)
+            };
+            firebase
+              .database()
+              .ref("Messages/chatMessages/")
+              .push(mess);
+            firebase
+              .database()
+              .ref("Messages/inboxes/"+ this.ownerID).child(this.storeClickedID).child(this.inboxID)
+              .update({seen:'true',time:today.getTime(),lastMsg:this.message});
+            firebase
+              .database()
+              .ref("Messages/inboxes/"+ this.inboxID).child(this.storeClickedID)
+              .update({seen:'false',time:today.getTime(),lastMsg:this.message});
+            this.message = '';
           }
-          catch(err){
-            console.log(err);
-          }
+          else alert('Errr')
+        }
+        catch(err){
+          console.log(err);
+        }
       },
       fetchMessage(){
         try{
-          if(this.roomID){
+          if(this.roomID && this.inboxID && this.storeClickedID){
             firebase.database().ref("Messages/chatMessages/").orderByChild('roomID').equalTo(this.roomID).on("value", snapshot => {
               if(snapshot.exists())
               {
@@ -195,13 +210,6 @@ export default {
                   }
                 if(this.roomID == messages[0].roomID)
                   this.messages = messages;
-                else{
-                  this.$notify({
-                    title:'Có tin nhắn mới từ '+ this.getUserName(messages[messages.length -1].senderID),
-                    text: messages[messages.length -1].msg
-                  })
-                  return;
-                } 
               }
           }); 
           }
@@ -212,7 +220,7 @@ export default {
       },
       fectchInboxes(id){
         try{
-            firebase.database().ref("Messages/inboxes/"+ id).on("value", snapshot => {
+            firebase.database().ref("Messages/inboxes/" + this.ownerID +"/"+ id).on("value", snapshot => {
             if(snapshot.exists())
             {
                 let data = snapshot.val();
@@ -239,21 +247,23 @@ export default {
                 }
             }
             else
-            { this.inboxes = [];this.result= [];}
+            { 
+              this.inboxID=''; this.inboxes = [];this.result= [];}
           }); 
         }
         catch(err){
           console.log(err);
         }
       },
-      fetchStore(){
+      async fetchStore(){
         try{
-          const url = 'https://api.viefood.info/api/Store/GetAllManage'
-          this.$http.get(url,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
-              this.store = response.data;
-              this.resultStore= this.store;
-                this.fectchInboxes(this.store[0].storeID);
-          });
+          var user = localStorage.getItem("userInfor");
+          user = JSON.parse(user);
+          this.ownerID = user.userID
+          this.store = await StoreService.getByUser(this.ownerID,localStorage.getItem('isAuthen'));
+          this.resultStore= this.store;
+          this.storeClickedID = this.store[0].storeID;
+          this.fectchInboxes(this.store[0].storeID);
         }
         catch{}
       },
@@ -265,7 +275,6 @@ export default {
           return item.id.toLowerCase().includes(key.toLowerCase());
         })
       }
-      
     },
     onChangeStore(key){
       if(key == '' || key == null)
@@ -279,13 +288,13 @@ export default {
     storeClicked(id){
       this.messages = [];
       this.storeClickedID = id;
+      this.inboxID = '';
       this.fectchInboxes(id);
     },
     inboxClicked(inboxID, roomID,seen){
       this.messages = [];
       this.inboxID = inboxID;
-      // this.inboxName = inboxName;
-      if( seen == 'false')
+      if(seen == 'false' && this.inboxID && this.storeClickedID)
       {
         firebase
         .database()
@@ -296,15 +305,15 @@ export default {
       this.fetchMessage();
     },
     getUserName(id){
-        if(this.inboxes)
-        {
-          let temp = ''
-          this.inboxes.forEach(element => {
-            if(element.senderID == id)
-              temp = element.senderName;
-          });
-          return temp;
-        }
+      if(this.inboxes)
+      {
+        let temp = ''
+        this.inboxes.forEach(element => {
+          if(element.senderID == id)
+            temp = element.senderName;
+        });
+        return temp;
+      }
     },
   },
   mounted(){

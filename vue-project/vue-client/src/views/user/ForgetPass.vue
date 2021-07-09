@@ -1,10 +1,7 @@
 <template>
-<div>
-    <Navbar/>
-<div
-    class="c-app flex-row align-items-center"
-  >
-
+<div  style="font-family: 'Dosis', sans-serif !important;">
+<Navbar style="padding-bottom: 5px"/>
+<div class="c-app flex-row align-items-center">
   <CRow class="center_div col-md-4">
        <CAlert
        style="width: 100%"
@@ -21,7 +18,7 @@
            {{ msg }}
       </CAlert>
   <CCard v-if="!page2" class="col-md-12">
-    <CCardHeader> <strong>Quên mật khẩu</strong>
+    <CCardHeader> <strong>Đổi mật khẩu</strong>
     <div class="card-header-actions">
               <a 
                 href="/login" 
@@ -106,6 +103,10 @@ import axios from 'axios';
 import Navbar from './navBar/Navbar'
 import Footer from './footer/Footer'
 export default {
+  beforeRouteEnter (to, from, next) {
+    document.title = 'Đổi mật khẩu';
+    next();
+  },
   components:{
     Navbar,
     Footer
@@ -123,6 +124,7 @@ export default {
           page2: false,
         }
     },
+
  methods: {
     validator(val) {
       return val ? val.length >= 4 : false
@@ -209,9 +211,6 @@ export default {
 
 <style>
 @import url('../../assets/css/comments.css');
-@import url('../../assets/css/style-0.css');
-@import url('../../assets/css/footer.css');
-@import url('../../assets/css/reset.css');
 @import url('../../assets/css/alert.css');
 .center_div{
     margin: 0 auto;
@@ -224,5 +223,8 @@ export default {
 .btn_right{
   width: 100px;
   float: right;
+}
+ul{
+  padding-left: 20px;
 }
 </style>

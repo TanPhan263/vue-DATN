@@ -1,17 +1,18 @@
 <template>
   <div>
-     <h3>WebSite Over View</h3>
     <WidgetsDropdown/>
     <CCard>
       <CCardBody>
         <CRow>
           <CCol sm="5">
-            <h4 id="traffic" class="card-title mb-0">Thống kê lượng truy cập</h4>
+            <strong style="font-size: 18px">Lượng truy cập</strong>
+             <div>
+                  <i class="fas fa-circle" style="font-size:15px;color:#1E90FF"></i> {{lableBlue}}
+                  <i class="fas fa-circle" style="font-size:15px;color:#4dbd74"></i> {{lableGreen}}
+                  <i class="fas fa-circle" style="font-size:15px;color:#f86c6b"></i> {{lableRed}}
+              </div>
           </CCol>
           <CCol sm="7" class="d-none d-md-block">
-            <CButton color="primary" class="float-right">
-              <CIcon name="cil-cloud-download"/>
-            </CButton>
             <CButtonGroup class="float-right mr-3">
               <CButton
                 color="outline-secondary"
@@ -26,69 +27,66 @@
             </CButtonGroup>
           </CCol>
         </CRow>
-        <MainChartExample style="height:300px;margin-top:40px;" v-bind:data="data" v-bind:lable="lable"/>
+        <MainChartExample style="height:300px;margin-top:40px;" v-if="loaded"
+        v-bind:dataBlue="dataBlue" :dataGreen="dataGreen" :dataRed="dataRed" v-bind:lable="lable"
+        :lableBlue="lableBlue" :lableGreen="lableGreen" :lableRed="lableRed"/>
+        <div v-else  style="margin: 0 auto;" class="loader"></div>
       </CCardBody>
       <CCardFooter>
-        <!-- <CRow class="text-center">
-          <CCol md sm="12" class="mb-sm-2 mb-0">
-            <div class="text-muted">Visits</div>
-            <strong>29.703 Users (40%)</strong>
+        <CRow>
+          <CCol md sm="4" class="mb-sm-2 mb-0">
+            <div class="text-muted">Tổng lượt truy cập</div>
+            <strong>{{totalView }}</strong>
             <CProgress
               class="progress-xs mt-2"
               :precision="1"
               color="success"
-              :value="40"
+              :value="100"
             />
           </CCol>
-          <CCol md sm="12" class="mb-sm-2 mb-0 d-md-down-none">
-            <div class="text-muted">Unique</div>
-            <strong>24.093 Users (20%)</strong>
+          <CCol md sm="4" class="mb-sm-2 mb-0">
+            <div class="text-muted">Truy cập hôm nay</div>
+            <strong>Total: {{totalDay}}</strong>
             <CProgress
               class="progress-xs mt-2"
               :precision="1"
               color="info"
-              :value="20"
+              :value="100"
             />
           </CCol>
-          <CCol md sm="12" class="mb-sm-2 mb-0">
-            <div class="text-muted">Pageviews</div>
-            <strong>78.706 Views (60%)</strong>
+          <CCol md sm="4" class="mb-sm-2 mb-0">
+            <div class="text-muted">Truy cập tháng này</div>
+            <strong>Total: {{totalMonth }}</strong>
             <CProgress
               class="progress-xs mt-2"
               :precision="1"
               color="warning"
-              :value="60"
+              :value="100"
             />
           </CCol>
-          <CCol md sm="12" class="mb-sm-2 mb-0">
-            <div class="text-muted">New Users</div>
-            <strong>22.123 Users (80%)</strong>
+          <CCol md sm="4" class="mb-sm-2 mb-0">
+            <div class="text-muted">Truy cập năm nay</div>
+            <strong>Total: {{totalYear }}</strong>
             <CProgress
               class="progress-xs mt-2"
               :precision="1"
               color="danger"
-              :value="80"
+              :value="100"
             />
           </CCol>
-          <CCol md sm="12" class="mb-sm-2 mb-0 d-md-down-none">
-            <div class="text-muted">Bounce Rate</div>
-            <strong>Average Rate (40.15%)</strong>
-            <CProgress
-              class="progress-xs mt-2"
-              :precision="1"
-              :value="40"
-            />
-          </CCol>
-        </CRow> -->
+        </CRow>
       </CCardFooter>
     </CCard>
-    <WidgetsBrand/>
+    <ComfirmStore/>
   </div>
 </template>
 <script>
+import { CChartPie } from '@coreui/vue-chartjs'
+import { CChartBar } from '@coreui/vue-chartjs'
 import MainChartExample from './charts/MainChartExample'
 import WidgetsDropdown from './widgets/WidgetsDropdown'
 import WidgetsBrand from './widgets/WidgetsBrand'
+import ComfirmStore from './stores/ConfirmStore.vue'
 import AnalystService from '@/services/AnalystService.js'
 import StoreService from '@/services/StoreService.js'
 import CommentService from '@/services/CommentService.js'
@@ -105,82 +103,37 @@ export default {
   components: {
     MainChartExample,
     WidgetsDropdown,
-    WidgetsBrand
+    WidgetsBrand,
+    CChartPie,
+    CChartBar,
+    ComfirmStore
   },
   created(){
-     this.getDate();
+    //  this.getDate();
      this.optionChanged(this.selected);
+     this.getStorePerProvince();
+     this.getStorePerDistrict();
+     this.getTotalView();
   },
   data () {
     return {
       selected: 'Day',
-      data: [],
+      loaded: false,
+      dataBlue: [],
+      dataGreen:[],
+      dataRed:[],
       lable:[],
-      day: 0,
-      month: 0,
-      year: 0,
-      user:'',
-      store:'',
-      comments:'',
-      dishes:'',
-      // tableItems: [
-      //   {
-      //     avatar: { url: 'img/avatars/1.jpg', status: 'success' },
-      //     user: { name: 'Yiorgos Avraamu', new: true, registered: 'Jan 1, 2015' },
-      //     country: { name: 'USA', flag: 'cif-us' },
-      //     usage: { value: 50, period: 'Jun 11, 2015 - Jul 10, 2015' },
-      //     payment: { name: 'Mastercard', icon: 'cib-cc-mastercard' },
-      //     activity: '10 sec ago'
-      //   },
-      //   {
-      //     avatar: { url: 'img/avatars/2.jpg', status: 'danger' },
-      //     user: { name: 'Avram Tarasios', new: false, registered: 'Jan 1, 2015' },
-      //     country: { name: 'Brazil', flag: 'cif-br' },
-      //     usage: { value: 22, period: 'Jun 11, 2015 - Jul 10, 2015' },
-      //     payment: { name: 'Visa', icon: 'cib-cc-visa' },
-      //     activity: '5 minutes ago'
-      //   },
-      //   {
-      //     avatar: { url: 'img/avatars/3.jpg', status: 'warning' },
-      //     user: { name: 'Quintin Ed', new: true, registered: 'Jan 1, 2015' },
-      //     country: { name: 'India', flag: 'cif-in' },
-      //     usage: { value: 74, period: 'Jun 11, 2015 - Jul 10, 2015' },
-      //     payment: { name: 'Stripe', icon: 'cib-stripe' },
-      //     activity: '1 hour ago'
-      //   },
-      //   {
-      //     avatar: { url: 'img/avatars/4.jpg', status: '' },
-      //     user: { name: 'Enéas Kwadwo', new: true, registered: 'Jan 1, 2015' },
-      //     country: { name: 'France', flag: 'cif-fr' },
-      //     usage: { value: 98, period: 'Jun 11, 2015 - Jul 10, 2015' },
-      //     payment: { name: 'PayPal', icon: 'cib-paypal' },
-      //     activity: 'Last month'
-      //   },
-      //   {
-      //     avatar: { url: 'img/avatars/5.jpg', status: 'success' },
-      //     user: { name: 'Agapetus Tadeáš', new: true, registered: 'Jan 1, 2015' },
-      //     country: { name: 'Spain', flag: 'cif-es' },
-      //     usage: { value: 22, period: 'Jun 11, 2015 - Jul 10, 2015' },
-      //     payment: { name: 'Google Wallet', icon: 'cib-google-pay' },
-      //     activity: 'Last week'
-      //   },
-      //   {
-      //     avatar: { url: 'img/avatars/6.jpg', status: 'danger' },
-      //     user: { name: 'Friderik Dávid', new: true, registered: 'Jan 1, 2015' },
-      //     country: { name: 'Poland', flag: 'cif-pl' },
-      //     usage: { value: 43, period: 'Jun 11, 2015 - Jul 10, 2015' },
-      //     payment: { name: 'Amex', icon: 'cib-cc-amex' },
-      //     activity: 'Last week'
-      //   }
-      // ],
-      // tableFields: [
-      //   { key: 'avatar', label: '', _classes: 'text-center' },
-      //   { key: 'user' },
-      //   { key: 'country', _classes: 'text-center' },
-      //   { key: 'usage' },
-      //   { key: 'payment', label: 'Payment method', _classes: 'text-center' },
-      //   { key: 'activity' },
-      // ]
+      lableBlue:'Hôm nay',
+      lableGreen: 'Hôm qua',
+      lableRed: '2 ngày trước',
+      lableProvince:[],
+      storePerProvince:[],
+      lableDistrict:[],
+      storePerDistrict:[],
+      totalView:0,
+      totalDay:0,
+      totalMonth:0,
+      totalYear:0,
     }
   },
   methods: {
@@ -197,43 +150,123 @@ export default {
       }
       return $color;
     },
-    getDate(){
-      var d = new Date();
-      this.day= d.getDate();
-      this.month = d.getMonth() + 1;
-      this.year = d.getFullYear();
-    },
     optionChanged(value){
       this.selected=value;
-      if(value == 'Day')
-      this.getData_date();
+      if(value == 'Day'){
+        this.lableBlue = 'Hôm nay';
+        this.lableGreen = 'Hôm qua';
+        this.lableRed = '2 Ngày trước';
+        this.getData_date();
+      }
       else if(value == 'Month')
+      {
+        this.lableBlue = 'Tháng này';
+        this.lableGreen = 'Tháng trước';
+        this.lableRed = '2 Tháng trước';
         this.getData_month();
-      else 
+      }
+      else
+      {
+        this.lableBlue = 'Năm này';
+        this.lableGreen = 'Năm trước';
+        this.lableRed = '2 Năm trước'
         this.getData_year();
+      }
     },
     async getData_date(){
-      this.data = await AnalystService.getDate(this.day,this.month,this.year);
-      console.log(this.data);
-      this.setLable(this.data.length);
+      this.loaded = false;
+      var d = new Date();
+      this.dataBlue = await AnalystService.getDate(d.getDate(),d.getMonth() + 1,d.getFullYear());
+      d.setDate(d.getDate() - 1)
+      this.dataGreen = await AnalystService.getDate(d.getDate(),d.getMonth() + 1,d.getFullYear());
+      d.setDate(d.getDate() - 1)
+      this.dataRed = await AnalystService.getDate(d.getDate(),d.getMonth() + 1,d.getFullYear());
+      if(this.dataBlue.length >= this.dataGreen.length && this.dataBlue.length >=this.dataRed.length)
+          this.setLable(this.dataBlue);
+      else if ((this.dataGreen.length >= this.dataBlue.length && this.dataGreen.length >=this.dataRed.length))
+          this.setLable(this.dataGreen);
+      else this.setLable(this.dataRed);
     },
     async getData_month(){
-      this.data = await AnalystService.getMonth(this.month,this.year);
-      console.log(this.data);
-      this.setLable(this.data.length);
+      this.loaded = false;
+      var d = new Date();
+      this.dataBlue = await AnalystService.getMonth(d.getMonth() + 1,d.getFullYear());
+      d.setMonth(d.getMonth() - 1);
+      this.dataGreen = await AnalystService.getMonth(d.getMonth() + 1,d.getFullYear());
+      d.setMonth(d.getMonth() - 1);
+      this.dataRed = await AnalystService.getMonth(d.getMonth() + 1,d.getFullYear());
+      if(this.dataBlue.length >= this.dataGreen.length && this.dataBlue.length >=this.dataRed.length)
+          this.setLable(this.dataBlue);
+      else if ((this.dataGreen.length >= this.dataBlue.length && this.dataGreen.length >=this.dataRed.length))
+          this.setLable(this.dataGreen);
+      else this.setLable(this.dataRed);
     },
     async getData_year(){
-      this.data = await AnalystService.getYear(this.year);
-      console.log(this.data);
-      this.setLable(this.data.length);
+      this.loaded = false;
+      var d = new Date();
+      this.dataBlue = await AnalystService.getYear(d.getFullYear());
+      this.dataGreen = await AnalystService.getYear(d.getFullYear()-1);
+      this.dataRed = await AnalystService.getYear(d.getFullYear()-2);
+      this.setLable(this.dataBlue);
     },
-    setLable(length)
+    setLable(data)
     {
       this.lable=[];
-      for (let i = 1; i <= length; i++) {
+      for (let i = 1; i <= data.length; i++) {
         this.lable.push(i)
       };
+      this.loaded = true;
+    },
+    async getStorePerProvince(){
+      var storePerPro = await AnalystService.getStorePerProvince();
+      storePerPro.forEach(element => {
+        this.lableProvince.push(element.provinceName);
+        this.storePerProvince.push(element.soQuan);
+      });
+    },
+    async getStorePerDistrict(){
+      var storePerDis = await AnalystService.getStorePerDistrict('-MO5b_1K2_tF_C4GVDo3');
+      storePerDis.forEach(element => {
+        this.lableDistrict.push(element.districtName);
+        this.storePerDistrict.push(element.soQuan);
+      });
+    },
+    async getTotalView(){
+      this.totalView = await AnalystService.getAllView();
+      var d = new Date();
+      let total = await AnalystService.getDate(d.getDate(),d.getMonth() + 1,d.getFullYear());
+      total.forEach(element =>{
+        this.totalDay += parseInt(element);
+      })
+      total = await AnalystService.getMonth(d.getMonth() + 1,d.getFullYear());
+      total.forEach(element =>{
+        this.totalMonth += parseInt(element);
+      });
+      total = await AnalystService.getYear(d.getFullYear());
+      total.forEach(element =>{
+        this.totalYear += parseInt(element);
+      });
     }
   }
 }
 </script>
+<style>
+.loader {
+  border: 10px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 10px solid #ec1c24;
+  width: 80px;
+  height: 80px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>

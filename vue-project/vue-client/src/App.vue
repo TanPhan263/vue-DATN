@@ -1,7 +1,7 @@
 <template>
 <div>
    <notifications position="bottom right"/>
-  <router-view></router-view>
+  <router-view/>
   </div>
 </template>
 
@@ -13,4 +13,5 @@ export default {
 
 <style lang="scss">
   @import 'assets/scss/style';
+  
 </style>

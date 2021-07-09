@@ -152,7 +152,6 @@
 
 <script>
 import firebase from '@/firebase/init.js';
-import { CChartLineSimple } from '../charts/index.js'
 import DiscountService from '@/services/DiscountService.js'
 import StoreService from '@/services/StoreService.js'
 import AuthService from '@/services/AuthService.js'
@@ -162,9 +161,6 @@ export default {
     AuthService.checkAdmin(localStorage.getItem('isAuthen'))
     next();
   },
-    components:{
-        CChartLineSimple
-    },
     data(){
         return{
             stores:[],

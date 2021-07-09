@@ -86,10 +86,7 @@ export default {
 </script>
 
 <style scoped>
-  .c-icon {
-    margin-right: 0.3rem;
+  .dropdownItem{
+    margin-right: 3px;
   }
-.dropdownItem{
-  margin-right: 3px;
-}
 </style>

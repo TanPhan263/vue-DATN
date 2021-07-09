@@ -12,6 +12,90 @@ export default firebase.initializeApp({
     measurementId: "G-RC7XRDEM86"
   });
 
+  firebase.database().ref("Messages/inboxes/").on("value", snapshot => {
+    if(snapshot.exists())
+    {
+      if(localStorage.getItem("userInfor")){
+        var user = localStorage.getItem("userInfor");
+        user = JSON.parse(user);
+        if(user.userTypeID == '-MO5VWchsca2XwktyNAw'){
+          let notified = sessionStorage.getItem('notified')
+          notified = JSON.parse(notified);
+          let data = snapshot.child(user.userID).val();
+          Object.keys(data).forEach(key => {
+            console.log(data[key].seen)
+            if(data[key].seen == 'false')
+            {
+              if(!notified.includes(key + data[key].time)){
+                Vue.notify({
+                  title: 'ban co tin nhan moi tu' + data[key].senderName,
+                  text: data[key].lastMsg,
+                });
+                notified.push(key+data[key].time);
+                sessionStorage.setItem('notified',JSON.stringify(notified));
+              }
+            }
+          });
+        }
+      }
+    }
+  }); 
+  firebase.database().ref("Stores").on("value", snapshot => {
+    if(snapshot.exists())
+    {
+      if(localStorage.getItem("userInfor")){
+        var user = localStorage.getItem("userInfor");
+        user = JSON.parse(user);
+        if(user.userTypeID == '-MO5VBnzdGsuypsTzHaV'){
+          let notified = sessionStorage.getItem('notified')
+          notified = JSON.parse(notified);
+          console.log(notified)
+          let data = snapshot.val();
+          Object.keys(data).forEach(key => {
+            if(data[key].Status == '-1')
+            {
+              if(!notified.includes(key)){
+                Vue.notify({
+                  title: 'Có quán mới đăng kí',
+                  text: data[key].StoreName,
+                });
+                notified.push(key);
+                sessionStorage.setItem('notified',JSON.stringify(notified));
+              }
+            }
+          });
+        }
+      }
+    }
+  });
+  firebase.database().ref("Messages/inboxes/-M_UX0kqNgaXGTYa2_FJ").on("value", snapshot => {
+    if(snapshot.exists())
+    {
+      if(localStorage.getItem("userInfor")){
+        var user = localStorage.getItem("userInfor");
+        user = JSON.parse(user);
+        if(user.userTypeID == '-MO5VBnzdGsuypsTzHaV'){
+          let notified = sessionStorage.getItem('notified')
+          notified = JSON.parse(notified);
+          let data = snapshot.val();
+          Object.keys(data).forEach(key => {
+            if(data[key].seen == 'false')
+            {
+              if(!notified.includes(key + data[key].time)){
+                Vue.notify({
+                  title: 'ban co tin nhan moi tu' + data[key].senderName,
+                  text: data[key].lastMsg,
+                });
+                notified.push(key+data[key].time);
+                sessionStorage.setItem('notified',JSON.stringify(notified));
+              }
+            }
+          });
+        }
+      }
+    }
+  });
+
   const messaging = firebase.messaging();
   messaging.requestPermission().then(function(){
     console.log('Have permission!');

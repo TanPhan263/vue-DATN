@@ -14,14 +14,14 @@
         </div>
       </div>
       <div class="inbox_chat" v-if="resultStore">
-        <div v-for="(store,index) in resultStore" v-bind:key="index" :class="[storeClickedID === store.id? 'chat_list active_chat':'chat_list']" @click="storeClicked(store.roomID,store.id,store.seen,store.senderPic)">
+        <div v-for="(store,index) in resultStore" v-bind:key="index" :class="[storeClickedID === store.id? 'chat_list active_chat':'chat_list']" @click="storeClicked(store.roomID,store.id,store.seen,store.senderPic,store.ownerID)">
           <div class="chat_people">
             <div class="chat_img"> 
               <img v-lazy="store.senderPic" alt="sunil">
              </div>
             <div :class="[store.seen === 'false'? 'unseen_chat':'chat_ib']">
               <h5>{{store.senderName}}</h5>
-               <p v-if="store.lastMsg">{{store.lastMsg}} <i class="fas fa-circle" style="font-size: 4px"></i>{{store.time}}</p>
+               <p v-if="store.lastMsg">{{store.lastMsg}} <i class="fas fa-circle" style="font-size: 4px"></i>{{getDate(store.time)}}</p>
             </div>
           </div>
         </div>
@@ -78,8 +78,8 @@ export default {
       return{
         admin:{
           adminID: '',
-          adminName:'admin',
-          adminPIc: ''
+          adminName:'Admin',
+          adminPic: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIXIrqiW3R5OstWAjkuFvNwvjYHRaTmwEQWg&usqp=CAU'
         },
         keywordStore:'',
         message: null,
@@ -87,14 +87,70 @@ export default {
         store:[],
         senderPic: '',
         resultStore: [],
-        storeClickedID:''
+        storeClickedID:'',
+        ownerID: ''
       }
     },
     methods:{
+      createInbox(id,name,picture,owner){
+        if(id && name && picture && owner){
+          this.storeClickedID = id;
+          this.createInboxes(id,name,picture,owner);
+          this.fetchMessage();
+        }
+      },
+      createInboxes(storeId,storeName,storePicture,storeOwner){
+        try{
+          if(storeId && storeName && storePicture && storeOwner && this.admin.adminID){
+            this.storeClickedID = storeId;
+            this.roomID =  this.storeClickedID + this.admin.adminID;
+            firebase
+              .database()
+              .ref("Messages/inboxes/"+ storeID).orderByChild('roomID').equalTo(this.roomID).on("value",snapshot => {
+                if (snapshot.exists()){
+                  const Data = snapshot.val();
+                  console.log("exists!", Data);
+                  return;
+                }
+                else{
+                  var today = new Date();
+                  const inboxRecipent = {
+                    roomID: this.roomID,
+                    senderID: this.admin.adminID,
+                    senderName:  this.admin.adminName,
+                    senderPic: this.admin.adminPic,
+                    time: today.getTime().toString(),
+                    lastMsg: '',
+                    seen: ''
+                  };
+                  const inboxSender = {
+                    roomID: this.roomID,
+                    senderID: storeId,
+                    senderName: storeName,
+                    senderPic: storePicture,
+                    ownerID : ownerID,
+                    time: today.getTime().toString(),
+                    lastMsg: '',
+                    seen: ''
+                  };
+                  firebase
+                    .database()
+                    .ref("Messages/inboxes/" + storeOwner).child(storeId).child(this.admin.adminID)
+                    .set(inboxRecipent);
+                  firebase
+                    .database()
+                    .ref("Messages/inboxes/" + this.admin.adminID).child(storeId)
+                    .set(inboxSender);
+                  }
+              });
+            }
+          else alert('Mời bạn nhập Email');
+        }
+        catch{}
+      },
       saveMessage(){
         try{
-          if(this.message == '' || !this.roomID || typeof this.roomID == 'undefined' 
-          || typeof this.admin.adminID == 'undefined' || this.storeClickedID == '' || this.admin.adminID == '') return;
+          if(this.message && this.roomID && this.storeClickedID && this.admin.adminID && this.ownerID){
           var today = new Date();
           const mess = {
             roomID: this.roomID,
@@ -108,13 +164,17 @@ export default {
             .push(mess);
           firebase
             .database()
-            .ref("Messages/inboxes/"+ this.storeClickedID).child(this.admin.adminID)
-            .update({seen:'false',time:today.toString().slice(3,10),lastMsg:this.message});
+            .ref("Messages/inboxes/"+ this.ownerID).child(this.storeClickedID).child(this.admin.adminID)
+            .update({seen:'false',time:today.getTime(),lastMsg:this.message});
           firebase
             .database()
             .ref("Messages/inboxes/"+ this.admin.adminID).child(this.storeClickedID)
-            .update({seen:'true',time:today.toString().slice(3,10),lastMsg:this.message});
+            .update({seen:'true',time:today.getTime(),lastMsg:this.message});
           this.message = '';
+          }
+          else{
+            alert("Loi roi")
+          }
           }
           catch(err){
             console.log(err);
@@ -122,7 +182,7 @@ export default {
       },
       fetchMessage(){
         try{
-          if(this.roomID){
+          if(this.roomID && this.storeClickedID){
             firebase.database().ref("Messages/chatMessages/").orderByChild('roomID').equalTo(this.roomID).on("value", snapshot => {
               if(snapshot.exists())
               {
@@ -146,13 +206,6 @@ export default {
                   }
                 if(this.roomID == messages[0].roomID)
                   this.messages = messages;
-                else{
-                  this.$notify({
-                    title:'Có tin nhắn mới từ '+ this.getStoreName(messages[messages.length -1].senderID),
-                    text: messages[messages.length -1].msg
-                  });
-                  return;
-                }
               }
           }); 
           }
@@ -171,11 +224,11 @@ export default {
                 Object.keys(data).forEach(key => {
                 inboxes.push({
                     id: key,
-                    recipentID: data[key].recipentID,
                     roomID: data[key].roomID,
                     senderID: data[key].senderID,
                     senderName:  data[key].senderName,
                     senderPic: data[key].senderPic,
+                    ownerID:  data[key].ownerID,
                     time: data[key].time,
                     lastMsg: data[key].lastMsg,
                     seen: data[key].seen
@@ -197,18 +250,6 @@ export default {
           console.log(err);
         }
       },
-      // fetchStore(){
-      //   try{
-      //     const url = 'https://api.viefood.info/api/Store/GetAllManage'
-      //     this.$http.get(url,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
-      //         this.store = response.data;
-      //         this.resultStore= this.store;
-      //         // this.storeID=this.store[0].storeID;
-      //         // this.fetchUsers();
-      //     });
-      //   }
-      //   catch{}
-      // },
       onChange(key){
         if(key == '' || key == null)
           return this.result=this.inboxes;
@@ -227,21 +268,20 @@ export default {
         })
       }
     },
-    storeClicked(idRoom,idStore,seen,senderPic){
-      if(idRoom!='' && idStore != ''){
+    storeClicked(idRoom,idStore,seen,senderPic,ownerID){
         this.messages = [];
         this.senderPic = senderPic;
         this.roomID = idRoom;
         this.storeClickedID = idStore;
-        if(seen == 'false')
-          {
-            firebase
-            .database()
-            .ref("Messages/inboxes/"+ this.admin.adminID).child(idStore)
-            .update({seen: 'true'});
-          }
+        this.ownerID = ownerID;
+        if(seen == 'false' && this.admin.adminID && idStore)
+        {
+          firebase
+          .database()
+          .ref("Messages/inboxes/"+ this.admin.adminID).child(idStore)
+          .update({seen: 'true'});
+        }
         this.fetchMessage();
-      }
     },
     getStoreName(id){
         if(this.store)
@@ -254,15 +294,27 @@ export default {
           return temp;
         }
     },
+    getDate(sec){
+      const monthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+      var date = new Date(sec);
+      var currdate = new Date();
+      if(date.getDate() == currdate.getDate())
+        return date.getHours() + ':' + date.getMinutes();
+      else 
+        return ' ' + monthNames[date.getMonth() +1] + ' ' + date.getDate();
+    },
     async checkLogin(){
       let token = localStorage.getItem('isAuthen');
       let respone = await UserService.getInfo(token);
       if(respone[0] != 'Bạn cần đăng nhập'){
         this.admin.adminID = respone[0].userID;
+        this.admin.adminID = respone[0].userName + '- Admin';
         this.fectchInboxes(this.admin.adminID);
         if(typeof respone[0].picture != 'undefined')
-          this.admin.adminPIc = respone[0].picture;
-        console.log(this.admin.adminPIc)
+        this.admin.adminPic = respone[0].picture;
+        console.log(this.admin.adminPic)
         this.fetchMessage();
       }
       else{

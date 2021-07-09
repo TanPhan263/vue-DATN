@@ -1,6 +1,7 @@
 <template>
 <div class="main">
     <div class="discover">
+			<h2 v-if="district"> Tất cả quán ăn ở {{district[0].districtName}}</h2>
       <div class="artical" style="width: 100%">
         <div class="menu-artical" >
           <div class="menu-left">
@@ -11,30 +12,30 @@
           </div>
         </div>
 		<transition v-if="active">
-		<div class="modal-mask">
-			<div class="modal-wrapper">
-				<div class="modal-container" style="padding: 10px;">
-					<i v-on:click="active=false" class="fa fa-window-close" style="float: right; font-size: 20px;"></i>
-					<h4 style="text-align: center;">Sắp xếp kết quả</h4>
-					<i class="fa fa-map-marker" style="float: right; font-size: 20px; margin-right: 3px;"></i> 
-					<slot name="body">
-					  	<label class="container">Gần tôi
-						<input  @click="sortmode='Gần tôi'" type="radio" :checked="checked1" name="radio">
-						<span class="checkmark"></span>
-						</label>
-						<i class="fa fa-star" aria-hidden="true" style="float: right;font-size: 20px;"></i>
-						<label class="container">Đánh giá cao
-						<input @click="sortmode='Đánh giá cao'" :checked="checked2" type="radio" name="radio">
-						<span class="checkmark"></span>
-						</label>
-					</slot>
-					<div style=" width: 90%; color: white; margin: 0 auto">
-					<button v-on:click="sort(sortmode)" style=" height:40px; border-radius: 5px;margin-top: 30px;width: 100%; background-color: red; color: white; border: none; font-size: 20px" @click="active=false">
-						Hoàn tất
-					</button>
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-container" style="padding: 10px; width: 30%">
+						<i v-on:click="active=false" class="fas fa-times" style="float: right; font-size: 20px;"></i>
+						<h4 style="text-align: center;border-bottom: 1px solid #eee; padding-bottom: 5px;">Sắp xếp kết quả</h4>
+						<slot name="body">
+							<i class="fa fa-map-marker" style="float: right; font-size: 20px; margin-right: 3px;"></i> 
+							<label class="container">Gần tôi
+							<input  @click="sortmode='Gần tôi'" type="radio" :checked="checked1" name="radio">
+							<span class="checkmark"></span>
+							</label>
+							<i class="fa fa-star" aria-hidden="true" style="float: right;font-size: 20px;"></i>
+							<label class="container">Đánh giá cao
+							<input @click="sortmode='Đánh giá cao'" :checked="checked2" type="radio" name="radio">
+							<span class="checkmark"></span>
+							</label>
+						</slot>
+						<div style=" width: 90%; color: white; margin: 0 auto">
+							<button v-on:click="sort(sortmode)" style=" height:40px; border-radius: 5px;margin-top: 30px;width: 100%; background-color: red; color: white; border: none; font-size: 20px" @click="active=false">
+								Hoàn tất
+							</button>
+						</div>
 					</div>
 				</div>
-			</div>
 			</div>
 		</transition>
         <div v-if="!show" class="slider" style="width:100%">
@@ -55,7 +56,7 @@
 						</span>
 					</div>
               	</div>
-				<a v-on:click="storeClicked(store.storeID)">
+				<a @click="storeClicked(store.storeID)">
 				<img :src="store.storePicture"/>
 				<div class="middle">
 					<div class="text" style="background: #ff6666 ">Xem quán</div>
@@ -65,7 +66,8 @@
 				<div style="color: #585858; float:right;">{{store.khoangcach}} km</div></div>
 				
 				<div class="address-store"> <span class="fas fa-utensils"></span>  {{ getType(store.businessTypeID) }}
-				 <div style="color: #585858; float:right;">{{Math.ceil(store.ratePoint*100)/100}} <span class="fa fa-star" style="color: orange"></span></div>
+				   <div v-if="store.ratePoint === 'NaN'" style="color: #585858; float:right;">{{0}} <span class="fa fa-star" style="color: orange"></span></div>
+                  <div v-else style="color: #585858; float:right;">{{Math.ceil(store.ratePoint*100)/100}} <span class="fa fa-star" style="color: orange"></span></div>
 				</div>
 				<div class="intro"></div>
 				</a>
@@ -73,7 +75,10 @@
           </ul>
 		  <ul v-else><img src="../../../assets/imgs/wrong.jpg" alt=""></ul>
         </div>
-		 <div  v-show="show" style="margin: 0 auto;" class="loader"></div>
+		<div v-show="show"  class="slider">
+			<Loading v-bind:storeNumber="18"/>
+		</div>
+		 <!-- <div  v-show="show" style="margin: 0 auto;" class="loader"></div> -->
       </div>
       <div class="ship">
 		  <div class="text-center pb-0 pt-3" style="font-weight: bold;">
@@ -88,6 +93,8 @@
 import StoreService from '@/services/StoreService.js';
 import RouterService from '@/services/RouterService.js';
 import DiscountService from '@/services/DiscountService.js';
+import ProvinceService from '@/services/ProvinceService.js';
+import Loading from './Loading.vue';
 const customLabels = {
     first: '<<',
     last: '>>',
@@ -95,9 +102,13 @@ const customLabels = {
     next: '>'
 };
 export default {
+	components:{
+		Loading
+	},
 	data(){
 		return{
             active: false,
+			district: '',
             stores:[],
             type: [],
             sortmode: 'Gần tôi',
@@ -152,15 +163,17 @@ export default {
             catch(err){console.log(err)}
 		},
 		async onInit(){
+			const id = this.$route.params.id;
+			this.district = await ProvinceService.getDistrict(id);
+			document.title = this.district[0].districtName;
 			this.type = await StoreService.getAllBussinessType();
 			this.discount = await DiscountService.getAll();
-			const id = this.$route.params.id;
             this.stores = await StoreService.getByDistrict(id);
             console.log(this.stores)
 			this.show = false;
 		},
 		storeClicked (item) {
-			RouterService.storeClicked (item);
+			RouterService.storeClicked(item);
 		},
 		subString(index){
 		    return index.toString().substring(0,20);
@@ -233,7 +246,7 @@ export default {
 </script>
 
 <style>
-@import url('../../../assets/css/style.css');
+/* @import url('../../../assets/css/style.css'); */
 .pagination{
 	margin: 0 auto;
 }
@@ -252,13 +265,13 @@ export default {
   display: block;
   position: relative;
   padding-left: 35px;
-  margin-bottom: 12px;
   cursor: pointer;
   font-size: 17px;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  padding-bottom: 12px;
 }
 
 /* Hide the browser's default radio button */

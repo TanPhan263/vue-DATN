@@ -3,12 +3,10 @@
     <CCol >
       <CCard class="center_div" style="padding: 20px;">
         <CCardHeader>
-           <div class="row" style="float:left;">
-            <h2>Menus</h2>
-          </div>
-          <div class="row" style="float:right;">
-            <CButton color="primary" @click="active=true">Thêm Món</CButton>
-          </div>
+            <strong style="font-size:22px">Thực đơn
+              </strong> 
+          
+            <CButton style="float: right" color="primary" @click="active=true">Thêm Món</CButton>
             <transition v-if="active">
               <div class="modal-mask">
               <div class="modal-wrapper">
@@ -53,7 +51,35 @@
             </transition>
         </CCardHeader>
         <CCardBody>
-          <CDataTable
+        <div class="row">
+         <div class="col-12">
+            <table class="table table-image" >
+              <thead>
+                <tr>
+                  <th scope="col">STT</th>
+                  <th scope="col">Ảnh</th>
+                  <th scope="col">Tên món</th>
+                  <th scope="col">Giá</th>
+                </tr>
+              </thead>
+              <tbody v-if="menus">
+                <tr @click="rowClicked(dish)" v-for="(dish,index) in menus" v-bind:key="index">
+                  <th scope="row">{{index + 1}}</th>
+                  <td>
+                    <img v-lazy="dish.dishPicture" style="height: 120px;width:120px">
+                  </td>
+                  <td>  
+                  {{dish.dishName}}
+                    </td>
+                  <td>
+                  {{dish.dishPrice}}
+                  </td>
+                </tr>
+              </tbody>
+            </table>   
+            </div>
+          </div>
+          <!-- <CDataTable
             hover
             border
             striped
@@ -76,7 +102,7 @@
                 </CBadge>
               </td>
             </template>
-          </CDataTable>
+          </CDataTable> -->
         </CCardBody>
       </CCard>
     </CCol>
@@ -106,7 +132,7 @@ export default {
       dishPrice:'',
       dishPicture:null,
       imageData: null,
-       fields: [
+      fields: [
         { key: 'dishName', label: 'Tên món', _classes: 'font-weight-bold' },
         { key: 'dishPrice', label: 'Giá', _classes: 'font-weight-bold' },
         { key: 'dishPicture', label: 'Hình ảnh', _classes: 'font-weight-bold' },
@@ -118,13 +144,13 @@ export default {
     }
   },
     methods:{
-        rowClicked (item) {
+        rowClicked(item) {
             this.$router.push({path: `managemenu/${item.dish_ID}`})
         },
-        getMenus(id){
+        getMenus(){
             this.$http.get('https://api.viefood.info/api/Dish/GetByIDStore?id=' + this.menuID).then(response => {
               this.menus = response.data
-          });
+            });
         },
         previewImage(event){
           this.dishPicture=null;
@@ -148,7 +174,6 @@ export default {
           )
         },
         async addDish(){
-          console.log(this.menuID)
           const dish = {
             dishName: this.dishName,
             dishPrice: this.dishPrice,
@@ -159,19 +184,19 @@ export default {
           const respone = await StoreService.addDish(dish,localStorage.getItem('isAuthen'));
           alert(respone)
           this.active= false;
-          this.getMenus(this.user.userID);
+          this.getMenus();
         },
         pageChange (val) {
         this.$router.push({ query: { page: val }})
-    }
+        }
     },
     created(){
+      this.$root.$refs.MangeMenu = this;
       this.user=localStorage.getItem('userInfor');
       this.user= JSON.parse(this.user);
-      this.getMenus(this.user.userID);
     },
     mounted(){
-      
+      this.getMenus();
     }
 }
 </script>

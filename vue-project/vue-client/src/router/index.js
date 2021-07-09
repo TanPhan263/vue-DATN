@@ -7,8 +7,6 @@ const TheContainer = () => import('@/containers/TheContainer')
 
 // Views
 const Dashboard = () => import('@/views/admin/Dashboard')
-const Charts = () => import('@/views/admin/charts/Charts')
-const Widgets = () => import('@/views/admin/widgets/Widgets')
 
 // Views - Pages
 const Page404 = () => import('@/views/admin/pages/Page404')
@@ -105,16 +103,6 @@ function configRoutes () {
           name: 'storeowner',
           component: DashboardStoreOwner,
         },   
-        {
-          path: 'charts',
-          name: 'Charts',
-          component: Charts
-        },
-        {
-          path: 'widgets',
-          name: 'Widgets',
-          component: Widgets
-        },
         {
           path: 'users',
           meta: {

@@ -84,7 +84,10 @@ export default{
         return axios.get('https://api.viefood.info/api/Store/GetByIDBusinessType?id='+ id).then(response => response.data);
     },
     getByDistrict(id){
-        return axios.get('https://api.viefood.info/api/Store/GetByIDDistrict?id='+ id).then(response => response.data);
+        return axios.get('https://api.viefood.info/api/Store/GetByIDDistrict?id='+ id ).then(response => response.data);
+    },
+    getByDistrict_distance(id, lat, long){
+        return axios.get(url+'/GetByIDDistrict?id=' + id + '&Lat='+lat+'&Long='+long).then(response => response.data);
     },
     viewCount(view){
         return 

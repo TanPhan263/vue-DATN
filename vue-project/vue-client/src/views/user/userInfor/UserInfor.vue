@@ -1,5 +1,5 @@
 <template>
-<div class="wraper">
+<div style="font-family: 'Dosis', sans-serif !important; 	background-color:#f6f6f6; ">
    <transition v-if="loading">
        	<div class="modal-mask">
           <div class="loading" >
@@ -140,6 +140,7 @@ export default {
     methods: {
           async onInit(){
             try{
+            document.title = 'Thông tin cá nhân';
             this.user = await UserService.getInfo(localStorage.getItem("isAuthen"));
             this.userName = this.user[0].userName;
             this.phone = this.user[0].phone;
@@ -218,20 +219,11 @@ export default {
     }
 </script>
 
-<style>
-@import url('../../../assets/css/comments.css');
-@import url('../../../assets/css/style-0.css');
-@import url('../../../assets/css/footer.css');
-@import url('../../../assets/css/reset.css');
+<style scoped>
 body{
-    background: #f5f5f5;
-    margin-top:20px;
-}
-ul{
-  padding-left: 20px;
+    background: #f6f6f6;
 }
 .titl{
-  margin-top: 85px;
   text-align: center;
 }
 .ui-w-80 {

@@ -1,5 +1,6 @@
 <template>
   <CChartBar
+    style="width: 450px"
     v-if="data"
     :datasets="defaultDatasets"
     labels="indexes"
@@ -17,11 +18,10 @@ export default {
   },
   computed: {
     defaultDatasets () {
-      console.log(this.data);
       return [
         {
-          label: 'Star',
-          backgroundColor: '#f87979',
+          label: 'Sao',
+          backgroundColor: '#1E90FF',
           data: this.data
         }
       ]

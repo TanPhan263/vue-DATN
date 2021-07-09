@@ -18,7 +18,8 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import VueLazyload from 'vue-lazyload'
 import VueChatScroll from 'vue-chat-scroll'
 import Notifications from 'vue-notification'
- 
+
+sessionStorage.setItem('notified',JSON.stringify([]));
 Vue.use(VueChatScroll);
 Vue.use(Notifications);
 // lazyload image with options
@@ -42,9 +43,10 @@ Vue.component('jw-pagination', JwPagination);
 
 //GoogleMap
 //	 AIzaSyAcDDET59ANwEhTdub24KMtGk5C2-CNnDE
+//  AIzaSyA4iGS3l6NH4Vreg4LJJX7gizkedG-9SvA
 Vue.use(VueGoogleMaps, {
   load: {
-    key: "AIzaSyDNI_ZWPqvdS6r6gPVO50I4TlYkfkZdXh8",
+    key: "AIzaSyDWTx7bREpM5B6JKdbzOvMW-RRlhkukmVE",
     libraries: "places"
   }
 });

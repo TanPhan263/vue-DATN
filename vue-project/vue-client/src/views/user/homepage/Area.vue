@@ -1,10 +1,10 @@
 <template>
   <div class="discover">
     <div style="margin-left: 20px" class="section">
-        <ul> 
-            <li><h1 style="font-size:1.7em; text-align: center">Khu vực</h1></li>
-            <li  v-for="(district, index) in districts" v-bind:key="index"><a @click=" districtClicked(district.districtID)" :class="[districtID === district.districtID? 'active':'']"> {{district.districtName}}</a></li>
-        </ul>
+      <ul> 
+          <li><h1 style="font-size:1.7em; text-align: center">Khu vực</h1></li>
+          <li  v-for="(district, index) in districts" v-bind:key="index"><a @click=" districtClicked(district.districtID)" :class="[districtID === district.districtID? 'active':'']"> {{district.districtName}}</a></li>
+      </ul>
     </div>
     <div class="artical">
         <div class="slider">
@@ -39,7 +39,8 @@
                   </div>
             </a></li>
           </ul>
-            <div v-show="show" style="margin: 0 auto; margin-top: 150px; margin-left: 340px" class="loader"></div>
+          <Loading v-bind:storeNumber="15" v-show="show"/>
+            <!-- <div v-show="show" style="margin: 0 auto; margin-top: 150px; margin-left: 340px" class="loader"></div> -->
             <div v-if="!show">
                 <div class="hero" style="width:100%; text-align:center; font-weight: bold;font-size: 16px;cursor:pointer;">
                 <a style=" text-decoration:none; color: black" :href="'/district/'+ this.districtID">XEM THÊM <i class="fa fa-chevron-right"></i></a>
@@ -54,7 +55,11 @@
 <script>
 import ProvinceService from '@/services/ProvinceService.js';
 import StoreService from '@/services/StoreService.js';
+import Loading from './Loading.vue';
 export default {
+  components:{
+    Loading
+  },
     data(){
       return{
         districtID: '-MZDgDz4jgm59Muy9bJ3',
@@ -68,6 +73,9 @@ export default {
         discount: Array,
         discountList:Array,
         loadingStoreDiscount:Boolean,
+    },
+    created(){
+      this.$root.$refs.Area = this;
     },
     mounted(){
       this.onInit();
@@ -93,7 +101,7 @@ export default {
         subStringName(index){
           return index.toString().substring(0,20);
         },
-         getType(index){
+        getType(index){
           var temp='Unknown'
           this.type.forEach(element => {
               if(element.businessTypeID == index)
@@ -103,11 +111,17 @@ export default {
         },
         async onInit(){
           try{
+            this.show = true;
             var id = localStorage.getItem('provinceId');
             this.districts = await ProvinceService.getDistrictByID(id);
-            this.stores = await StoreService.getByDistrict(this.districts[0].districtID)
-            // this.districts = this.districts.slice(0,19);
+            this.districtID = this.districts[0].districtID;
+            if(sessionStorage.getItem('place')){
+              let tempplace = JSON.parse(sessionStorage.getItem('place'));
+              this.stores = await StoreService.getByDistrict_distance(this.districtID,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
+            }
+            else this.stores = await StoreService.getByDistrict(this.districtID)
             this.stores = this.stores.slice(0,15);
+            this.show = false;
           }
           catch(err){console.log(err)}
         },
@@ -115,18 +129,24 @@ export default {
           try{
           this.districtID = id;
           this.show= true;
-          this.stores = await StoreService.getByDistrict(id);
+          if(sessionStorage.getItem('place')){
+              let tempplace = JSON.parse(sessionStorage.getItem('place'));
+              this.stores = await StoreService.getByDistrict_distance(this.districtID,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
+          }
+          else this.stores = await StoreService.getByDistrict(this.districtID)
           this.stores = this.stores.slice(0,15);
           this.show=false;
           }
           catch(err){console.log(err)}
+        },
+        async changePlace(lat,long){
+          this.stores = await StoreService.getByDistrict_distance(this.districtID,lat,long);
         }
     }
 }
 </script>
 
 <style>
-@import url('../../../assets/css/style.css');
 .middle {
   transition: .5s ease;
   opacity: 0;

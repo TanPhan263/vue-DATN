@@ -10,8 +10,8 @@
       <div class="member-top">
         <div class="member">
            <h3 style="color:#df0024;">Kết nối với chúng tôi trên</h3>
-           <div v-if="socials" class="social-banner">
-              <div v-for="(social,index) in socials" v-bind:key="index" class="social-banner-item">
+           <div v-if="socials" style="width: 100%;text-align: center;">
+              <div v-for="(social,index) in socials" v-bind:key="index" style="display:inline-block;margin:5px 5px;padding:5px;">
                 <a  :href="social.link"><img :src="social.picture" width="50" height="50"></a>
               </div>
             </div>
@@ -66,12 +66,12 @@ export default {
       this.getCategoryChild();
    },
    methods:{
-      openChat(storeID,storeName,storePicture){
+      openChat(storeID,storeName,storePicture,storeOwner){
         // this.storeID = storeID;
         // this.storeName = storeName;
         // this.storePicture = storePicture;
         this.chat = true;
-        this.$root.$refs.chatUser.createInbox(storeID,storeName,storePicture);
+        this.$root.$refs.chatUser.createInbox(storeID,storeName,storePicture,storeOwner);
       },
       getLogo(){
       const socialRef = firebase.database().ref("Footer/logo/");
@@ -179,23 +179,7 @@ export default {
 
 <style scoped>
 @import url('../../../assets/css/footer.css');
-#button-addon1 {
-  color:#ff5f6d;
-}
 
-i {
-  color: #ff5f6d;
-}
-
-.form-control::placeholder {
-  font-size: 0.95rem;
-  color: #aaa;
-  font-style: italic;
-}
-
-.form-control.shadow-0:focus {
-  box-shadow: none;
-}
 .info{
    padding: 7px;
 }

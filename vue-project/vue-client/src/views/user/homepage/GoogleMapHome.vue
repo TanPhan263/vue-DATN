@@ -21,8 +21,7 @@
     <GmapMap v-if="center"
       :center="center"
       :zoom="18"
-      style="width:100%;  height: 400px;"
-    >
+      style="width:100%;  height: 400px;">
       <GmapMarker
         :position="center"
       ></GmapMarker>
@@ -54,21 +53,18 @@ export default {
     onInit(){
       try{
         if(sessionStorage.getItem('place')){
-        let tempplace = JSON.parse(sessionStorage.getItem('place'));
-        console.log(tempplace)
-        this.places = tempplace.formatted_address;
-        console.log(this.places)
-        const marker = {
-          lat: tempplace.geometry.location.lat,
-          lng: tempplace.geometry.location.lng
-        };
-        console.log(marker)
-        this.center = marker;
-        this.reserveGeocode();
+          let tempplace = JSON.parse(sessionStorage.getItem('place'));
+          this.places = tempplace.formatted_address;
+          console.log(this.places)
+          const marker = {
+            lat: tempplace.geometry.location.lat,
+            lng: tempplace.geometry.location.lng
+          };
+          this.center = marker;
+          // this.reserveGeocode();
         }
       }
       catch{
-
       }
     },
     // nhận địa điểm thông qua autocomplete component
@@ -78,50 +74,52 @@ export default {
     sendPlace(place) {
       this.$emit('send-place',place,this.center.lat,this.center.lng);
       this.$root.$refs.Homebody.changePlace(this.center.lat,this.center.lng);
+      this.$root.$refs.Area.changePlace(this.center.lat,this.center.lng);
     },
     changeMarker() {
-        if (this.currentPlace) {
+      if (this.currentPlace) {
+        this.places = this.currentPlace.formatted_address;
         const marker = {
           lat: this.currentPlace.geometry.location.lat(),
           lng: this.currentPlace.geometry.location.lng()
         };
         this.center = marker;
-        // sessionStorage.setItem('place',JSON.stringify(this.currentPlace));
-        this.reserveGeocode();
+        // this.reserveGeocode();
+        sessionStorage.setItem('place',JSON.stringify(this.currentPlace));
+        this.sendPlace(this.currentPlace.formatted_address)
         this.currentPlace = null;
       }
     },
-    geolocate: function() {
-      navigator.geolocation.getCurrentPosition(position => {
-        this.center = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
-      });
-    },
-    reserveGeocode(){
-      try{
-        // if(this.lat != '' && this.lng != '') this.center = {lat:parseFloat(this.lat) , lng:parseFloat(this.lng)}
-        this.$gmapApiPromiseLazy().then(() => {
-            var geocoder = new google.maps.Geocoder();
-            geocoder.geocode({ location: this.center }, (results, status) => {
-              if (status === "OK") {
-                if (results[0]) {
-                  sessionStorage.setItem('place',JSON.stringify(results[0]));
-                  let place=results[0].formatted_address;
-                  this.places = place;
-                  this.sendPlace(this.places);
-                } else {
-                  window.alert("No results found");
-                }
-              } else {
-                window.alert("Geocoder failed due to: " + status);
-              }
-            });
-        });
-      }
-      catch(err){console.log(err)}
-    }
+    // geolocate: function() {
+    //   navigator.geolocation.getCurrentPosition(position => {
+    //     this.center = {
+    //       lat: position.coords.latitude,
+    //       lng: position.coords.longitude
+    //     };
+    //   });
+    // },
+    // reserveGeocode(){
+    //   try{
+    //     this.$gmapApiPromiseLazy().then(() => {
+    //         var geocoder = new google.maps.Geocoder();
+    //         geocoder.geocode({ location: this.center }, (results, status) => {
+    //           if (status === "OK") {
+    //             if (results[0]) {
+    //               sessionStorage.setItem('place',JSON.stringify(results[0]));
+    //               let place=results[0].formatted_address;
+    //               this.places = place;
+    //               this.sendPlace(this.places);
+    //             } else {
+    //               window.alert("No results found");
+    //             }
+    //           } else {
+    //             window.alert("Geocoder failed due to: " + status);
+    //           }
+    //         });
+    //     });
+    //   }
+    //   catch(err){console.log(err)}
+    // }
   }
 };
 </script>

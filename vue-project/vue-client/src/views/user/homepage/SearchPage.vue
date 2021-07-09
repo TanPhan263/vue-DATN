@@ -14,11 +14,11 @@
 		<transition v-if="active">
 		<div class="modal-mask">
 			<div class="modal-wrapper">
-				<div class="modal-container" style="padding: 10px;">
-					<i v-on:click="active=false" class="fa fa-window-close" style="float: right; font-size: 20px;"></i>
-					<h4 style="text-align: center;">Sắp xếp kết quả</h4>
-					<i class="fa fa-map-marker" style="float: right; font-size: 20px; margin-right: 3px;"></i> 
+				<div class="modal-container" style="padding: 10px; width: 30%">
+					<i v-on:click="active=false" class="fas fa-times" style="float: right; font-size: 20px;"></i>
+					<h4 style="text-align: center; border-bottom: 1px solid #eee; padding-bottom: 5px;">Sắp xếp kết quả</h4>
 					<slot name="body">
+						<i class="fa fa-map-marker" style="float: right; font-size: 20px; margin-right: 3px;"></i> 
 					  	<label class="container-search">Gần tôi
 						<input  @click="sortmode='Gần tôi'" type="radio" :checked="checked1" name="radio">
 						<span class="checkmark"></span>
@@ -30,7 +30,7 @@
 						</label>
 					</slot>
 					<div style=" width: 90%; color: white; margin: 0 auto">
-					<button v-on:click="sort(sortmode)" style=" height:40px; border-radius: 5px;margin-top: 30px;width: 100%; background-color: red; color: white; border: none; font-size: 20px" @click="active=false">
+					<button v-on:click="sort(sortmode)" style="height:40px; border-radius: 5px;margin-top: 30px;width: 100%; background-color: red; color: white; border: none; font-size: 20px" @click="active=false">
 						Hoàn tất
 					</button>
 					</div>
@@ -66,7 +66,8 @@
 				<div style="color: #585858; float:right;">{{store.khoangcach}} km</div></div>
 				
 				<div class="address-store"> <span class="fas fa-utensils"></span>  {{ getType(store.businessTypeID) }}
-				 <div style="color: #585858; float:right;">{{Math.ceil(store.ratePoint*100)/100}} <span class="fa fa-star" style="color: orange"></span></div>
+				  <div v-if="store.ratePoint === 'NaN'" style="color: #585858; float:right;">{{0}} <span class="fa fa-star" style="color: orange"></span></div>
+                  <div v-else style="color: #585858; float:right;">{{Math.ceil(store.ratePoint*100)/100}} <span class="fa fa-star" style="color: orange"></span></div>
 				</div>
 				<div class="intro"></div>
 				</a>
@@ -74,7 +75,10 @@
           </ul>
 		  <ul v-else style="text-align: center;"><img src="../../../assets/imgs/wrong.jpg" style="width:60%; margin-bottom: 50px" alt=""></ul>
         </div>
-		<div  v-show="show" style="margin: 0 auto;" class="loader"></div>
+		<div v-show="show"  class="slider">
+			<Loading v-bind:storeNumber="18"/>
+		</div>
+		<!-- <div  v-show="show" style="margin: 0 auto;" class="loader"></div> -->
       </div>
     </div>
 		<div class="ship">
@@ -89,6 +93,7 @@
 <script>
 import StoreService from '@/services/StoreService.js';
 import DiscountService from '@/services/DiscountService.js';
+import Loading from './Loading.vue';
 const customLabels = {
     first: '<<',
     last: '>>',
@@ -96,6 +101,9 @@ const customLabels = {
     next: '>'
 };
 export default {
+	components:{
+		Loading
+	},
 	watch: {
       '$route' (to, from) {
         if (to.path === '/search') {
@@ -252,7 +260,7 @@ export default {
 </script>
 
 <style>
-@import url('../../../assets/css/style.css');
+/* @import url('../../../assets/css/style.css'); */
 .pagination{
 	margin: 0 auto;
 }

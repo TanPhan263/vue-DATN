@@ -8,6 +8,9 @@ export default{
     getAllDistrict(){
         return axios.get( url2 +'/GetAll').then(response => response.data);
     },
+    getDistrict(id){
+        return axios.get( url2 +'/GetByID?id='+id).then(response => response.data);
+    },
     getDistrictByID(id){
         return axios.get( url2 +'/GetByIDProvince?id='+id).then(response => response.data);
     },

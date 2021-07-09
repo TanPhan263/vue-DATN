@@ -19,15 +19,9 @@ messaging.setBackgroundMessagingHandler(function(payload){
     body: payload.notification.body,
     icon: payload.notification.icon,
   }
-  if(Notification.permission == "granted")
-  {
-    Vue.notify({
-      title: payload.notification.title,
-      text: payload.notification.body,
-    });
+  return self.registration.showNotification(title, notificationOption);
     // notification.onclick = function(event) {
     //   event.preventDefault(); // prevent the browser from focusing the Notification's tab
     //   window.open('http://www.google.com', '_blank');
     // }
-  }
 })

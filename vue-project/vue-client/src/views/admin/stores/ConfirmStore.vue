@@ -3,17 +3,19 @@
     <CCol >
       <CCard class="center_div">
         <CCardHeader>
-          <div class="row">
-            <h2>Registered Stores</h2>
-             <CInput class="col-4"
-                v-model="keyword"
-                placeholder="Tìm quán"
-                v-on:keyup="onChange(keyword)"
-              />
-          </div>
+            <strong style="font-size: 25px"> Xác nhận quán</strong>
+              <div style="float:right; width: 30%;">
+                 <CInput
+                    style="float:right"
+                    v-model="keyword"
+                    placeholder="Tìm quán"
+                    v-on:keyup="onChange(keyword)"
+                  />
+              </div>
         </CCardHeader>
         <CCardBody>
           <CDataTable
+            class="mb-0 table-outline"
             hover
             border
             striped

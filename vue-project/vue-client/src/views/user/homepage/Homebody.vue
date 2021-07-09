@@ -53,13 +53,13 @@
 			</div>
 			</div>
 		</transition>
-     <transition v-if="loading">
+     <!-- <transition v-if="loading">
        	<div class="modal-mask">
           <div class="loading" >
             <span class="fas fa-circle-notch fa-spin"></span>
           </div>
          </div>
-    </transition>
+    </transition> -->
 
    <div class="ship">
 	  <div  class="menu-ship">
@@ -79,14 +79,14 @@
         </ul>
     </div>
     <div>
-          <div class="ship">
-            <div class="menu-ship">
-              <div class="hero" style="width:100%;">
-                <p @click="dishViewMore" >XEM THÊM <i class="fa fa-chevron-right" style="font-size: 16px;"></i></p>
-              </div>
-            </div>
-          </div>  
-      </div>
+      <div class="ship">
+        <div class="menu-ship">
+          <div class="hero" style="width:100%;">
+            <p @click="dishViewMore" >XEM THÊM <i class="fa fa-chevron-right" style="font-size: 16px;"></i></p>
+          </div>
+        </div>
+      </div>  
+  </div>
   </div>
     <div class="ship" style="width:88%;">
       <div class="menu-ship">
@@ -114,12 +114,11 @@
               </div>
             <!-- <a v-on:click="storeClicked(store.storeID)">
               href="/Homepage/" -->
-            <a class="image" :href="'/'+store.storeID" >
+            <a class="image" v-on:click="storeClicked(store.storeID)" >
              <img v-lazy="store.storePicture"/>
               <div class="middle">
               <div class="text" style="background: #ff6666 ">Xem quán</div>
               </div>
-             
               <div class="name-food">{{ subStringName(store.storeName)}}...</div>
               <div class="address-store"><i class="fa fa-map-marker" style="color: red"></i>{{ subString(store.storeAddress) }}...
               <div style="color: black; float:right;">{{store.khoangcach}} km</div>
@@ -132,7 +131,7 @@
             </a>
           </li>
         </ul>
-          <div v-show="show" style="margin: 0 auto" class="loader"></div>
+        <Loading v-bind:storeNumber="12" v-show="show"/>
       </div>
       <div>
           <div class="ship">
@@ -168,7 +167,7 @@
                     </span>
                 </div>
               </div>
-            <a :href="'/'+store.storeID">
+            <a v-on:click="storeClicked(store.storeID)">
               <img v-lazy="store.storePicture" />
               <div class="middle">
               <div class="text" style="background: #ff6666 ">Xem quán</div>
@@ -184,7 +183,7 @@
             </a>
           </li>
         </ul>
-        <div v-show="show" style="margin: 0 auto;" class="loader"></div>
+        <Loading v-bind:storeNumber="12" v-show="show"/>
       </div>
       <div>
           <div class="ship">
@@ -200,12 +199,12 @@
     <div v-infinite-scroll="loadMore" infinite-scroll-disabled="disabled"  infinite-scroll-distance="100" style="margin-top: 20px;" >
       <div v-for="(list, index) in loadMoreList" v-bind:key="index" class="ship">
         <div class="menu-ship">
-          <div class="hero" style="width:30%">
-            <h3 v-if="list && list.length > 0" style="text-align:left"> {{ getType(list[0].businessTypeID) }}</h3>
+          <div v-if="loadMoreList[index]" class="hero" style="width:30%">
+            <h3 v-if="list && list.length> 0" style="text-align:left"> {{ getType(list[0].businessTypeID) }}</h3>
           </div>
         </div>
-        <div v-if="list" class="sub-menu-ship">
-          <ul>
+        <div class="sub-menu-ship">
+          <ul v-if="list">
             <li v-for="(store,index2) in list" v-bind:key="index2">
               <div v-if="store.discount === true" class="top-left">
                 <div class="popup"  @click="openPopup('myPopup'+ store.storeID,store.storeID)"
@@ -222,7 +221,7 @@
                     </span>
                 </div>
               </div>
-              <a :href="'/'+store.storeID">
+              <a v-on:click="storeClicked(store.storeID)">
                 <img v-lazy="store.storePicture"/>
               <div class="middle">
               <div class="text" style="background: #ff6666 ">Xem quán</div>
@@ -248,7 +247,7 @@
               </div>
             </div>
           </div>  
-      </div>
+        </div>
       </div>
     </div>
   </div>
@@ -261,13 +260,14 @@ import StoreService from '@/services/StoreService.js';
 import RouterService from '@/services/RouterService.js';
 import { loadOptions } from '@babel/core';
 import Area from './Area.vue';
+import Loading from './Loading.vue';
 const baseUrl='https://api.viefood.info/api/'
 import DiscountService from '@/services/DiscountService.js'
 
 export default {
     name: 'Homebody',
     components:{
-        VueperSlides, VueperSlide,Area
+        VueperSlides, VueperSlide,Area,Loading
     },
     data() {
         return {
@@ -298,10 +298,10 @@ export default {
           this.$root.$refs.Homebody = this;
           this.onInit();
           this.$http.get(baseUrl + 'Dish/GetAll').then(response => {
-                this.dishes = response.data;
-                let x = Math.floor(Math.random()*(this.dishes.length-10))
-                console.log(x);
-                this.dishes = this.dishes.slice(119,129);
+              this.dishes = response.data;
+              let x = Math.floor(Math.random()*(this.dishes.length-10))
+              console.log(x);
+              this.dishes = this.dishes.slice(119,129);
           })
       },
       mounted(){
@@ -310,14 +310,21 @@ export default {
         async onInit(){
           try{
             this.discount = await DiscountService.getAll();
+            this.type = await StoreService.getAllBussinessType();
             var id = localStorage.getItem('provinceId');
             this.provinceID = id;
-            this.stores = await StoreService.getByProvince(id)
-            this.rates = await StoreService.getByProvince(id);
-            this.rates.sort(function compare( a, b ) {
+            if(sessionStorage.getItem('place')){
+              let tempplace = JSON.parse(sessionStorage.getItem('place'));
+              this.stores = await StoreService.getByProvince_distance(id,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
+              this.rates = await StoreService.getByProvince_distance(id,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
+            }
+            else{
+              this.stores = await StoreService.getByProvince(id)
+              this.rates = await StoreService.getByProvince(id);
+            }
+             this.rates.sort(function compare( a, b ) {
                 return parseFloat(b.ratePoint) - parseFloat(a.ratePoint);
             });
-            this.type = await StoreService.getAllBussinessType();
             console.log(this.type); 
             this.nearest = this.stores.slice(0,12);
             this.rates = this.rates.slice(0,12);
@@ -344,9 +351,8 @@ export default {
         },
         async changePlace(lat,long){
           try{
-            console.log('ChangePlace')
-            var id= localStorage.getItem('provinceId');
-            this.stores = await StoreService.getByProvince_distance(id, lat,long)
+            var id = localStorage.getItem('provinceId');
+            this.stores = await StoreService.getByProvince_distance(id, lat,long);
             this.rates = await StoreService.getByProvince_distance(id,lat,long);
             this.rates.sort(function compare( a, b ) {
                 return parseFloat(b.ratePoint) - parseFloat(a.ratePoint);
@@ -383,6 +389,7 @@ export default {
                 let id = this.type[this.index].businessTypeID;
                 var store = this.stores.filter(function(store) {
                     return store.businessTypeID === id });
+                // var store = await StoreService.getByBussinessType(id);
                 if(store.length >= 12){
                     store = store.slice(0,12);
                   this.loadMoreList.push(store);}
@@ -470,7 +477,6 @@ export default {
 </script>
 
 <style>
-@import url('../../../assets/css/comments.css');
 @import url('../../../assets/css/multiple-creens.css');
   .center_div{
    text-align: center;

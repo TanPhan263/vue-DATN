@@ -31,7 +31,8 @@
 				<div style="color: #585858; float:right;">{{store.khoangcach}} km</div></div>
 				
 				<div class="address-store"> <span class="fas fa-utensils"></span>  {{ getType(store.businessTypeID) }}
-				 <div style="color: #585858; float:right;">{{Math.ceil(store.ratePoint*100)/100}} <span class="fa fa-star" style="color: orange"></span></div>
+				  <div v-if="store.ratePoint === 'NaN'" style="color: #585858; float:right;">{{0}} <span class="fa fa-star" style="color: orange"></span></div>
+                  <div v-else style="color: #585858; float:right;">{{Math.ceil(store.ratePoint*100)/100}} <span class="fa fa-star" style="color: orange"></span></div>
 				</div>
 				<div class="intro"></div>
 				</a>
@@ -39,14 +40,16 @@
           </ul>
 		  <ul v-else style="text-align: center;"><img src="../../../assets/imgs/wrong.jpg" style="width:60%; margin-bottom: 50px" alt=""></ul>
         </div>
-		<div v-show="show" style="margin: 0 auto;" class="loader"></div>
+		<div  v-show="show"  class="slider">
+			<Loading v-bind:storeNumber="18"/>
+		</div>
+		<!-- <div v-show="show" style="margin: 0 auto;" class="loader"></div> -->
       </div>
     </div>
 	 <div class="ship">
         <div v-if="!show" class="text-center pb-0 pt-3" style="font-weight: bold;">
-			<jw-pagination :items="stores" @changePage="onChangePage" v-bind:pageSize="pageSize" :styles="customStyles" :labels="customLabels"></jw-pagination>
+			<jw-pagination :items="stores" @changePage="onChangePage" v-bind:pageSize="pageSize" :labels="customLabels"></jw-pagination>
 		</div>
-		
       </div>  
 </div>
 </template>
@@ -56,6 +59,7 @@ import RouterService from '@/services/RouterService.js';
 import StoreService from '@/services/StoreService.js';
 import BussinessTypeService from '@/services/BussinessTypeService.js';
 import DiscountService from '@/services/DiscountService.js';
+import Loading from './Loading.vue';
 const customLabels = {
     first: '<<',
     last: '>>',
@@ -63,14 +67,17 @@ const customLabels = {
     next: '>'
 };
 const customStyles = {
-    li: {
+    li:{
         display: 'inline-block',
     },
-    a: {
-        color: 'black'
+    a:{
+        color: 'black',
     }
 };
 export default {
+	components:{
+		Loading
+	},
 	watch: {
       '$route' (to, from) {
         if (to.path === '/viewmore') {
@@ -107,11 +114,12 @@ export default {
 		},
 		async onInit(){
 			this.show = true;
+			const key = this.$route.query.key;
+			this.lable = await BussinessTypeService.getByID(key);
+			document.title = this.lable[0].businessTypeName;
 			this.type = await StoreService.getAllBussinessType();
 			this.discount = await DiscountService.getAll();
-			const key = this.$route.query.key;
 			this.stores = await StoreService.getByBussinessType(key);
-			this.lable = await BussinessTypeService.getByID(key);
 			if(this.stores) this.show= false;
 		},
 		storeClicked(item) {
@@ -181,8 +189,8 @@ export default {
 </script>
 
 <style>
-@import url('../../../assets/css/style.css');
-@import url('../../../assets/css/comments.css');
+/* @import url('../../../assets/css/style.css');
+@import url('../../../assets/css/comments.css'); */
 .pagination{
 	margin: 0 auto;
 }

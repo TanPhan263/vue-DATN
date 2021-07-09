@@ -3,16 +3,15 @@
     <CCol>
       <CCard class="center_div">
         <CCardHeader>
-         <div class="row">
-            <h2  style="margin-left: 12px;">User</h2>
+            <strong style="font-size: 25px;">Quản lý người dùng</strong>
+            <CButton @click="active=true" style="margin-left: 20px; height: 35px; float: right" color="primary" >Thêm User</CButton>
             <CInput
-            style="margin-left: 620px;"
+            style="float: right"
                       v-model="keyword"
                       placeholder="Tìm User"
                       v-on:keyup="onChange(keyword)"
               />
-            <CButton @click="active=true" style="margin-left: 20px; height: 35px;" color="primary" >Thêm User</CButton>
-          </div>
+          
            <transition v-if="active" >
               <div class="modal-mask">
               <div class="modal-wrapper"  >
@@ -100,6 +99,7 @@
         </CCardHeader>
         <CCardBody>
           <CDataTable
+            class="mb-0 table-outline"
             hover
             border
             striped

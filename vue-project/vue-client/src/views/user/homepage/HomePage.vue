@@ -1,6 +1,6 @@
 <template>
 <div class="wraper" @click="disableDropdown">
-  <!-- <transition name="fade" mode="out-in" >
+  <transition name="fade" mode="out-in" >
       <div v-show="!isLoaded" class="modal-mask-home" style="background: white; text-align:center;">
         <div class="modal-wrapper">
           <div>
@@ -10,11 +10,11 @@
           </div>
         </div>
       </div>
-  </transition> -->
+  </transition>
   <!-- <Header/> -->
   <Navbar/>
   <div class="content-banner">
-			<div class="banner col-12">
+			<div class="banner">
 				<img id="banner" style="margin: auto; height: 270px;width: 100%; display: block;">
 			</div>
 			<div class="search">
@@ -27,7 +27,7 @@
                 text-shadow: 2px 2px 3px #585858;"> {{location}} 
               </p>
             </div>
-            <input v-model="keyword" type="text" placeholder="Tìm kiếm món ăn, quán ăn,..."  v-on:keyup="onkeychange(keyword)">
+            <input v-model="keyword" type="text" placeholder="Tìm kiếm món ăn, quán ăn,..." v-on:keyup.enter="onSearchClicked"  v-on:keyup="onkeychange(keyword)">
 						<a @click="onSearchClicked" class="icon-search"><i class="fa fa-search" style=" margin-top: 8px;font-size: 30px;"></i></a>
             <div class="dropdown" v-if="isDropdown" style="margin: 0 auto;">
             <div id="myDropdown" class="dropdown-content" style="width: 618px;
@@ -65,13 +65,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gmap-vue@1.2.2/dist/gmap-vue.min.js"></script>
 <script>
-// import Header from './containers/Header'
 import Navbar from '../navBar/Navbar'
 import Suggest from './Suggest'
 import Homebody from './Homebody'
 import CategoryPage from './CategoryPage'
 import SearchPage from './SearchPage'
-import Search from './Search'
 import Footer from '../footer/Footer'
 import GoogleMapHome from './GoogleMapHome';
 import FormatWord from '@/services/FormatWord.js'
@@ -83,7 +81,6 @@ export default {
   name:'Home',
   components:{
       Navbar,
-      Search,
       Footer,
       GoogleMapHome,
       Suggest,
@@ -93,8 +90,6 @@ export default {
     return {
       isLoaded: false,
       location: '1 Võ Văn Ngân, Linh Chiểu, Thủ Đức, Thành phố Hồ Chí Minh, Vietnam',
-      lat:'',
-      lng:'',
       active: false,
       nav: '',
       show: true,
@@ -112,8 +107,13 @@ export default {
   methods:{
       async onInit(){
       var id= localStorage.getItem('provinceId');
+      if(sessionStorage.getItem('place')){
+        let tempplace = JSON.parse(sessionStorage.getItem('place'));
+        this.location = tempplace.formatted_address;
+        this.stores = await StoreService.getByProvince_distance(id,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
+      }
+      else this.stores = await StoreService.getByProvince(id);
       this.isLoaded = true;
-      this.stores = await StoreService.getByProvince(id);
     },
     storeClicked(item) {
       RouterService.storeClicked(item);
@@ -132,7 +132,6 @@ export default {
         }
         else {
           setTimeout(() =>{
-            //this.results = this.stores.filter(this.searchfilter);
             this.results = this.stores.filter(function(store){
                 var name = FormatWord.xoadau(store.storeName.toString().toLowerCase());
                 var searchkey = FormatWord.xoadau(key.toString().toLowerCase());
@@ -166,10 +165,9 @@ export default {
     async getPlace(place,lat,long){
       try{
         this.location = place; 
-        this.lat= lat;
-        this.lng = long
         var id= localStorage.getItem('provinceId');
         this.stores = await StoreService.getByProvince_distance(id,lat,long);
+        this.active=false;
       }
       catch(err){console.log(err)}
     },
@@ -182,8 +180,7 @@ export default {
 
 <style>
 @import url('../../../assets/css/style.css');
-@import url('../../../assets/css/style-0.css');
-@import url('../../../assets/css/footer.css');
+@import url('../../../assets/css/comments.css');
 @import url('../../../assets/css/bootstrap.min.css');
  .modal-mask-home {
     position: fixed;

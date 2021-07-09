@@ -3,10 +3,10 @@
 	padding: 0;
 }
 body {
-	/* font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; */
 	font-family: 'Dosis', sans-serif !important;
 	font-size: 13px;
 	line-height: 1.5;
+	padding-top: 60px;
 }
 header.header{
 	padding: 0 0 50px;
@@ -122,7 +122,7 @@ header.header .header-wrapper{
 	border-radius: 2px;
 	font-size: 14px;
 	height: 30px;
-	float: left;
+	float: none;
 	padding: 7px 0 7px 7px;
 	width: 320px;
 	display: inline-block;
@@ -249,7 +249,6 @@ header.header .header-wrapper{
 .pn-microsite{
 	width: 89%;
 	margin: 0 auto;
-	padding-top: 60px;
 	overflow: hidden;
 }
 .pn-microsite .micro-content{
@@ -454,19 +453,15 @@ header.header .header-wrapper{
 /* end right-tool-bar */
 
 .pn-microsite .micro-right .micro-main-content{
-
+	clear: both; position: static;
+	min-height: 700px;
 }
 .pn-microsite .micro-right .micro-main-content .banner-slide{
-	max-width: 995px;
 	margin-bottom: 15px;
     overflow: hidden;
 }
 .pn-microsite .micro-right .micro-main-content .microsite-table-book{
 	background: #fff;
-	overflow: hidden;
-    /* border: 1px solid #eee; */
-    margin-bottom: 15px;
-    border-radius: 15px;
 }
 .pn-microsite .micro-right .micro-main-content .tb-title{
 	overflow: hidden;
@@ -475,8 +470,11 @@ header.header .header-wrapper{
 }
 .pn-microsite .micro-right .micro-main-content .tb-offers-box .tb-offer-item{
 	overflow: hidden;
-    padding: 10px 15px;
+	padding: 10px 5px;
     float: left;
+	width: 100%;
+}
+.pn-microsite .micro-right .micro-main-content .tb-offers-box .tb-content{
 	width: 100%;
 }
 .pn-microsite .micro-right .micro-main-content .tb-offers-box .tb-offer-item .tb-item-left {
@@ -499,18 +497,6 @@ header.header .header-wrapper{
 	float: left;
 	width: 36%;
 	padding: 0 25px 0 0;
-}
-.pn-microsite .micro-right .micro-main-content .tb-offers-box .tb-offer-item .tb-item-mid a.tb-oi-time{
-	display: block;
-    font-size: 18px;
-    font-weight: bold;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    padding: 5px 0;
-    line-height: 1.4em;
-	height: 30px;
-	cursor: pointer;
 }
 .pn-microsite .micro-right .micro-main-content .tb-offers-box .tb-offer-item .tb-item-mid a.tb-shorttitle{
 	color: #333;

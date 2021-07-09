@@ -18,5 +18,17 @@ export default{
     },
     getYearStore(id,nam){
         return axios.get(url +'/ThongKeTheoNam?id='+id+'&nam='+nam).then(response => response.data);
+    },
+    getStorePerDistrict(id){
+        return axios.get(url +'/ThongKeTheoQuan?ProvinceID='+ id).then(response => response.data);
+    },
+    getStorePerProvince(){
+        return axios.get(url +'/ThongKeTheoTinh').then(response => response.data);
+    },
+    getAllView(){
+        return axios.get(url +'/ThongKeView').then(response => response.data);
+    },
+    getStorePerBussinessType(){
+        return axios.get(url +'/ThongKeTheoBusinessType').then(response => response.data);
     }
 }

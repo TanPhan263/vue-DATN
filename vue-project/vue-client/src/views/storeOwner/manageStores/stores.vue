@@ -99,6 +99,7 @@
         </CCardHeader>
         <CCardBody>
           <CDataTable
+            class="mb-0 table-outline"
             hover
             border
             striped

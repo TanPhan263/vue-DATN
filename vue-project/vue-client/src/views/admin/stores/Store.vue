@@ -291,47 +291,47 @@
           >
           </CDataTable> -->
           <div class="row" >
-        <div class="col-12" >
-        <table class="table table-image" >
-          <thead>
-            <tr>
-              <th scope="col">STT</th>
-              <th scope="col">Ảnh</th>
-              <th scope="col">Tên người bình luận</th>
-              <th scope="col">Nội dung</th>
-              <th scope="col">Đánh giá</th>
-               <th scope="col">Ngày</th>
-              <th scope="col" class="manage">Manage</th>
-            </tr>
-          </thead>
-          <tbody v-if="commentList">
-            <tr v-for="(comment,index) in commentList" v-bind:key="index">
-              <th scope="row">{{index + 1}}</th>
-              <td>
-                <img v-lazy="comment.image" style="height: 120px;width:120px">
-              </td>
-              <td>  
-                {{comment.userName}}
-                </td>
-              <td>
-             {{comment.content}}
-              </td>
-              <td>
-              {{comment.ratePoint}}
-              </td>
-              <td>
-                {{comment.date}}
-              </td>
-              <td>
-                 <CButtonGroup style="float:left" size="sm">
-                  <CButton @click="deleteComment(comment.commentID)" color="danger">Delete</CButton>
-                </CButtonGroup>
-              </td>
-            </tr>
-          </tbody>
-        </table>   
-        </div>
-      </div>
+            <div class="col-12" >
+              <table class="table table-image" >
+                <thead>
+                  <tr>
+                    <th scope="col">STT</th>
+                    <th scope="col">Ảnh</th>
+                    <th scope="col">Tên người bình luận</th>
+                    <th scope="col">Nội dung</th>
+                    <th scope="col">Đánh giá</th>
+                    <th scope="col">Ngày</th>
+                    <th scope="col" class="manage">Manage</th>
+                  </tr>
+                </thead>
+                <tbody v-if="commentList">
+                  <tr v-for="(comment,index) in commentList" v-bind:key="index">
+                    <th scope="row">{{index + 1}}</th>
+                    <td>
+                      <img v-lazy="comment.image" style="height: 120px;width:120px">
+                    </td>
+                    <td>  
+                      {{comment.userName}}
+                      </td>
+                    <td>
+                  {{comment.content}}
+                    </td>
+                    <td>
+                    {{comment.ratePoint}}
+                    </td>
+                    <td>
+                      {{comment.date}}
+                    </td>
+                    <td>
+                      <CButtonGroup style="float:left" size="sm">
+                        <CButton @click="deleteComment(comment.commentID)" color="danger">Delete</CButton>
+                      </CButtonGroup>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>   
+              </div>
+            </div>
           </CCardBody>
       </CCard>
      </CCol>
