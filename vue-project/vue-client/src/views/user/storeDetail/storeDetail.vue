@@ -205,7 +205,7 @@
               </a>
             </div>
             <!-- <GoogleMap v-if="storeOpen[0].lat" v-bind:lat="storeOpen[0].lat" v-bind:lng="storeOpen[0].long"/> -->
-            <TestMap v-if="storeOpen[0].lat" v-bind:lat="storeOpen[0].lat" v-bind:lng="storeOpen[0].long" v-bind:storeName="storeOpen[0].storeName"/>
+            <HereMap v-if="storeOpen[0].lat" v-bind:lat="storeOpen[0].lat" v-bind:lng="storeOpen[0].long" v-bind:storeName="storeOpen[0].storeName"/>
             <div id="map"></div>
         </div>
         <!-- <div id="realtive" class="microsite-gallery" style="margin-top: 15px; overflow:visible">
@@ -236,7 +236,7 @@ import StoreService from '@/services/StoreService.js';
 import DiscountService from '@/services/DiscountService.js';
 
 //tesst
-import TestMap from '../homepage/testMap2.vue'
+import HereMap from '../homepage/HereMap'
 
 export default {
   name: 'storeDetail',
@@ -292,7 +292,7 @@ export default {
     Comments,
     Footer,
     RelativeStore,
-    TestMap
+    HereMap
   },
   computed:{
     formatRate(){

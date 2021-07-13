@@ -54,7 +54,7 @@
               <i v-on:click="active=false" class="fas fa-times" style="padding: 3px;float: right; font-size: 23px;"></i>
             </div>
               <!-- <GoogleMapHome @send-place="getPlace"/> -->
-              <TestMap @send-place="getPlace"/>
+              <HereMap @send-place="getPlace"/>
           </div>
         </div>
       </div>
@@ -76,7 +76,7 @@ import CategoryPage from './CategoryPage'
 import SearchPage from './SearchPage'
 import Footer from '../footer/Footer'
 import GoogleMapHome from './GoogleMapHome';
-import TestMap from './testMap2';
+import HereMap from './HereMap';
 import FormatWord from '@/services/FormatWord.js'
 import StoreService from '@/services/StoreService.js'
 import RouterService from '@/services/RouterService.js'
@@ -90,7 +90,7 @@ export default {
       GoogleMapHome,
       Suggest,
       CategoryPage,
-      TestMap
+      HereMap
     },
   data() {
     return {
