@@ -85,9 +85,8 @@
 			<div class="text-center pb-0 pt-3" style="font-weight: bold;">
 				<jw-pagination :items="stores" @changePage="onChangePage" :pageSize="pageSize" :labels="customLabels"></jw-pagination>
 			</div>
-		 	
-		 </div>
-</div>
+		</div>
+	</div>
 </template>
 
 <script>

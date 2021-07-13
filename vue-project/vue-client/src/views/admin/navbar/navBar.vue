@@ -25,21 +25,23 @@
         
       </CCardBody>
     </CCard>
-    <CCollapse class="updateNav" :show="true" :duration="400">
-      <div class="row">
-          <p>Chỉnh sửa nav item: </p><strong>{{updateName}}</strong> 
-        </div>
-              <select 
-              id="province"
-              class="selectBox"
-              style="float:left"
-              vertical
-              @change="updateNavItem($event)">
-              <option v-for="(business,index) in businessTypes" v-bind:key="index" :value="index">
-               {{business.businessTypeName}}
-              </option>
-            </select>
-            </CCollapse>
+    <CCard class="updateNav" :show="true" :duration="400">
+     <CCardHeader>
+        <p>Chỉnh sửa nav item: </p><strong>{{updateName}}</strong> 
+     </CCardHeader>
+     <CCardBody>
+        <select 
+        id="province"
+        class="selectBox"
+        style="float:left"
+        vertical
+        @change="updateNavItem($event)">
+        <option v-for="(business,index) in businessTypes" v-bind:key="index" :value="index">
+          {{business.businessTypeName}}
+        </option>
+      </select>
+     </CCardBody>
+    </CCard>
 </CCol>
 </template>
 <script>

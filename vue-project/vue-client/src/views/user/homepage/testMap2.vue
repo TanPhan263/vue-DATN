@@ -1,7 +1,7 @@
 <template>
   <div id="map">
       <div style="padding: 10px">
-       <input type="text" v-model="location" style="height: 50px;border:none;font-size: 17px">
+       <input type="text" v-model="location" v-on:keyup.enter="addMarker" style="height: 50px;border:none;font-size: 17px">
          <button class="btn_change"  @click="addMarker" >Thay đổi</button>
             <button v-if="show" @click="getNearByStore" class="btn_nearby">Xem quán gần bạn</button>
              <button v-if="!show" @click="removeNearByStore" class="btn_nearby">Ẩn tất cả quán</button>
@@ -25,7 +25,7 @@ export default {
       stores:[],
       show: true,
       platform: null,
-      apikey: "yS3OXwUUCPu4saZkhFUozPLGpnkLfaGcKSTNpJKJjec",//yS3OXwUUCPu4saZkhFUozPLGpnkLfaGcKSTNpJKJjec
+      apikey: 'yS3OXwUUCPu4saZkhFUozPLGpnkLfaGcKSTNpJKJjec',//yS3OXwUUCPu4saZkhFUozPLGpnkLfaGcKSTNpJKJjec
       center: { lat: 10.851170, lng: 106.755493 },
       finish:{},
       location:'1 Võ Văn Ngân, Linh Chiểu, Thủ Đức, Thành phố Hồ Chí Minh',
@@ -109,36 +109,35 @@ export default {
       }
     },
     addMarker(){
-        this.geocodingService.geocode({searchText: this.location}, data =>{
-            if(data.Response.View.length > 0){
-                var place = data.Response.View[0].Result[0].Location.Address.HouseNumber +', ' +
-                 data.Response.View[0].Result[0].Location.Address.Street +', '
-                + data.Response.View[0].Result[0].Location.Address.Subdistrict +', '
-                + data.Response.View[0].Result[0].Location.Address.District + ','
-                + data.Response.View[0].Result[0].Location.Address.City;
-                this.location= place;
-                if(data.Response.View[0].Result.length >0){
-                    let position = data.Response.View[0].Result[0].Location.DisplayPosition;
-                    sessionStorage.setItem('place',JSON.stringify({formatted_address: place,lat: position.Latitude, lng: position.Longitude}));
-                    this.map.removeObjects(this.map.getObjects ())
-                    this.center = {lat: position.Latitude, lng: position.Longitude};
-                    let markerStart = new H.map.Marker({lat: position.Latitude, lng: position.Longitude},{icon: this.iconStart});
-                    this.map.addObject(markerStart);
-                    if(this.lat && this.lng && this.storeName){
-                        let markerFinish = new H.map.Marker(this.finish,{icon: this.iconFinish});
-                        this.map.addObject(markerFinish);
-                        this.drawRoute(this.center, this.finish);
-                    }else{
-                        this.map.setCenter(this.center);
-                        this.sendPlace(place,position.Latitude,position.Longitude);
-                    }
-                }
-            }
-        }, error =>{
-           alert('Không tìm thấy địa điểm này');
-           console.log(error)
-        })
-        
+      this.geocodingService.geocode({searchText: this.location}, data =>{
+        if(data.Response.View.length > 0){
+          var place = data.Response.View[0].Result[0].Location.Address.HouseNumber +', ' +
+            data.Response.View[0].Result[0].Location.Address.Street +', '
+          + data.Response.View[0].Result[0].Location.Address.Subdistrict +', '
+          + data.Response.View[0].Result[0].Location.Address.District + ','
+          + data.Response.View[0].Result[0].Location.Address.City;
+          this.location= place;
+          if(data.Response.View[0].Result.length >0){
+              let position = data.Response.View[0].Result[0].Location.DisplayPosition;
+              sessionStorage.setItem('place',JSON.stringify({formatted_address: place,lat: position.Latitude, lng: position.Longitude}));
+              this.map.removeObjects(this.map.getObjects ())
+              this.center = {lat: position.Latitude, lng: position.Longitude};
+              let markerStart = new H.map.Marker({lat: position.Latitude, lng: position.Longitude},{icon: this.iconStart});
+              this.map.addObject(markerStart);
+              if(this.lat && this.lng && this.storeName){
+                  let markerFinish = new H.map.Marker(this.finish,{icon: this.iconFinish});
+                  this.map.addObject(markerFinish);
+                  this.drawRoute(this.center, this.finish);
+              }else{
+                  this.map.setCenter(this.center);
+                  this.sendPlace(place,position.Latitude,position.Longitude);
+              }
+          }
+        }
+      }, error =>{
+          alert('Không tìm thấy địa điểm này');
+          console.log(error)
+      })
     },
     sendPlace(place,lat,lng) {
       this.$emit('send-place',place,lat,lng);

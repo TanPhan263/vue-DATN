@@ -203,9 +203,9 @@
 						</div>
 					</div>
 				</div>
-				<button style=" width:100%; height:40px; border-radius: 5px;margin-top: 30px; background-color: red; color: white; border: none; font-size: 20px" @click="isLoggedin" type="button" data-toggle="modal" data-target="#exampleModal">
-						Thêm nhận xét
-					</button>
+				<button style=" width:100%; height:40px; border-radius: 5px;margin-top: 30px; background-color: red; color: white; border: none; font-size: 20px" @click="checkLoggedin" type="button" data-toggle="modal" data-target="#exampleModal">
+					Thêm nhận xét
+				</button>
 			</div>
 		</div>
 		</div>
@@ -265,6 +265,7 @@ export default {
 		storeRate: String
 	},
 	created(){
+		this.averageRate = this.storeRate;
 		this.getComments();
 		this.getUser();
 		this.token=localStorage.getItem('isAuthen');
@@ -280,13 +281,14 @@ export default {
 			if(localStorage.getItem('isAuthen')){
 				let infor = await UserService.getInfo(localStorage.getItem('isAuthen'));
 				if(infor[0] == "Bạn cần đăng nhập"){
+					this.isLoggedin =false;
 					AuthService.logout();
 					return;
 				}
 				this.user = infor[0];
-				return;
+				this.isLoggedin = true;
 			}
-			this.isLoggedin = false;
+			else this.isLoggedin = false;
 		}
 		catch(err){console.log(err)}
 		},
@@ -299,15 +301,14 @@ export default {
 			})
 			this.rateList = await StoreService.getListRate(this.storeID);
 			this.rateList.forEach(element => {
-					switch(parseInt(element.ratePoint)){
-						case 1: this.rate1+=1; break;
-						case 2: this.rate2+=1; break;
-						case 3: this.rate3+=1; break;
-						case 4: this.rate4+=1; break;
-						case 5: this.rate5+=1; break;
-						}
-					});
-			this.averageRate = parseFloat(this.storeRate);
+				switch(parseInt(element.ratePoint)){
+					case 1: this.rate1+=1; break;
+					case 2: this.rate2+=1; break;
+					case 3: this.rate3+=1; break;
+					case 4: this.rate4+=1; break;
+					case 5: this.rate5+=1; break;
+				}
+			});
 		}
 		catch(err){console.log(err)}
 		},
@@ -359,6 +360,7 @@ export default {
 				};
 				const response = await CommentService.submitComment(this.token,comment);
 				this.averageRate = await StoreService.updateRate(this.storeID);
+				this.changeRate(this.averageRate);
 				console.log(response)
 				this.getComments();
 			}
@@ -378,8 +380,9 @@ export default {
 			});
 			return temp;
 		},
-		isLoggedin(){
-			if(this.token == null || this.token == 'Đăng nhập thất bại' || !AuthService.isAuthented(localStorage.getItem('isAuthen'))) {
+		checkLoggedin(){
+			this.getUser();
+			if(this.isLoggedin == false) {
 				alert("Bạn cần đăng nhập để thự hiện chức năng này");
 				return;
 			}
@@ -416,6 +419,8 @@ export default {
 					ratePoint: this.rateSubmit.toString(),
 				};
 				const response = await CommentService.editComment(id,comment,this.token);
+				this.averageRate = await StoreService.updateRate(this.storeID);
+				this.changeRate(this.averageRate);
 				console.log(response);
 				this.getComments();
 
@@ -429,10 +434,15 @@ export default {
 				if(confirm('Bạn có muốn xóa bình luận này?'))
 				{
 					const response = await CommentService.deleteComment(id, this.token);
+					this.averageRate = await StoreService.updateRate(this.storeID);
+					this.changeRate(this.averageRate);
 					alert(response)
 				}
 			}catch{}
 		},
+		changeRate(rate){
+			this.$emit('change-rate',rate);
+		}
 	}
 }
 </script>

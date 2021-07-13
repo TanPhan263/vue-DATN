@@ -196,7 +196,7 @@
               </div>
               </div>
         </transition>
-          <Comments v-bind:storeID="storeID" v-bind:storeRate="storeRate"/>
+          <Comments @change-rate="changeRate" v-bind:storeID="storeID" v-bind:storeRate="storeRate"/>
           <div id="map" class="microsite-gallery" style="margin-top: 15px">
             <div style="margin-bottom: 40px">
               <strong style="font-size: 20px">BẢN ĐỒ</strong>
@@ -386,6 +386,9 @@ export default {
     openChat(){
       this.$root.$refs.Footer.openChat(this.storeID,this.storeName,this.storePicture,this.storeOpen[0].userID);
     },
+    changeRate(rate){
+      this.storeRate = rate;
+    }
   },
   created(){
     this.storeID=this.$route.params.id;
