@@ -81,7 +81,7 @@
 		<!-- <div  v-show="show" style="margin: 0 auto;" class="loader"></div> -->
       </div>
     </div>
-		<div class="ship">
+		<div v-if="stores" class="ship">
 			<div class="text-center pb-0 pt-3" style="font-weight: bold;">
 				<jw-pagination :items="stores" @changePage="onChangePage" :pageSize="pageSize" :labels="customLabels"></jw-pagination>
 			</div>
@@ -132,6 +132,7 @@ export default {
 		}
 	},
 	created(){
+		this.$root.$refs.SearchPage = this;
 		this.show = true;
 	},
 	mounted(){
@@ -172,22 +173,37 @@ export default {
 			const key = this.$route.query.key
 			if(key == 'Quán gần bạn' || key =='Đánh giá cao') 
 			{
-				if(key == 'Đánh giá cao') {this.sortmode ='Đánh giá cao'; this.checked2=true;}
 				var id= localStorage.getItem('provinceId');
-      			this.stores = await StoreService.getByProvince(id);
+				if(sessionStorage.getItem('place')){
+					let tempplace = JSON.parse(sessionStorage.getItem('place'));
+					//this.stores = await StoreService.getByProvince_distance(id,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
+					this.stores = await StoreService.getByProvince_distance(id,tempplace.lat,tempplace.lng);
+            	}
+      			else this.stores = await StoreService.getByProvince(id);
+				if(key == 'Đánh giá cao') {
+					this.sortmode ='Đánh giá cao';
+					this.checked2=true;
+					this.stores.sort(this.sortRate);
+				}
+				else this.stores.sort(this.sortDistance);
 				this.show = false;
 				this.lable= key;
 			}
 			else 
 			{
-				this.$http.get('https://api.viefood.info/api/Dish/Search?dishname=' + key).then(response => {
-				if(response.data !='Không có kết quả tìm kiếm')
+				if(sessionStorage.getItem('place')){
+					let tempplace = JSON.parse(sessionStorage.getItem('place'));
+					console.log(tempplace)
+					//this.stores = await StoreService.searchStore_distance(key,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
+					this.stores = await StoreService.searchStore_distance(key,tempplace.lat,tempplace.lng);
+				}
+				else this.stores = await StoreService.searchStore(key);
+				if(this.stores != 'Không có kết quả tìm kiếm')
 				{
 					this.lable='';
-					this.stores = response.data;
-					this.stores = this.stores.filter(this.sortProvince);
+					this.stores.sort(this.sortDistance);
 					this.show = false;
-				}});
+				}
 			}
 		},
 		subString(index){
@@ -217,10 +233,6 @@ export default {
 		},
 		openPopup(name,id) {
 			this.loadingStoreDiscount = true;
-			// if(this.currDiscount){
-			//   var popupcurr = document.getElementById(this.currDiscount);
-			//   popupcurr.classList.toggle("show");
-			// }
 			var popupnew = document.getElementById(name);
 			popupnew.classList.toggle("show");
 			this.currDiscount = name;

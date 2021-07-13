@@ -117,7 +117,8 @@ export default {
             this.districtID = this.districts[0].districtID;
             if(sessionStorage.getItem('place')){
               let tempplace = JSON.parse(sessionStorage.getItem('place'));
-              this.stores = await StoreService.getByDistrict_distance(this.districtID,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
+              //this.stores = await StoreService.getByDistrict_distance(this.districtID,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
+               this.stores = await StoreService.getByDistrict_distance(this.districtID,tempplace.lat,tempplace.lng);
             }
             else this.stores = await StoreService.getByDistrict(this.districtID)
             this.stores = this.stores.slice(0,15);
@@ -131,7 +132,7 @@ export default {
           this.show= true;
           if(sessionStorage.getItem('place')){
               let tempplace = JSON.parse(sessionStorage.getItem('place'));
-              this.stores = await StoreService.getByDistrict_distance(this.districtID,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
+              this.stores = await StoreService.getByDistrict_distance(this.districtID,tempplace.lat,tempplace.lng);
           }
           else this.stores = await StoreService.getByDistrict(this.districtID)
           this.stores = this.stores.slice(0,15);
@@ -141,6 +142,7 @@ export default {
         },
         async changePlace(lat,long){
           this.stores = await StoreService.getByDistrict_distance(this.districtID,lat,long);
+          this.stores = this.stores.slice(0,15);
         }
     }
 }

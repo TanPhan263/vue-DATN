@@ -28,11 +28,18 @@ export default {
       return true;
     return false
   },
-
-  logout(){
-    localStorage.removeItem("userInfor");
-    localStorage.removeItem("isAuthen");
-    router.go();
+  async logout(){
+    try{
+      if(localStorage.getItem('userInfor')){
+        let user = localStorage.getItem('userInfor');
+        user = JSON.parse(user);
+        await UserService.logOut(user.userID);
+      }
+      localStorage.removeItem("userInfor");
+      localStorage.removeItem("isAuthen");
+      router.go();
+    }
+    catch{}
   },
   login(credentials) {
     return axios

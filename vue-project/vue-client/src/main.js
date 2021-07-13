@@ -41,12 +41,12 @@ Vue.use(infiniteScroll)
 import JwPagination from 'jw-vue-pagination';
 Vue.component('jw-pagination', JwPagination);
 
-//GoogleMap
+//GoogleMap AIzaSyA4iGS3l6NH4Vreg4LJJX7gizkedG-9SvA
 //	 AIzaSyAcDDET59ANwEhTdub24KMtGk5C2-CNnDE
-//  AIzaSyA4iGS3l6NH4Vreg4LJJX7gizkedG-9SvA
+//  AIzaSyDyqOswaIsfJyFeW4LscRzJqeC6r57buLI
 Vue.use(VueGoogleMaps, {
   load: {
-    key: "AIzaSyDWTx7bREpM5B6JKdbzOvMW-RRlhkukmVE",
+    key: "AIzaSyDyqOswaIsfJyFeW4LscRzJqeC6r57buLI",
     libraries: "places"
   }
 });

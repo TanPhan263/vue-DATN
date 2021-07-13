@@ -18,12 +18,12 @@ export default [
         to: '/manage/update',
         icon: 'cil-pencil'
       },
-      {
-        _name: 'CSidebarNavItem',
-        name: 'Đổi mật khẩu',
-        to: '/forgetpass',
-        icon: 'cil-lock-locked'
-      },
+      // {
+      //   _name: 'CSidebarNavItem',
+      //   name: 'Đổi mật khẩu',
+      //   to: '/forgetpass',
+      //   icon: 'cil-lock-locked'
+      // },
       {
         _name: 'CSidebarNavTitle',
         _children: ['QUẢN LÝ']
@@ -33,6 +33,10 @@ export default [
         name: 'Quán của bạn',
         icon: 'cil-puzzle',
         to: '/manage/managestores'
+      },
+      {
+        _name: 'CSidebarNavTitle',
+        _children: ['Tin nhắn']
       },
       {
         _name: 'CSidebarNavItem',

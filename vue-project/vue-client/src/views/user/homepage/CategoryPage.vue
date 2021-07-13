@@ -119,7 +119,12 @@ export default {
 			document.title = this.lable[0].businessTypeName;
 			this.type = await StoreService.getAllBussinessType();
 			this.discount = await DiscountService.getAll();
-			this.stores = await StoreService.getByBussinessType(key);
+			if(sessionStorage.getItem('place')){
+              let tempplace = JSON.parse(sessionStorage.getItem('place'));
+              //this.stores = await StoreService.getByBussinessType_distance(key,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
+			this.stores = await StoreService.getByBussinessType_distance(key,tempplace.lat,tempplace.lng);
+            }
+			else this.stores = await StoreService.getByBussinessType(key);
 			if(this.stores) this.show= false;
 		},
 		storeClicked(item) {

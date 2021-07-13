@@ -3,11 +3,11 @@
   <div class="inbox_store chat">
     <div class="headind_srch">
         <div class="recent_heading">
-          <h4>Store</h4>
+          <h5>Gần đây</h5>
         </div>
         <div class="srch_bar">
           <div class="stylish-input-group">
-            <input  v-model="keywordStore" type="text" class="search-bar"  placeholder="Search"   v-on:keyup="onChangeStore(keywordStore)" >
+            <input  v-model="keywordStore" type="text" class="search-bar"  placeholder="Search"  v-on:keyup="onChangeStore(keywordStore)" >
             <span class="input-group-addon">
             <button type="button"> <i class="fa fa-search" aria-hidden="true"></i> </button>
             </span> </div>
@@ -17,7 +17,7 @@
         <div v-for="(store,index) in resultStore" v-bind:key="index" :class="[storeClickedID === store.id? 'chat_list active_chat':'chat_list']" @click="storeClicked(store.roomID,store.id,store.seen,store.senderPic,store.ownerID)">
           <div class="chat_people">
             <div class="chat_img"> 
-              <img v-lazy="store.senderPic" alt="sunil">
+              <img class="img-avt" v-lazy="store.senderPic" alt="sunil">
              </div>
             <div :class="[store.seen === 'false'? 'unseen_chat':'chat_ib']">
               <h5>{{store.senderName}}</h5>
@@ -34,8 +34,8 @@
             <div v-for="(mess,index) in messages" v-bind:key="index">
             <div v-if="mess.senderID !== admin.adminID" class="incoming_msg">
               <div class="incoming_msg_img">
-                <img v-if="senderPic" v-lazy="senderPic" alt="sunil"> 
-                  <img v-else src="../../../assets/imgs/userPic.png" alt="sunil"> 
+                <img  class="img-avt" v-if="senderPic" v-lazy="senderPic" alt="sunil"> 
+                  <img  class="img-avt" v-else src="../../../assets/imgs/userPic.png" alt="sunil"> 
               </div>
                 <div  class="received_msg">
                     <div class="received_withd_msg">
@@ -78,7 +78,7 @@ export default {
       return{
         admin:{
           adminID: '',
-          adminName:'Admin',
+          adminName:'',
           adminPic: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIXIrqiW3R5OstWAjkuFvNwvjYHRaTmwEQWg&usqp=CAU'
         },
         keywordStore:'',
@@ -91,22 +91,26 @@ export default {
         ownerID: ''
       }
     },
+    created(){
+      this.$root.$refs.chatAdmin = this;
+    },
     methods:{
       createInbox(id,name,picture,owner){
-        if(id && name && picture && owner){
+        if(id && name && owner){
           this.storeClickedID = id;
+          this.ownerID = owner;
           this.createInboxes(id,name,picture,owner);
           this.fetchMessage();
         }
       },
       createInboxes(storeId,storeName,storePicture,storeOwner){
         try{
-          if(storeId && storeName && storePicture && storeOwner && this.admin.adminID){
+          if(storeId && storeName && storeOwner && this.admin.adminID){
             this.storeClickedID = storeId;
             this.roomID =  this.storeClickedID + this.admin.adminID;
             firebase
               .database()
-              .ref("Messages/inboxes/"+ storeID).orderByChild('roomID').equalTo(this.roomID).on("value",snapshot => {
+              .ref("Messages/inboxes/user/").child(this.admin.adminID).orderByChild('roomID').equalTo(this.roomID).on("value",snapshot => {
                 if (snapshot.exists()){
                   const Data = snapshot.val();
                   console.log("exists!", Data);
@@ -115,66 +119,86 @@ export default {
                 else{
                   var today = new Date();
                   const inboxRecipent = {
+                    recipentID: storeId,
                     roomID: this.roomID,
                     senderID: this.admin.adminID,
                     senderName:  this.admin.adminName,
                     senderPic: this.admin.adminPic,
+                    ownerID :storeOwner,
                     time: today.getTime().toString(),
                     lastMsg: '',
                     seen: ''
                   };
                   const inboxSender = {
+                    recipentID: this.admin.adminID,
                     roomID: this.roomID,
                     senderID: storeId,
                     senderName: storeName,
                     senderPic: storePicture,
-                    ownerID : ownerID,
+                    ownerID :storeOwner,
                     time: today.getTime().toString(),
                     lastMsg: '',
                     seen: ''
                   };
-                  firebase
+                  if(this.ownerID == 'none'){
+                    firebase
                     .database()
-                    .ref("Messages/inboxes/" + storeOwner).child(storeId).child(this.admin.adminID)
+                    .ref("Messages/inboxes/users/" + this.storeClickedID).child(this.admin.adminID)
                     .set(inboxRecipent);
+                  } 
+                  else{
+                    firebase
+                    .database()
+                    .ref("Messages/inboxes/stores/" + storeOwner).child(storeId).child(this.admin.adminID)
+                    .set(inboxRecipent);
+                  }
                   firebase
                     .database()
-                    .ref("Messages/inboxes/" + this.admin.adminID).child(storeId)
+                    .ref("Messages/inboxes/users/" + this.admin.adminID).child(storeId)
                     .set(inboxSender);
                   }
               });
             }
-          else alert('Mời bạn nhập Email');
+          else alert('Lỗi rồi');
         }
         catch{}
       },
       saveMessage(){
         try{
           if(this.message && this.roomID && this.storeClickedID && this.admin.adminID && this.ownerID){
-          var today = new Date();
-          const mess = {
-            roomID: this.roomID,
-            senderID: this.admin.adminID,
-            msg: this.message,
-            date: today.toString().slice(3,21)
-          };
-          firebase
-            .database()
-            .ref("Messages/chatMessages/")
-            .push(mess);
-          firebase
-            .database()
-            .ref("Messages/inboxes/"+ this.ownerID).child(this.storeClickedID).child(this.admin.adminID)
-            .update({seen:'false',time:today.getTime(),lastMsg:this.message});
-          firebase
-            .database()
-            .ref("Messages/inboxes/"+ this.admin.adminID).child(this.storeClickedID)
-            .update({seen:'true',time:today.getTime(),lastMsg:this.message});
-          this.message = '';
+            var today = new Date();
+            const mess = {
+              roomID: this.roomID,
+              senderID: this.admin.adminID,
+              msg: this.message,
+              date: today.toString().slice(3,21)
+            };
+            firebase
+              .database()
+              .ref("Messages/chatMessages/")
+              .push(mess);
+            if(this.ownerID == 'none')
+            {
+              firebase
+              .database()
+              .ref("Messages/inboxes/users/"+ this.storeClickedID).child(this.admin.adminID)
+              .update({seen:'false',time:today.getTime(),lastMsg:this.message});
+            }
+            else{
+            firebase
+              .database()
+              .ref("Messages/inboxes/stores/"+ this.ownerID).child(this.storeClickedID).child(this.admin.adminID)
+              .update({seen:'false',time:today.getTime(),lastMsg:this.message});
+            }
+            firebase
+              .database()
+              .ref("Messages/inboxes/users/"+ this.admin.adminID).child(this.storeClickedID)
+              .update({seen:'true',time:today.getTime(),lastMsg:this.message});
+            this.message = '';
           }
           else{
-            alert("Loi roi")
-          }
+            alert("Lỗi rồi");
+            }
           }
           catch(err){
             console.log(err);
@@ -201,7 +225,7 @@ export default {
                   {
                     firebase
                     .database()
-                    .ref("Messages/inboxes/"+ this.admin.adminID).child(this.storeClickedID)
+                    .ref("Messages/inboxes/users/"+ this.admin.adminID).child(this.storeClickedID)
                     .update({seen: 'true'});
                   }
                 if(this.roomID == messages[0].roomID)
@@ -216,7 +240,7 @@ export default {
       },
       fectchInboxes(id){
         try{
-            firebase.database().ref("Messages/inboxes/"+ id).on("value", snapshot => {
+            firebase.database().ref("Messages/inboxes/users/"+ id).on("value", snapshot => {
             if(snapshot.exists())
             {
                 let data = snapshot.val();
@@ -224,11 +248,12 @@ export default {
                 Object.keys(data).forEach(key => {
                 inboxes.push({
                     id: key,
+                    recipentID: data[key].recipentID,
                     roomID: data[key].roomID,
                     senderID: data[key].senderID,
                     senderName:  data[key].senderName,
                     senderPic: data[key].senderPic,
-                    ownerID:  data[key].ownerID,
+                    ownerID: data[key].ownerID,
                     time: data[key].time,
                     lastMsg: data[key].lastMsg,
                     seen: data[key].seen
@@ -239,6 +264,7 @@ export default {
                 if(this.storeClickedID == ''){
                   this.storeClickedID = inboxes[0].senderID;
                   this.roomID = inboxes[0].roomID;
+                  this.ownerID = inboxes[0].ownerID;
                   this.fetchMessage();
                 }
             }
@@ -278,7 +304,7 @@ export default {
         {
           firebase
           .database()
-          .ref("Messages/inboxes/"+ this.admin.adminID).child(idStore)
+          .ref("Messages/inboxes/users/"+ this.admin.adminID).child(idStore)
           .update({seen: 'true'});
         }
         this.fetchMessage();
@@ -310,7 +336,7 @@ export default {
       let respone = await UserService.getInfo(token);
       if(respone[0] != 'Bạn cần đăng nhập'){
         this.admin.adminID = respone[0].userID;
-        this.admin.adminID = respone[0].userName + '- Admin';
+        this.admin.adminName = respone[0].userName + '- Admin';
         this.fectchInboxes(this.admin.adminID);
         if(typeof respone[0].picture != 'undefined')
         this.admin.adminPic = respone[0].picture;

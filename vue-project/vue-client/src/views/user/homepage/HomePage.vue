@@ -17,14 +17,13 @@
 			<div class="banner">
 				<img id="banner" style="margin: auto; height: 270px;width: 100%; display: block;">
 			</div>
-			<div class="search">
+			<div class="search" :style="'background: url('+ banner +')'">
 				<form action="#" id="searchform" method="#" style="padding:10px;">
 					<div class="search-1 clearfix">
             <div id="vitri" class="vitri" @click="openMap">
               <i class="fa fa-map-marker" style="color: red; font-size: 35px;text-shadow: 2px 2px 3px #585858;"></i>
-              <p style="color:white;line-height: 20px;font-size: 18px; font-weight: bold;
-                border-bottom:2px solid white;
-                text-shadow: 2px 2px 3px #585858;"> {{location}} 
+              <p style="color:#484848;line-height: 20px;font-size: 18px; font-weight: bold;
+                border-bottom:2px solid #484848;"> {{location}} 
               </p>
             </div>
             <input v-model="keyword" type="text" placeholder="Tìm kiếm món ăn, quán ăn,..." v-on:keyup.enter="onSearchClicked"  v-on:keyup="onkeychange(keyword)">
@@ -50,8 +49,12 @@
       <div class="modal-mask-home">
         <div class="modal-wrapper">
           <div class="modal-container">
+            <div style="padding: 10px">
+            <strong style="font-size: 20px"> Chọn địa điểm của bạn</strong>
               <i v-on:click="active=false" class="fas fa-times" style="padding: 3px;float: right; font-size: 23px;"></i>
-              <GoogleMapHome @send-place="getPlace"/>
+            </div>
+              <!-- <GoogleMapHome @send-place="getPlace"/> -->
+              <TestMap @send-place="getPlace"/>
           </div>
         </div>
       </div>
@@ -65,6 +68,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gmap-vue@1.2.2/dist/gmap-vue.min.js"></script>
 <script>
+import firebase from '@/firebase/init.js';
 import Navbar from '../navBar/Navbar'
 import Suggest from './Suggest'
 import Homebody from './Homebody'
@@ -72,6 +76,7 @@ import CategoryPage from './CategoryPage'
 import SearchPage from './SearchPage'
 import Footer from '../footer/Footer'
 import GoogleMapHome from './GoogleMapHome';
+import TestMap from './testMap2';
 import FormatWord from '@/services/FormatWord.js'
 import StoreService from '@/services/StoreService.js'
 import RouterService from '@/services/RouterService.js'
@@ -85,13 +90,14 @@ export default {
       GoogleMapHome,
       Suggest,
       CategoryPage,
+      TestMap
     },
   data() {
     return {
       isLoaded: false,
       location: '1 Võ Văn Ngân, Linh Chiểu, Thủ Đức, Thành phố Hồ Chí Minh, Vietnam',
       active: false,
-      nav: '',
+      banner: '',
       show: true,
       loading: false,
       user: 'null',
@@ -102,18 +108,39 @@ export default {
     }
   },
   created(){
+    this.getBanner();
     this.onInit();
   },
   methods:{
-      async onInit(){
+    async onInit(){
       var id= localStorage.getItem('provinceId');
       if(sessionStorage.getItem('place')){
         let tempplace = JSON.parse(sessionStorage.getItem('place'));
         this.location = tempplace.formatted_address;
-        this.stores = await StoreService.getByProvince_distance(id,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
+         this.stores = await StoreService.getByProvince_distance(id,tempplace.lat,tempplace.lng);
+        //this.stores = await StoreService.getByProvince_distance(id,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
       }
       else this.stores = await StoreService.getByProvince(id);
       this.isLoaded = true;
+    },
+    getBanner(){
+      const socialRef = firebase.database().ref("Footer/banner/");
+        socialRef.on("value", snapshot => {
+        let data = snapshot.val();
+        if(data){
+          let banner = [];
+          Object.keys(data).forEach(key => {
+              banner.push({
+                id: key,
+                picture: data[key].picture,
+              });
+          });
+          this.banner = banner[0].picture;
+        }
+        else{
+          this.banner='';
+        }
+      });
     },
     storeClicked(item) {
       RouterService.storeClicked(item);

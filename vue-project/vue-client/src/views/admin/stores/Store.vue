@@ -10,6 +10,14 @@
             </div>
           </div>
       </div>
+      <div v-if="status === '2'" class="alert-red">
+            <div class="row">
+              <div style="width: 100%">
+              <h4>Quán này đang bị chặn</h4> <p>Nhấn để bỏ chặn</p>
+                <CButton  @click="unBanStore()" style="margin-right: 20px" class="btn_left" type="submit" size="sm" color="warning"><CIcon name="cil-check-circle"/>Bỏ chặn</CButton>
+            </div>
+          </div>
+      </div>
     </CCol>
     <CCol md="12">
       <CCard>
@@ -196,25 +204,22 @@
             <CCarouselItem
               style="height:250px"
               :image="storePicture"
-             
             />
           </CCarousel>
         </CCardBody>
         <CCardFooter>
-          <CRow form class="form-group" @click="check=!check">
-            <CCol tag="label" sm="10" class="col-form-label">
-              Ban store: 
-            </CCol>
-           <CSwitch 
-              class="mr-1"
-              color="danger"
-              :checked="check"
-              shape="pill"
-            />
-          </CRow>
+          <CCardBody style="display: flex;
+              justify-content: center;
+              align-items: center;">
+            <CButtonGroup  size="sm">
+              <CButton @click="openChat" color="info">Nhắn tin</CButton>
+              <CButton @click="unBanStore" v-if="status === '2'" color="danger">Bỏ chặn</CButton>
+              <CButton @click="banStore" v-else color="danger">Chặn</CButton>
+            </CButtonGroup>
+            </CCardBody>
            <div class="row">
-          <label for="files" class="btn">Select Image</label>
-          <input id="files" type="file"  @change="previewImage">
+            <label for="files" class="btn">Select Image</label>
+            <input id="files" type="file"  @change="previewImage">
           </div>
           <CRow form class="form-group" style="float:right;">
             <CButton class="btn_left" color="danger" @click="goBack">Back</CButton>
@@ -250,12 +255,8 @@
     <CCol md="12">
       <CCard>
          <CCardHeader>
-          <div class="row" style="width: 100%">
-          <h2 style="margin-left: 12px; width: 80%">Khuyến mãi</h2>
-          <div class="row" style="float:right;">
-            <CButton color="primary" @click="openAddDiscount">Thêm Khuyến mãi</CButton>
-          </div>
-          </div>
+          <strong style="font-size: 25px">Khuyến mãi</strong>
+            <CButton style="float: right" color="primary" @click="openAddDiscount">Thêm Khuyến mãi</CButton>
          </CCardHeader>
          <CCardBody>
             <div class="res-common-minmaxprice"  v-if="discountList">
@@ -267,11 +268,9 @@
      </CCol>
      <CCol col="12">
 
-     <CCard class="center_div" style="padding: 20px;">
+     <CCard>
        <CCardHeader>
-      <div class="row" style="width: 100%">
-            <h2  style="margin-left: 12px; width: 80%">Comments</h2>
-      </div>
+          <strong style="font-size: 25px">Comments</strong>
       </CCardHeader>
       <CCardBody>
         <!-- <CDataTable
@@ -335,6 +334,7 @@
           </CCardBody>
       </CCard>
      </CCol>
+     <ChatAdmin style="display: none"/>
   </CRow>
 </template>
 
@@ -344,6 +344,7 @@ import AuthService from '@/services/AuthService'
 import UserService from '@/services/UserService'
 import CommentService from '@/services/CommentService.js';
 import DiscountService from '@/services/DiscountService.js';
+import ChatAdmin from '../chat/chatAdmin.vue'
 export default {
   beforeRouteEnter (to, from, next) {
     AuthService.checkUser(localStorage.getItem('isAuthen'))
@@ -351,6 +352,9 @@ export default {
     next();
   },
   name: 'Store',
+  components:{
+    ChatAdmin
+  },
   data () {
     return {
       discounts:[],
@@ -359,7 +363,7 @@ export default {
       bussinessType: '',
       active: false,
       active2: false,
-      check: false,
+      // check: false,
       status: '',
       storeID: '',
       storeName: '',
@@ -387,7 +391,6 @@ export default {
     }
   },
   computed: {
-    
     visibleData () {
       return this.userData.filter(param => param.key !== 'username')
     },
@@ -430,8 +433,8 @@ export default {
       this.usersOpened ? this.$router.go(-1) : this.$router.push({path: '/store'})
     },
     async updateStore(){
-      if(this.check == true) this.status = '2';
-      else this.status = '1';
+      // if(this.check == true) this.status = '2';
+      // else this.status = '1';
       const id = this.$route.params.id
       const store ={
         storeAddress: this.storeAddress,
@@ -443,7 +446,7 @@ export default {
         provinceID: this.storeProvince,
         businessTypeID: this.storeStype,
         ratePoint: this.storeRate,
-        status: this.status,
+        status: this.status.toString(),
         lat: this.storeLat,
         long: this.storeLong
       };
@@ -500,7 +503,28 @@ export default {
         }
       }
       catch{
-
+      }
+    },
+    async unBanStore(){
+      try{
+        if(this.storeOwner != ''){
+          const id = this.$route.params.id;
+          const responseStore =  await StoreService.changeStatus(localStorage.getItem('isAuthen'), '1', id);
+          alert(responseStore);
+        }
+      }
+      catch{
+      }
+    },
+    async banStore(){
+      try{
+        if(this.storeOwner != ''){
+          const id = this.$route.params.id;
+          const responseStore =  await StoreService.changeStatus(localStorage.getItem('isAuthen'), '2', id);
+          alert(responseStore);
+        }
+      }
+      catch{
       }
     },
     async deleteStore(){
@@ -519,6 +543,10 @@ export default {
         const response = await CommentService.deleteCommentAdmin(id,localStorage.getItem('isAuthen'));
         alert(response);
       }
+    },
+    openChat(){
+      this.$router.push('/manage/chats')
+      this.$root.$refs.chatAdmin.createInbox(this.storeID, this.storeName,this.storePicture,this.storeOwner);
     }
   },
    mounted(){
@@ -537,8 +565,8 @@ export default {
             this.storeLat = response.data[0].lat;
             this.storeLong = response.data[0].long;
             this.status = response.data[0].status;
-            if(response.data[0].status == '1') this.check == false;
-            else this.check = true;
+            // if(response.data[0].status == '1') this.check == false;
+            // else this.check = true;
             this.getStoreOwner();  
             this.getComments(this.storeID)                
     });

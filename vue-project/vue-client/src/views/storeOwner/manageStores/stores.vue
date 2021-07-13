@@ -197,7 +197,6 @@ export default {
         const token = localStorage.getItem('isAuthen');
         this.items = await StoreService.getByUser(this.user.userID,token);
         this.result=this.items;
-        console.log(this.items);
         this.getProvince();
         this.getBussinessType();
     },

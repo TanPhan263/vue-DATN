@@ -5,7 +5,6 @@
         <CCardHeader>
             <strong style="font-size:22px">Thực đơn
               </strong> 
-          
             <CButton style="float: right" color="primary" @click="active=true">Thêm Món</CButton>
             <transition v-if="active">
               <div class="modal-mask">
@@ -145,12 +144,17 @@ export default {
   },
     methods:{
         rowClicked(item) {
-            this.$router.push({path: `managemenu/${item.dish_ID}`})
+            this.$router.push({path: `/manage/managestores/managemenu/${item.dish_ID}`})
         },
         getMenus(){
             this.$http.get('https://api.viefood.info/api/Dish/GetByIDStore?id=' + this.menuID).then(response => {
               this.menus = response.data
-            });
+          });
+        },
+        changeMenus(id){
+            this.$http.get('https://api.viefood.info/api/Dish/GetByIDStore?id=' + id).then(response => {
+              this.menus = response.data
+          });
         },
         previewImage(event){
           this.dishPicture=null;
@@ -169,26 +173,26 @@ export default {
           ()=> {
             storageRef.snapshot.ref.getDownloadURL().then((url) => {
               this.dishPicture=url; this.addDish();
-              })
-            }
-          )
-        },
-        async addDish(){
-          const dish = {
-            dishName: this.dishName,
-            dishPrice: this.dishPrice,
-            dishPicture: this.dishPicture,
-            dishType_ID: this.dishTypeSelected,
-            menu_ID: this.menuID
+            })
           }
-          const respone = await StoreService.addDish(dish,localStorage.getItem('isAuthen'));
-          alert(respone)
-          this.active= false;
-          this.getMenus();
-        },
-        pageChange (val) {
-        this.$router.push({ query: { page: val }})
+        )
+      },
+      async addDish(){
+        const dish = {
+          dishName: this.dishName,
+          dishPrice: this.dishPrice,
+          dishPicture: this.dishPicture,
+          dishType_ID: this.dishTypeSelected,
+          menu_ID: this.menuID
         }
+        const respone = await StoreService.addDish(dish,localStorage.getItem('isAuthen'));
+        alert(respone)
+        this.active= false;
+        this.getMenus();
+      },
+      pageChange (val) {
+      this.$router.push({ query: { page: val }})
+      }
     },
     created(){
       this.$root.$refs.MangeMenu = this;

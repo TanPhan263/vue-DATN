@@ -18,12 +18,12 @@ export default [
         to: '/manage/update',
         icon: 'cil-pencil'
       },
-      {
-        _name: 'CSidebarNavItem',
-        name: 'Đổi mật khẩu',
-        to: '/forgetpass',
-        icon: 'cil-lock-locked'
-      },
+      // {
+      //   _name: 'CSidebarNavItem',
+      //   name: 'Đổi mật khẩu',
+      //   to: '/forgetpass',
+      //   icon: 'cil-lock-locked'
+      // },
       {
         _name: 'CSidebarNavTitle',
         _children: ['Quản lý']
@@ -48,32 +48,36 @@ export default [
       },
       {
         _name: 'CSidebarNavItem',
-        name: 'Quản lý khuyến mãi',
+        name: 'Khuyến mãi',
         icon: 'cil-puzzle',
         to: '/manage/discount'
       },
       {
         _name: 'CSidebarNavItem',
-        name: 'Quản lý tỉnh thành',
+        name: 'Tỉnh thành',
         icon: 'cil-puzzle',
         to: '/manage/provinces'
       },
       {
         _name: 'CSidebarNavItem',
-        name: 'Quản lý Footer',
+        name: 'Thông tin trang web',
         icon: 'cil-puzzle',
         to: '/manage/footer'
       },
       {
         _name: 'CSidebarNavItem',
-        name: 'Quản lý thanh Menu',
+        name: 'Thanh Menu',
         icon: 'cil-puzzle',
         to: '/manage/navbar'
       },
       {
+        _name: 'CSidebarNavTitle',
+        _children: ['Tin nhắn']
+      },
+      {
         _name: 'CSidebarNavItem',
-        name: 'Chat',
-        icon: 'cil-puzzle',
+        name: 'Tin nhắn',
+        icon: 'cil-envelope-closed',
         to: '/manage/chats'
       }
     ]

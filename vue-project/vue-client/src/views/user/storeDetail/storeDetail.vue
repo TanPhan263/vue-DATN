@@ -31,10 +31,10 @@
             <div class="breadcrum"></div>
             <div class="main-info-title">
               <div v-if="storeRate > 3.5" class="numberCircle" style="float:right;background:limegreen">
-               {{ Math.ceil(storeRate*100)/100}}
+               {{ formatRate }}
               </div>
                <div v-else class="numberCircle" style="float:right; background:red">
-              {{ Math.ceil(storeRate*100)/100}}
+              {{ formatRate }}
               </div>
               <h1 style="width: 600px; margin-top:20px;font-size: 25px" class="fl_left">{{storeOpen[0].storeName}}
               </h1>
@@ -196,15 +196,16 @@
               </div>
               </div>
         </transition>
-          <Comments v-bind:storeID="storeID" />
+          <Comments v-bind:storeID="storeID" v-bind:storeRate="storeRate"/>
           <div id="map" class="microsite-gallery" style="margin-top: 15px">
             <div style="margin-bottom: 40px">
-              <h4>BẢN ĐỒ</h4>
+              <strong style="font-size: 20px">BẢN ĐỒ</strong>
                <a v-if="storeOpen[0].lat" class="direction-button" :href="'http://maps.google.com/maps?z=8&t=m&q=loc:' + storeOpen[0].lat + '+' + storeOpen[0].long" target="_blank" >
-                <i class="fas fa-directions"></i> Đường đi
+                <i class="fas fa-directions"></i> Xem trên GoogleMap
               </a>
             </div>
-            <GoogleMap v-if="storeOpen[0].lat" v-bind:lat="storeOpen[0].lat" v-bind:lng="storeOpen[0].long"/>
+            <!-- <GoogleMap v-if="storeOpen[0].lat" v-bind:lat="storeOpen[0].lat" v-bind:lng="storeOpen[0].long"/> -->
+            <TestMap v-if="storeOpen[0].lat" v-bind:lat="storeOpen[0].lat" v-bind:lng="storeOpen[0].long" v-bind:storeName="storeOpen[0].storeName"/>
             <div id="map"></div>
         </div>
         <!-- <div id="realtive" class="microsite-gallery" style="margin-top: 15px; overflow:visible">
@@ -214,7 +215,7 @@
          
             <div id="map"></div>
         </div> -->
-           <RelativeStore id="relative" v-if="storeOpen[0]"  v-bind:bussinessTypeID="storeOpen[0].businessTypeID" />
+           <RelativeStore id="relative" v-if="storeOpen[0]"  v-bind:bussinessTypeID="storeOpen[0].businessTypeID"  v-bind:storeID="storeOpen[0].storeID"/>
       </div>
     </div>
   </div>
@@ -233,6 +234,9 @@ import Comments from '../comments/comments';
 import Footer from '../footer/Footer'
 import StoreService from '@/services/StoreService.js';
 import DiscountService from '@/services/DiscountService.js';
+
+//tesst
+import TestMap from '../homepage/testMap2.vue'
 
 export default {
   name: 'storeDetail',
@@ -287,9 +291,15 @@ export default {
     GoogleMap,
     Comments,
     Footer,
-    RelativeStore
+    RelativeStore,
+    TestMap
   },
-methods:{
+  computed:{
+    formatRate(){
+      return Math.ceil(this.storeRate*100)/100;
+    }
+  },
+  methods:{
     // getType(index){
     //   this.$http.get(baseUrl +'/BusinessType/GetByID?id='+ index).then(response =>{
     //     this.businessTypeName = response.data[0].businessTypeName })
@@ -370,7 +380,6 @@ methods:{
         this.storeMenu = await StoreService.getDishByStore(this.storeID);
         this.businessTypeName = await StoreService.getBussinessTypeById(this.storeOpen[0].businessTypeID);
         this.getDisCount(this.storeID,this.storeMenu);
-       
       }
       catch{}
     },
@@ -411,8 +420,6 @@ methods:{
 
 <style scoped>
 @import url('../../../assets/css/style-1.css');
-/* @import url('../../../assets/css/comments.css'); */
-
 #map {
   height: 100%;
 }

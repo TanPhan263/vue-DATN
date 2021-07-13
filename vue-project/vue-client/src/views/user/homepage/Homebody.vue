@@ -1,7 +1,7 @@
 <template>
 <div class="main" :style="'margin-bottom:' + margin +'px;'">
    <vueper-slides 
-      style="width: 85%;margin: 0 auto; margin-top:20px;background-color:#f6f6f6;"
+      style="width: 90%;margin: 0 auto; margin-top:20px;background-color:#f6f6f6;"
       fixed-height="230px"
       class="no-shadow"
       :visible-slides="4"
@@ -11,7 +11,7 @@
       :slide-ratio="1 / 4"
       :dragging-distance="200"
       :breakpoints="{ 800: { visibleSlides: 2, slideMultiple: 2 } }">
-      <vueper-slide style="border-radius:10px;" v-for="(slide, i) in discount" :key="i" :image="slide.discountTypePicture"  @click.native="getDiscountStore(slide.discountTypeID,slide.discountTypeName)"  />
+      <vueper-slide style="border-radius:7px;" v-for="(slide, i) in discount" :key="i" :image="slide.discountTypePicture"  @click.native="getDiscountStore(slide.discountTypeID,slide.discountTypeName)"  />
     </vueper-slides>
     <transition v-if="active">
 		<div class="modal-mask">
@@ -53,14 +53,6 @@
 			</div>
 			</div>
 		</transition>
-     <!-- <transition v-if="loading">
-       	<div class="modal-mask">
-          <div class="loading" >
-            <span class="fas fa-circle-notch fa-spin"></span>
-          </div>
-         </div>
-    </transition> -->
-
    <div class="ship">
 	  <div  class="menu-ship">
         <div class="hero">
@@ -295,14 +287,13 @@ export default {
         }
       },
       created(){
-          this.$root.$refs.Homebody = this;
-          this.onInit();
-          this.$http.get(baseUrl + 'Dish/GetAll').then(response => {
-              this.dishes = response.data;
-              let x = Math.floor(Math.random()*(this.dishes.length-10))
-              console.log(x);
-              this.dishes = this.dishes.slice(119,129);
-          })
+        this.$root.$refs.Homebody = this;
+        this.onInit();
+        this.$http.get(baseUrl + 'Dish/GetAll').then(response => {
+            this.dishes = response.data;
+            let x = Math.floor(Math.random()*(this.dishes.length-10))
+            this.dishes = this.dishes.slice(119,129);
+        })
       },
       mounted(){
       },
@@ -315,8 +306,10 @@ export default {
             this.provinceID = id;
             if(sessionStorage.getItem('place')){
               let tempplace = JSON.parse(sessionStorage.getItem('place'));
-              this.stores = await StoreService.getByProvince_distance(id,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
-              this.rates = await StoreService.getByProvince_distance(id,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
+              // this.stores = await StoreService.getByProvince_distance(id,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
+              // this.rates = await StoreService.getByProvince_distance(id,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
+              this.stores = await StoreService.getByProvince_distance(id,tempplace.lat,tempplace.lng);
+              this.rates = await StoreService.getByProvince_distance(id,tempplace.lat,tempplace.lng);
             }
             else{
               this.stores = await StoreService.getByProvince(id)
@@ -325,7 +318,6 @@ export default {
              this.rates.sort(function compare( a, b ) {
                 return parseFloat(b.ratePoint) - parseFloat(a.ratePoint);
             });
-            console.log(this.type); 
             this.nearest = this.stores.slice(0,12);
             this.rates = this.rates.slice(0,12);
             this.show = false;
@@ -351,6 +343,8 @@ export default {
         },
         async changePlace(lat,long){
           try{
+            this.loadMoreList =[];
+            this.index=0;
             var id = localStorage.getItem('provinceId');
             this.stores = await StoreService.getByProvince_distance(id, lat,long);
             this.rates = await StoreService.getByProvince_distance(id,lat,long);
@@ -412,6 +406,12 @@ export default {
         this.discountName = name;
         this.active=true;
         this.discountStore = await DiscountService.getStore(id)
+        this.discountStore = this.discountStore.filter(function(item){
+          return parseFloat(item.khoangcach) <= 5;
+        })
+        this.discountStore.sort(function(a,b){
+          return parseFloat(a.khoangcach) - parseFloat(b.khoangcach);
+        })
         this.loadingDiscount = false;
       },
       getActiveTime(open,close){

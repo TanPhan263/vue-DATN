@@ -3,8 +3,8 @@
      <div @click="chat=!chat" class="message"><i class="fa fa-envelope"></i>
       </div>
       <transition >
-        <div v-show="chat" class="chat">
-          <Chat/>
+        <div v-show="chat" class="chat-area">
+          <Chat v-bind:isOpen="chat"/>
         </div>
       </transition>
       <div class="member-top">
@@ -67,9 +67,6 @@ export default {
    },
    methods:{
       openChat(storeID,storeName,storePicture,storeOwner){
-        // this.storeID = storeID;
-        // this.storeName = storeName;
-        // this.storePicture = storePicture;
         this.chat = true;
         this.$root.$refs.chatUser.createInbox(storeID,storeName,storePicture,storeOwner);
       },
@@ -202,10 +199,10 @@ export default {
   color: white;
   font-size: 30px;
 }
-.chat{
+.chat-area{
   z-index: 2;
   height: 450px;
-  width: 940px;
+  width: 970px;
   position: fixed;
   bottom: 0;
   right: 0;
@@ -218,4 +215,5 @@ export default {
   bottom: 0;
   right: 0;
 }
+
 </style>

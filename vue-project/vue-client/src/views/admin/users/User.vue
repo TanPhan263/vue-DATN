@@ -17,7 +17,7 @@
                 <CButton style="margin-right: 20px"  @click="unblockAccount()" class="btn_left" type="submit" size="sm" color="warning"><CIcon name="cil-check-circle"/>Bỏ chặn</CButton>
             </div>
           </div>
-        </div>
+      </div>
     </CCol>
        <CCol md="6">
         <CCard>
@@ -95,7 +95,7 @@
                     margin-left: auto;
                     margin-right: auto;
                     width: 40%;"
-                    :v-lazy="picture"
+                    v-lazy="picture"
                 />
                 </div>
                </div>
@@ -117,6 +117,7 @@
               justify-content: center;
               align-items: center;">
             <CButtonGroup  size="sm">
+             <CButton @click="openChat" color="info">Nhắn tin</CButton>
               <CButton v-if="status === '2'" @click="unblockAccount()" color="danger">Bỏ chặn</CButton>
               <CButton @click="blockAccount()" v-else color="danger">Chặn</CButton>
             </CButtonGroup>
@@ -129,6 +130,45 @@
           </CCardFooter>
         </CCard>
       </CCol>
+      <CCol md="12">
+      <CCard>
+        <CCardHeader >
+            <strong  style="font-size: 28px">Quán đang quản lý</strong>
+            <CInput style="float:right"
+                v-model="keyword"
+                placeholder="Tìm quán"
+                v-on:keyup="onChange(keyword)"
+              />
+            </CCardHeader>
+          <CCardBody>
+          <CDataTable
+            class="mb-0 table-outline"
+            hover
+            border
+            striped
+            small
+            fixed
+            :items="result"
+            :fields="fields"
+            :items-per-page="5"
+            clickable-rows
+            :active-page="activePage"
+            @row-clicked="rowClicked"
+            :pagination="{ doubleArrows: false, align: 'center'}"
+            @page-change="pageChange"
+          >
+            <template #status="data">
+              <td>
+                <CBadge :color="getBadge(data.item.status)">
+                  {{data.item.status}}
+                </CBadge>
+              </td>
+            </template>
+          </CDataTable>
+        </CCardBody>
+      </CCard>
+      </CCol>
+       <ChatAdmin style="display: none"/>
     </CRow>
 </template>
             
@@ -137,8 +177,13 @@ import axios from 'axios';
 import firebase from '@/firebase/init.js';
 import UserService from '@/services/UserService.js';
 import AuthService from '@/services/AuthService.js';
+import StoreService from '@/services/StoreService';
+import ChatAdmin from '../chat/chatAdmin.vue'
 export default {
   name: 'User',
+  components:{
+    ChatAdmin
+  },
   beforeRouteEnter(to, from, next) {
     next(vm => {
       AuthService.checkUser(localStorage.getItem('isAuthen'));
@@ -149,6 +194,7 @@ export default {
   },
   data () {
     return {
+        keyword: '',  
         userID: this.userID,
         userTypes: null,
         userID: '',
@@ -163,6 +209,16 @@ export default {
         birthday: '',
         userTypeID: '',
         status: '',
+        items: [],
+        result:[],
+        activePage: 1,
+         fields: [
+        { key: 'storeName', label: 'Tên quán', _classes: 'font-weight-bold' },
+        { key: 'storeAddress', label: 'Địa chỉ', _classes: 'font-weight-bold' },
+        { key: 'openTime', label: 'Giờ mở cửa', _classes: 'font-weight-bold' },
+        { key: 'cLoseTime', label: 'Giờ đóng cửa', _classes: 'font-weight-bold' },
+        { key: 'ratePoint', label: 'Đánh giá', _classes: 'font-weight-bold' },
+      ],
     };
   },
   computed: {
@@ -186,6 +242,8 @@ export default {
       // if(userData[0].status == '1') this.status == false;
       // else this.status = true;
       this.status = userData[0].status;
+      this.items = await StoreService.getByUser(this.userID,token);
+      this.result = this.items;
     },
     goBack() {
       this.usersOpened ? this.$router.go(-1) : this.$router.push({path: '/users'})
@@ -193,68 +251,86 @@ export default {
       previewImage(event){
           this.picture=null;
           this.imageData= event.target.files[0];
-        },
-        onUpload(){
-          if(this.imageData != null){
-          const storageRef = firebase.storage().ref(`image/${this.imageData.name}`).put(this.imageData);
-          storageRef.on(`state_change`, snapshot => {
-            this.uploadValue=(snapshot.bytesTransfered/snapshot.totalBytes)*100;
-          },error =>{console.log(error.message)},
-          ()=> {
-            this.uploadValue=100;
-            storageRef.snapshot.ref.getDownloadURL().then((url) => {
-              this.picture=url;
-               this.update();
-              })
-            }
-          )
+      },
+      onUpload(){
+        if(this.imageData != null){
+        const storageRef = firebase.storage().ref(`image/${this.imageData.name}`).put(this.imageData);
+        storageRef.on(`state_change`, snapshot => {
+          this.uploadValue=(snapshot.bytesTransfered/snapshot.totalBytes)*100;
+        },error =>{console.log(error.message)},
+        ()=> {
+          this.uploadValue=100;
+          storageRef.snapshot.ref.getDownloadURL().then((url) => {
+            this.picture=url;
+              this.update();
+            })
           }
-          else{ this.update();}
-        },
-        update(){
-          const id = this.$route.params.id;
-          const credentials = {
-          userName: this.userName,
-          phone: this.phone,
-          address: this.address,
-          email: this.email,
-          picture: this.picture,
-          sex: this.sex,
-          birthday: this.birthday,
-          userTypeID: this.userTypeID,
-          status : this.status.toString()
-          };
-          console.log(this.status);
-          axios.post("https://api.viefood.info/api/User/EditByID?id=" + id, credentials ,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{ 
-            alert(respone.data)})
-        },
-        async deleteAccount(){
-          const response = await UserService.delete(this.userID,localStorage.getItem('isAuthen'))
-          alert(response);
-        },
-        async confirmAccount(){
-          const id = this.$route.params.id;
-          const response =  await UserService.block(localStorage.getItem('isAuthen'), id, '1');
-          alert(response);
-          this.onInit();
-        },
-        async unblockAccount(){
-          const id = this.$route.params.id;
-          const response = await UserService.block(localStorage.getItem('isAuthen'), id, '1');
-          alert(response);
-          this.onInit();
-        },
-        async blockAccount(){
-          const id = this.$route.params.id;
-          const response = await UserService.block(localStorage.getItem('isAuthen'), id, '2');
-          alert(response);
-          this.onInit();
+        )
         }
-  },
-   mounted(){
+        else{ this.update();}
+      },
+      update(){
+        const id = this.$route.params.id;
+        const credentials = {
+        userName: this.userName,
+        phone: this.phone,
+        address: this.address,
+        email: this.email,
+        picture: this.picture,
+        sex: this.sex,
+        birthday: this.birthday,
+        userTypeID: this.userTypeID,
+        status : this.status.toString()
+        };
+        console.log(this.status);
+        axios.post("https://api.viefood.info/api/User/EditByID?id=" + id, credentials ,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{ 
+          alert(respone.data)})
+      },
+      async deleteAccount(){
+        const response = await UserService.delete(this.userID,localStorage.getItem('isAuthen'))
+        alert(response);
+      },
+      async confirmAccount(){
+        const id = this.$route.params.id;
+        const response =  await UserService.block(localStorage.getItem('isAuthen'), id, '1');
+        alert(response);
+        this.onInit();
+      },
+      async unblockAccount(){
+        const id = this.$route.params.id;
+        const response = await UserService.block(localStorage.getItem('isAuthen'), id, '1');
+        alert(response);
+        this.onInit();
+      },
+      async blockAccount(){
+        const id = this.$route.params.id;
+        const response = await UserService.block(localStorage.getItem('isAuthen'), id, '2');
+        alert(response);
+        this.onInit();
+      },
+      openChat(){
+      this.$router.push('/manage/chats')
+      this.$root.$refs.chatAdmin.createInbox(this.userID, this.userName, this.picture,'none');
+      },
+      onChange(key){
+      if(key == '' || key == null)
+        return this.result = this.items;
+      else {
+        this.result = this.items.filter(function(item){
+        return item.storeName.toLowerCase().includes(key.toLowerCase());
+      })
+      console.log(this.result)}
+      },
+      rowClicked (item) {
+       this.$router.push({path: `/manage/store/${item.storeID}`})
+      },
+      pageChange (val) {
+        this.$router.push({ query: { page: val }})
+      },
+    },
+    mounted(){
       this.onInit();
-  }
-  
+  } 
 }
 </script>
 <style>

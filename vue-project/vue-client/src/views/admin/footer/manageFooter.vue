@@ -52,7 +52,7 @@
               </td>
               <td>
                  <CButtonGroup style="float:left" size="sm">
-                  <CButton @click="isLogo=false,onUpload()" color="success">Add</CButton>
+                  <CButton @click="isLogo=false,isBanner=false,onUpload()" color="success">Add</CButton>
                   <CButton color="danger">Cancle</CButton>
                 </CButtonGroup>
               </td>
@@ -61,24 +61,41 @@
         </table>   
         </div>
       </div>
-
-      <h3 class="header-h3">Footer information</h3>
-      <h4>Logo</h4>
-      <div style="margin-left: 5px">
-        <img
-          :src="logo"
-          class="img-thumbnail"
-          alt="..."
-          style="height: 200px;width:320px; margin-bottom:10px"
-        />
+      <div class="row col-12">
+      <div class="col-5">
+        <h4>Logo</h4>
         <div>
-        <input type="file" @change="previewImage" style="margin-bottom: 20px">
-        <CButton @click="isLogo=true,onUpload()" color="primary">Save</CButton>
+          <img
+            :src="logo"
+            class="img-thumbnail"
+            alt="..."
+            style="height: 200px;width:320px; margin-bottom:10px"
+          />
+          <div>
+            <input type="file" @change="previewImage" style="margin-bottom: 20px">
+            <CButton @click="isLogo=true,isBanner= false,onUpload()" color="primary">Save</CButton>
+          </div>
         </div>
       </div>
-      
+      <div class="col-7" style="float:right">
+        <h4>Banner</h4>
+        <div >
+          <img
+            :src="banner"
+            class="img-thumbnail"
+            alt="..."
+            style="height: 200px;width:100%; margin-bottom:10px"
+          />
+          <div>
+          <input type="file" @change="previewImage" style="margin-bottom: 20px">
+          <CButton @click="isBanner=true,isLogo=false,onUpload()" color="primary">Save</CButton>
+          </div>
+          </div>
+        </div>
+      </div>
       <div class="row">
         <div class="col-12">
+          <h3 class="header-h3">Footer information</h3>
         <table class="table table-image"  style="width: 100%">
           <thead>
             <tr>
@@ -228,7 +245,7 @@
                   </td>
                 </tr>
                 </tbody>
-                </table>
+            </table>
         </div>
     </div>
     </div>
@@ -254,6 +271,9 @@ export default {
         socialLink:'',
         companyInfo:[],
         logo:'',
+        isLogo:false,
+        banner:'',
+        isBanner:false,
         lable: '',
         content:'',
         categories:[],
@@ -262,7 +282,6 @@ export default {
         childcategories:[],
         childName:'',
         childLink:'',
-        isLogo:false,
         collapse:''
       }
   },
@@ -273,27 +292,47 @@ export default {
     onInit(){
       this.getSocial();
       this.getLogo();
+      this.getBanner();
       this.getCompanyInfo();
       this.getCategory();
     },
     getLogo(){
-     const socialRef = firebase.database().ref("Footer/logo/");
-            socialRef.on("value", snapshot => {
-            let data = snapshot.val();
-            if(data){
-              let logo = [];
-              Object.keys(data).forEach(key => {
-                    logo.push({
-                      id: key,
-                      picture: data[key].picture,
-                    });
+        const socialRef = firebase.database().ref("Footer/logo/");
+        socialRef.on("value", snapshot => {
+        let data = snapshot.val();
+        if(data){
+          let logo = [];
+          Object.keys(data).forEach(key => {
+                logo.push({
+                  id: key,
+                  picture: data[key].picture,
                 });
-                this.logo = logo[0].picture;
-            }
-            else{
-             this.logo='';
-            }
+            });
+            this.logo = logo[0].picture;
+        }
+        else{
+          this.logo='';
+        }
+      });
+    },
+    getBanner(){
+      const socialRef = firebase.database().ref("Footer/banner/");
+        socialRef.on("value", snapshot => {
+        let data = snapshot.val();
+        if(data){
+          let banner = [];
+          Object.keys(data).forEach(key => {
+              banner.push({
+                id: key,
+                picture: data[key].picture,
+              });
           });
+          this.banner = banner[0].picture;
+        }
+        else{
+          this.banner='';
+        }
+      });
     },
     getSocial(){
       const socialRef = firebase.database().ref("Footer/socials/");
@@ -548,15 +587,37 @@ export default {
       }
       catch(err){console.log(err)}
     },
+    uploadBanner(picture){
+      try{
+      firebase
+        .database()
+        .ref("Footer/banner/").child('-MeG1i5jAc_PmKUIXPRu')
+        .update({ picture: picture });
+        alert("update thành công");
+      }
+      catch(err){console.log(err)}
+    },
     previewImage(event){
-      this.socialPic=null;
-      this.logo=null;
+      if(this.isLogo)
+        {
+         this.logo=null;
+        }
+        else if(this.isBanner)
+        {
+          this.banner=null;
+        }
+        else this.socialPic = null;
       this.imageData = event.target.files[0];
     },
     onUpload(){
       if(this.imageData == null)
       {
         if(this.isLogo)
+        {
+          alert('Vui lòng chọn hình ảnh');
+          return;
+        }
+        else if(this.isBanner)
         {
           alert('Vui lòng chọn hình ảnh');
           return;
@@ -569,15 +630,23 @@ export default {
       },error =>{console.log(error.message)},
       ()=> {
         storageRef.snapshot.ref.getDownloadURL().then((url) => { 
-        if(this.isLogo)
-        {
-           this.logo=url;
-           this.uploadLogo(url);
-           return;
-        }
-          this.socialPic=url;
-          this.addSocial();
-        })
+          if(this.isLogo && !this.isBanner)
+          {
+            this.logo=url;
+            this.uploadLogo(url);
+            return;
+          }
+          else if(this.isBanner && !this.isLogo)
+          {
+            this.banner=url;
+            this.uploadBanner(url);
+            return;
+          }
+          else if(!this.isLogo && !this.isBanner){
+            this.socialPic=url;
+            this.addSocial();
+          }
+          })
         }
       )
     },

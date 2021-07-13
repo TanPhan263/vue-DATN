@@ -9,13 +9,13 @@
       <CHeaderNavLink >
         <div class="c-avatar">
           <img
-            :src="picture"
-            style="width: 45px; height:40px;border-radius:50%;"
+            v-lazy="picture"
+            style="width: 45px; height:40px;border-radius:50%; border: 1px solid #e6e6e6"
           />
         </div>
       </CHeaderNavLink>
     </template>
-      <div v-if="user">
+    <div v-if="user">
     <CDropdownHeader tag="div" class="text-center" color="light">
       <strong>{{user[0].userName}}</strong>
     </CDropdownHeader>
@@ -27,6 +27,9 @@
     </CDropdownItem>
     <CDropdownItem href="/forgetpass">
       <i class="fa fa-lock dropdownItem" aria-hidden="true"></i> Change password
+    </CDropdownItem>
+    <CDropdownItem @click="openChat" v-if="getRole() === false" >
+      <i class="fas fa-comments"></i> Contact admin
     </CDropdownItem>
     <CDropdownItem @click="logout">
       <i class="fas fa-sign-out-alt dropdownItem"></i> Logout
@@ -44,7 +47,7 @@ export default {
       itemsCount: 30,
       secretMessage: '',
       user:'',
-      picture: "http://dummyimage.com/60x60/666/ffffff&text=No+Image",
+      picture: '',
     };
   },
   props:{
@@ -80,7 +83,10 @@ export default {
     },
     gotoUserInfor(){
       this.$router.push('/userinformation')
-    }
+    },
+    openChat(){
+      this.$root.$refs.Footer.openChat('-M_UX0kqNgaXGTYa2_FJ','Nguyễn Ngọc Đại- Admin','','none');
+    },
   }
 }
 </script>

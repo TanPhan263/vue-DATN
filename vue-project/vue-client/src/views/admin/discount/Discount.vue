@@ -101,7 +101,6 @@
                    	<i @click="removeStoreToDiscount(result.storeID)" class="fa fa-window-close" style=" color: red;float: right; font-size: 20px; margin-bottom: 10px;"></i>
                   </div>
               </div>
-				
 				</div>
 
 				<div class="modal-footer">
@@ -117,10 +116,8 @@
 			</div>
 		</transition>
     <CCol  v-for="(discount,index) in discounts" v-bind:key="index" sm="6" lg="3"  @click="getDeleteDiscount(discount.discountTypeID)" >
-      <CWidgetDropdown style="border:none;height: 170px;border-radius:0px" color="info" :text="discount.discountTypeName"
-      >
+      <CWidgetDropdown class="widget_dropdown" color="info" :text="discount.discountTypeName">
         <template #default>
-         
           <CDropdown
             color="transparent p-0"
             placement="bottom-end">
@@ -133,13 +130,12 @@
           </CDropdown>
         </template>
         <template #footer>
-            <img class="img-discount" v-lazy="discount.discountTypePicture" alt="" height="100">
+            <img class="img-discount" v-lazy="discount.discountTypePicture">
         </template>
       </CWidgetDropdown>
     </CCol>
     <CCol sm="6" lg="3" @click="isCreate()">
-         <CWidgetDropdown style="border:none; border-radius:0px" color="info"
-      >
+         <CWidgetDropdown style="border:none; border-radius:0px" color="info">
         <template #default>
         </template>
         <template #footer>
@@ -321,10 +317,12 @@ export default {
   width:100% /* value of your choice which suits your alignment */
 }
 .img-discount{
-  border-radius: 0px 0px 0px 0px;
+  height: 200px;
 }
 .imgBanner{
-  height: 300px;
   width: 500px;
+}
+.widget_dropdown{height:270px;
+  border:none;border-radius:0px
 }
 </style>

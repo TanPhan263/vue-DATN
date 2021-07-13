@@ -15,6 +15,7 @@
         <i class="fa fa-map-marker" style="color: red; font-size: 20px;text-shadow: 2px 2px 3px #585858;"></i>
         {{places}}</p>
        <button  class="btn_change"  @click="changeMarker">Thay đổi</button>
+     
       <br/>
     </div>
     <br>
@@ -37,14 +38,11 @@ export default {
       //mặc định là UTE
       center: { lat: 10.851170, lng: 106.755493 },
       places: '1 Võ Văn Ngân, Linh Chiểu, Thủ Đức, Thành phố Hồ Chí Minh, Vietnam',
-      currentPlace: null
+      currentPlace: null,
+      key: 'be90ad2514ae23f7307d07142d4d2220',
+      location:'',
     };
   },
-// props:{
-//     place:String,
-//     lat: Number,
-//     lng: Number
-// },
   created() {
    this.$root.$refs.GoogleMapHome = this; 
    this.onInit();
@@ -77,18 +75,39 @@ export default {
       this.$root.$refs.Area.changePlace(this.center.lat,this.center.lng);
     },
     changeMarker() {
-      if (this.currentPlace) {
+      try{
+      if(!this.currentPlace) {
         this.places = this.currentPlace.formatted_address;
         const marker = {
           lat: this.currentPlace.geometry.location.lat(),
           lng: this.currentPlace.geometry.location.lng()
         };
         this.center = marker;
-        // this.reserveGeocode();
         sessionStorage.setItem('place',JSON.stringify(this.currentPlace));
         this.sendPlace(this.currentPlace.formatted_address)
         this.currentPlace = null;
       }
+      }
+      catch{
+        
+      }
+    },
+    changeAddress() {
+      var geocoder = new google.maps.Geocoder();
+      geocoder.geocode( { 'address': this.location}, function(results, status) {
+        if (status == 'OK') {
+          this.place = results[0].formatted_address;
+          const marker = {
+          lat: results[0].geometry.location.lat(),
+          lng: results[0].geometry.location.lng()
+          };  
+          this.center = marker;
+          sessionStorage.setItem('place',JSON.stringify(results[0]));
+          this.sendPlace(results[0].formatted_address);
+        } else {
+          alert('Geocode was not successful for the following reason: ' + status);
+        }
+      });
     },
     // geolocate: function() {
     //   navigator.geolocation.getCurrentPosition(position => {
@@ -137,4 +156,5 @@ export default {
   background:white;
   color: red;
 }
+
 </style>

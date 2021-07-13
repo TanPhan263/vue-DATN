@@ -272,7 +272,7 @@
         </CRow>
       </CCardFooter>
     </CCard>
-    <MangeMenu style="margin-bottom: 20px" v-if="storeChoosed" v-bind:menuID="storeChoosed.storeID"/>
+    <MangeMenu style="margin-bottom: 20px" v-if="storeChoosed" v-bind:menuID="storeID"/>
   </div>
 </template>
 
@@ -426,16 +426,26 @@ export default {
       };
       this.loaded = true;
     },
-    fetchStore(){
-      const url = 'https://api.viefood.info/api/Store/GetAllManage'
-      this.$http.get(url,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
-          this.store = response.data;
-          this.storeChoosed = this.store[0];
-          this.resultStore = this.store;
-          this.storeID = this.store[0].storeID;
-          this.storeName=this.store[0].storeName;
-          this.getComments(this.storeChoosed.storeID);
-      });
+    async fetchStore(){
+      var user = localStorage.getItem('userInfor');
+      user = JSON.parse(user);
+      const token = localStorage.getItem('isAuthen');
+      this.store = await StoreService.getByUser(user.userID,token);
+      this.storeChoosed = this.store[0];
+      this.resultStore = this.store;
+      this.storeID = this.store[0].storeID;
+      this.storeName=this.store[0].storeName;
+      this.getComments(this.storeChoosed.storeID);
+      // const url = 'https://api.viefood.info/api/Store/GetAllManage'
+      // this.$http.get(url,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
+      //     this.store = response.data;
+      //     this.storeChoosed = this.store[0];
+      //     this.resultStore = this.store;
+      //     this.storeID = this.store[0].storeID;
+      //     this.storeName=this.store[0].storeName;
+      //     this.getComments(this.storeChoosed.storeID);
+      // });
+
     },
     onChangeStore(key){
           if(key == '' || key == null)
@@ -453,7 +463,7 @@ export default {
         this.selected = 'Day'
         this.getData_date();
         this.getComments(this.storeChoosed.storeID);
-        this.$root.$refs.MangeMenu.getMenus(this.storeChoosed.storeID);
+        this.$root.$refs.MangeMenu.changeMenus(id);
     },
     openPopup() {
         var popup = document.getElementById("myPopup");

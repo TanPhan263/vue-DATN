@@ -31,7 +31,7 @@
                 </div>
                   <div class="address-store"> <span class="fas fa-utensils"></span>  {{ getType(store.businessTypeID) }}
                    <div v-if="store.ratePoint === 'NaN'" style="color: #585858; float:right;">{{0}} <span class="fa fa-star" style="color: orange"></span></div>
-                  <div v-else style="color: #585858; float:right;">{{Math.ceil(store.ratePoint*100)/100}} <span class="fa fa-star" style="color: orange"></span></div>
+                  <div v-else style="color: #585858; float:right;">{{store.ratePoint}} <span class="fa fa-star" style="color: orange"></span></div>
                   </div>
                 <div class="intro"></div>
               </a>
@@ -69,47 +69,50 @@ export default {
     },
     props:{
         bussinessTypeID: String,
+        storeID: String
     },
     mounted(){
       this.onInit();
     },
     methods: {
-        async onInit(){
-          this.type = await StoreService.getAllBussinessType();
-          this.discount = await DiscountService.getAll();
-          let storeList = await StoreService.getByBussinessType(this.bussinessTypeID);
-          console.log(storeList.length)
-          if(storeList.length > 14){
-            this.viewmore = true;
-            this.stores = storeList.slice(0,14);
-            this.menuWidth = 193 * (this.stores.length + 1);
-
-          }
-          else {
-            this.stores = storeList;
-            this.menuWidth = 200 * (this.stores.length);
-          }
-          console.log(this.menuWidth)
-          this.show = false;
-        },
-        subString(index){
-          return index.toString().substring(0,20);
-        },
-        subString_address(index){
-          return index.toString().substring(0,12);
-        },
-        getType(index){
-          try{
-            var temp='Unknown'
-            this.type.forEach(element => {
-              if(element.businessTypeID == index)
-                temp = element.businessTypeName;
-            });
-            return temp;
-          }
-          catch(err){
-            console.log(err);
-          }
+      async onInit(){
+        let id = this.storeID;
+        this.type = await StoreService.getAllBussinessType();
+        this.discount = await DiscountService.getAll();
+        let storeList = await StoreService.getByBussinessType(this.bussinessTypeID);
+        var storeListRemoveCurr = storeList.filter(function(store){
+          return store.storeID !== id
+        })
+        if(storeListRemoveCurr.length > 14){
+          this.viewmore = true;
+          this.stores = storeListRemoveCurr.slice(0,14);
+          this.menuWidth = 193 * (this.stores.length + 1);
+        }
+        else {
+          this.stores = storeListRemoveCurr;
+          this.menuWidth = 200 * (this.stores.length);
+        }
+        
+        this.show = false;
+      },
+      subString(index){
+        return index.toString().substring(0,20);
+      },
+      subString_address(index){
+        return index.toString().substring(0,12);
+      },
+      getType(index){
+        try{
+          var temp='Unknown'
+          this.type.forEach(element => {
+            if(element.businessTypeID == index)
+              temp = element.businessTypeName;
+          });
+          return temp;
+        }
+        catch(err){
+          console.log(err);
+      }
 		},
 		openPopup(name,id) {
         this.loadingStoreDiscount = true;

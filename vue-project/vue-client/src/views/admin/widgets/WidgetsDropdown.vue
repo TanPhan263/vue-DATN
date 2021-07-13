@@ -221,7 +221,7 @@
                 <CCardBody style="overflow: auto;height: 310px">
                   <div v-for="(item, index) in storePerDistrict" :key="index" class="progress-group">
                     <div class="progress-group-header">
-                      <i class="fas fa-utensils" style="font-size:17px;margin-right: 20px;padding-left: 5px"></i>
+                      <i class="fa fa-map-marker" style="font-size:17px;margin-right: 20px;padding-left: 5px"></i>
                       <span class="title">{{item.districtName}}</span>
                       <span class="ml-auto font-weight-bold">
                         {{item.soQuan}} <span class="text-muted small">({{Math.ceil((item.soQuan/store.length)*100) + '%'}})</span>

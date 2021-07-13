@@ -168,7 +168,11 @@ export default {
 			document.title = this.district[0].districtName;
 			this.type = await StoreService.getAllBussinessType();
 			this.discount = await DiscountService.getAll();
-            this.stores = await StoreService.getByDistrict(id);
+			if(sessionStorage.getItem('place')){
+              let tempplace = JSON.parse(sessionStorage.getItem('place'));
+              this.stores = await StoreService.getByDistrict_distance(id,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
+            }
+            else this.stores = await StoreService.getByDistrict(id);
             console.log(this.stores)
 			this.show = false;
 		},

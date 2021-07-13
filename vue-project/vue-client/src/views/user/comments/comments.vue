@@ -20,26 +20,6 @@
 					  @click="setIndex(index)"
 					/>
 				</div>
-              <!-- <div v-if="dish.image" class="microsite-professional-photo-item">
-				<a >
-                  <img style="width: 200px; height: 150px"
-                    :src="dish.image"
-                  />
-                </a>
-			  </div> -->
-                <!-- <a >
-                  <img style="width: 200px; height: 150px"
-                    :src="dish.image"
-                  />
-                </a>
-              </div>
-			  <div class="zoom" style="z-index: 10">
-                <a >
-                  <img
-                    :src="dish.image"
-                  />
-                </a>
-              </div> -->
             </div>
           </div>
         </div>
@@ -51,15 +31,15 @@
 		</div> 
 		<div class="row" style="margin: 0 auto;">
 			<div class="col-sm-5">
-				<h1 style="font-weight: bold;text-align:center; font-size:55px; margin-bottom:10px;">{{ Math.ceil(averageRate*100)/100}}<p style="font-size: 15px; font-style: italic;" v-if="value">{{commentList.length}} (Tổng số đánh giá)</p></h1>
+				<h1 style="font-weight: bold;text-align:center; font-size:55px; margin-bottom:10px;">{{ formatRate }}<p style="font-size: 15px; font-style: italic;" v-if="value && rateList">{{rateList.length}} (Tổng số đánh giá)</p></h1>
 					<b-form-rating v-model="averageRate" size="lg" variant="warning" class="mb-2" :readonly="true"></b-form-rating>
 			</div>
-				<div class="col-sm-7">
+				<div v-if="rateList" class="col-sm-7">
 					<div class="row" >
 						<p  style="margin-right:5px;font-size: 15px;">5 <CIcon height="20" name="cil-star"/></p>
 						<CProgress
 							style="width:500px"
-							:value="rate5" :max="commentList.length"
+							:value="rate5" :max="rateList.length"
 							color="success"
 							:striped="striped"
 							class="mb-2"
@@ -69,7 +49,7 @@
 						<p  style="margin-right:5px; font-size: 15px;">4 <CIcon height="20" name="cil-star"/></p>
 					<CProgress
 						style="width:500px"
-						:value="rate4" :max="commentList.length"
+						:value="rate4" :max="rateList.length"
 						color="info"
 						:striped="striped"
 						class="mb-2"
@@ -79,7 +59,7 @@
 						<p  style="margin-right:5px; font-size: 15px;">3 <CIcon height="20" name="cil-star"/></p>
 					<CProgress
 						style="width:500px"
-						:value="rate3" :max="commentList.length"
+						:value="rate3" :max="rateList.length"
 						color="warning"
 						:striped="striped"
 						class="mb-2"
@@ -89,7 +69,7 @@
 						<p style="margin-right:5px; font-size: 15px;">2 <CIcon height="20" name="cil-star"/></p>
 					<CProgress
 						style="width:500px"
-						:value="rate2" :max="commentList.length"
+						:value="rate2" :max="rateList.length"
 						color="danger"
 						:striped="striped"
 						class="mb-2"
@@ -99,7 +79,7 @@
 						<p style="margin-right:5px; font-size: 15px;">1 <CIcon height="20" name="cil-star"/></p>
 					<CProgress
 						style="width:500px"
-						:value="rate1" :max="commentList.length"
+						:value="rate1" :max="rateList.length"
 						color="danger"
 						:striped="striped"
 						class="mb-2"
@@ -146,7 +126,7 @@
 					<div class="modal-header" style="background: red; color: white">
 						<slot name="header">
 						<h5>ĐÁNH GIÁ QUÁN ĂN</h5>
-						<i v-on:click="active=false" class="fas fa-times" style="float: right; font-size: 20px;"></i>
+						<i v-on:click="activeEdit=false" class="fas fa-times" style="float: right; font-size: 20px;"></i>
 						</slot>
 					</div>
 
@@ -253,6 +233,7 @@ export default {
 			userCommentParent: [],
 			// commentRate:'',
 			commentList:[],
+			rateList:[],
 			imgs:[],
 			index: null,
 			parentCommentID:'', 
@@ -274,8 +255,14 @@ export default {
 			visble: false
 		}
 	},
+	computed:{
+		formatRate(){
+      		return Math.ceil((parseFloat(this.averageRate)*100))/100; 
+    	}	
+	},
 	props:{
 		storeID: String,
+		storeRate: String
 	},
 	created(){
 		this.getComments();
@@ -289,7 +276,7 @@ export default {
 			this.index = index;
 		},
 		async getUser(){
-		try{
+		 try{
 			if(localStorage.getItem('isAuthen')){
 				let infor = await UserService.getInfo(localStorage.getItem('isAuthen'));
 				if(infor[0] == "Bạn cần đăng nhập"){
@@ -297,7 +284,6 @@ export default {
 					return;
 				}
 				this.user = infor[0];
-				console.log(this.user)
 				return;
 			}
 			this.isLoggedin = false;
@@ -308,32 +294,20 @@ export default {
 		try{
 			this.rate1 = 0; this.rate2 = 0; this.rate3 = 0; this.rate4=0; this.rate5 = 0;
 			this.commentList = await CommentService.getCommentByStore(this.storeID);
-			let rate = 0;
-			this.commentList.forEach(element => {
-					this.imgs.push(element.image);
-					rate+=parseInt(element.ratePoint);
+			this.commentList.forEach(element =>{
+				this.imgs.push(element.image);
+			})
+			this.rateList = await StoreService.getListRate(this.storeID);
+			this.rateList.forEach(element => {
 					switch(parseInt(element.ratePoint)){
 						case 1: this.rate1+=1; break;
 						case 2: this.rate2+=1; break;
 						case 3: this.rate3+=1; break;
 						case 4: this.rate4+=1; break;
 						case 5: this.rate5+=1; break;
-					}
+						}
 					});
-			this.averageRate=rate/this.commentList.length;
-			const response3 = await StoreService.updateRate(this.storeID,this.averageRate);
-			// this.commentList.forEach( element =>{
-			// 	UserService.getUserbyIDnoToken_pic(element.userID).then(x =>
-			// 	{
-			// 		const temp={
-			// 		userName: x.userName,
-			// 		picture: x.picture,
-			// 		commentID: element.commentID
-			// 		}
-			// 		this.userCommentParent.push(temp);
-			// 	});
-			// });
-			// console.log(this.userCommentParent[0])
+			this.averageRate = parseFloat(this.storeRate);
 		}
 		catch(err){console.log(err)}
 		},
@@ -384,6 +358,7 @@ export default {
 					ratePoint: this.rateSubmit.toString(),
 				};
 				const response = await CommentService.submitComment(this.token,comment);
+				this.averageRate = await StoreService.updateRate(this.storeID);
 				console.log(response)
 				this.getComments();
 			}
@@ -391,25 +366,6 @@ export default {
 				console.log(err)
 			}
 		},
-		// async getRate(){
-		// 	try{
-		// 		let rate = 0;
-		// 		this.value= await CommentService.getRateByStore(this.storeID)
-		// 		this.value.forEach(element => {
-		// 				rate+=parseInt(element.ratePoint)
-		// 				switch(parseInt(element.ratePoint)){
-		// 					case 1: this.rate1+=1; break;
-		// 					case 2: this.rate2+=1; break;
-		// 					case 3: this.rate3+=1; break;
-		// 					case 4: this.rate4+=1; break;
-		// 					case 5: this.rate5+=1; break;
-		// 				}
-		// 				});
-		// 		this.averageRate=rate/this.commentList.length;
-		// 	}
-		// 	catch{
-		// 	}
-		// },
 		getParentID(index){
 			this.active=true;
 			this.parentCommentID=index;

@@ -64,7 +64,7 @@
             </div>
           </div>
           <div class="inbox_chat" v-if="result">
-            <div v-for="(cus,index) in result" v-bind:key="index" :class="[roomID === cus.roomID? 'chat_list active_chat':'chat_list']" @click="inboxClicked(cus.id,cus.roomID,cus.seen)">
+            <div v-for="(cus,index) in result" v-bind:key="index" :class="[roomID === cus.roomID? 'chat_list active_chat':'chat_list']" @click="inboxClicked(cus)">
               <div class="chat_people">
                 <div class="chat_img"> <img v-lazy="cus.senderPic" alt="sunil"> </div>
                 <div :class="[cus.seen === 'false'? 'unseen_chat':'chat_ib']">
@@ -170,11 +170,11 @@ export default {
               .push(mess);
             firebase
               .database()
-              .ref("Messages/inboxes/"+ this.ownerID).child(this.storeClickedID).child(this.inboxID)
+              .ref("Messages/inboxes/stores/"+ this.ownerID).child(this.storeClickedID).child(this.inboxID)
               .update({seen:'true',time:today.getTime(),lastMsg:this.message});
             firebase
               .database()
-              .ref("Messages/inboxes/"+ this.inboxID).child(this.storeClickedID)
+              .ref("Messages/inboxes/users/"+ this.inboxID).child(this.storeClickedID)
               .update({seen:'false',time:today.getTime(),lastMsg:this.message});
             this.message = '';
           }
@@ -205,7 +205,7 @@ export default {
                   {
                     firebase
                     .database()
-                    .ref("Messages/inboxes/"+ this.storeClickedID).child(this.inboxID)
+                    .ref("Messages/inboxes/stores/"+ this.ownerID).child(this.storeClickedID).child(this.inboxID)
                     .update({seen: 'true'});
                   }
                 if(this.roomID == messages[0].roomID)
@@ -220,7 +220,7 @@ export default {
       },
       fectchInboxes(id){
         try{
-            firebase.database().ref("Messages/inboxes/" + this.ownerID +"/"+ id).on("value", snapshot => {
+            firebase.database().ref("Messages/inboxes/stores/" + this.ownerID +"/"+ id).on("value", snapshot => {
             if(snapshot.exists())
             {
                 let data = snapshot.val();
@@ -238,8 +238,10 @@ export default {
                     seen: data[key].seen
                   });
                 });
-                this.inboxes = inboxes;
-                this.result= this.inboxes;
+                if(inboxes[0].recipentID == this.storeClickedID){
+                  this.inboxes = inboxes;
+                  this.result= this.inboxes;
+                }
                 if(this.inboxID == ''){
                   this.inboxID = inboxes[0].senderID;
                   this.roomID = inboxes[0].roomID;
@@ -286,23 +288,28 @@ export default {
       }
     },
     storeClicked(id){
+      this.inboxID = '';
+      this.inboxes = [];
+      this.result =[];
       this.messages = [];
       this.storeClickedID = id;
-      this.inboxID = '';
+      this.roomID= '';
       this.fectchInboxes(id);
     },
-    inboxClicked(inboxID, roomID,seen){
-      this.messages = [];
-      this.inboxID = inboxID;
-      if(seen == 'false' && this.inboxID && this.storeClickedID)
-      {
-        firebase
-        .database()
-        .ref("Messages/inboxes/"+ this.storeClickedID).child(this.inboxID)
-        .update({seen: 'true'});
+    inboxClicked(inbox){
+      if(inbox){
+        this.messages = [];
+        this.inboxID = inbox.id;
+        if(inbox.seen == 'false')
+        {
+          firebase
+          .database()
+          .ref("Messages/inboxes/stores/"+ this.ownerID).child(inbox.recipentID).child(inbox.id)
+          .update({seen: 'true'});
+        }
+        this.roomID = inbox.roomID;
+        this.fetchMessage();
       }
-      this.roomID = roomID;
-      this.fetchMessage();
     },
     getUserName(id){
       if(this.inboxes)
@@ -322,7 +329,8 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+
 @import url('../../../assets/css/chat.css');
 .chat{
   background: white;

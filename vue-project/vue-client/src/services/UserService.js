@@ -3,7 +3,10 @@ const url = 'https://api.viefood.info/api/User/';
 const url2 = 'https://api.viefood.info/api/UserType/';
 export default{
     getInfo(token){
+        try{
         return axios.get(url+ 'GetByID',{ headers: {"Authorization" : `Bearer ${token}`}}).then(respone => respone.data);
+        }
+        catch{}
     },
     updateInfo(credentials,token) {
         return axios
@@ -37,5 +40,8 @@ export default{
     },
     getOnlineUser(){
         return axios.get(url+ 'ThongKeNguoiOnline').then(respone => respone.data);
+    },
+    logOut(id){
+        return axios.post(url +'/Logout?id='+ id).then(response => response.data);
     }
 };

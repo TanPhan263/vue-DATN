@@ -32,7 +32,7 @@ export default {
     CChartLine
   },
   computed: {
-    defaultDatasets () {
+    defaultDatasets() {
       const brandSuccess = getStyle('success2') || '#4dbd74'
       const brandInfo = getStyle('info') || '#20a8d8'
       const brandDanger = getStyle('danger') || '#f86c6b'

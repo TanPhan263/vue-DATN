@@ -54,12 +54,12 @@
 			  </CHeaderNav>
 			</div>
 			<div v-else id="login" class="fl_right">
-				<i  @click="search=true" style="font-size:20px; padding-right: 10px; float:left;color:black; margin-top:8px" class="fa fa-search"/>
+				<!-- <i  @click="search=true" style="font-size:20px; padding-right: 10px; float:left;color:black; margin-top:8px" class="fa fa-search"/> -->
 				<a href="/login" class="button" style="border-radius: 10px;margin-right: 5px;margin-top: 3px;" >Đăng nhập</a>
 				<a  href="/register" class="button" style="border-radius: 10px;margin-right: 5px; width: 90px; text-align:center;">Đăng kí</a>
 			</div>
 		</div>
-		<transition v-if="search">
+		<!-- <transition v-if="search">
 		  <div class="modal-mask">
 				<div class="modal-container2" style="width: 618px;overflow: auto;
                 height: 550px; padding: 5px;"> 
@@ -76,7 +76,7 @@
               	</div>
 				</div>
 		  </div>
-		</transition>
+		</transition> -->
 	</div>
 </template>
 
@@ -108,15 +108,13 @@ data(){
 		isLoggedin: false,
 		logo:'',
 		navItems:[],
-    }
-},
-created(){
+      }
+	},
+	created(){
 	this.getUser();
 	this.getLogo();
 	this.getNavItem();
-},	
-computed:{
-  },
+	},	
   methods:{
 	  getLogo(){
 		  try{
@@ -143,19 +141,19 @@ computed:{
 	  async getUser(){
       try{
         if(localStorage.getItem('isAuthen')){
-          	let infor = await UserService.getInfo(localStorage.getItem('isAuthen'));
-           	if(infor[0] == "Bạn cần đăng nhập"){
+			let infor = await UserService.getInfo(localStorage.getItem('isAuthen'));
+			if(infor[0] == "Bạn cần đăng nhập"){
 				this.isLoggedin = false;
 				AuthService.logout();
 				return;
-          	}
-		 	this.isLoggedin = true;
+			}
+			this.isLoggedin = true;
 			this.user = infor[0];
 			return;
         }
 		this.isLoggedin = false;
       }
-      catch(err){console.log(err)}
+      catch{}
     },
 	getNavItem(){
 		try{

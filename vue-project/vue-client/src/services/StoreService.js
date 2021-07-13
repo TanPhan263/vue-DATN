@@ -9,6 +9,12 @@ const url4= 'https://api.viefood.info/api/DishType';
 const url5= 'https://api.viefood.info/api/Menu';
 const url6= 'https://api.viefood.info/api/DiscountType';
 export default{
+    searchStore(key){
+        return axios.get('https://api.viefood.info/api/Dish/Search?dishname=' + key).then(response => response.data);
+    },
+    searchStore_distance(key,lat,long){
+        return axios.get('https://api.viefood.info/api/Dish/Search?dishname=' + key +'&Lat='+lat+'&Long='+long).then(response => response.data);
+    },
     getAll(){
         return axios.get('https://api.viefood.info/api/Store/GetAll').then(response => response.data);
     },
@@ -64,8 +70,8 @@ export default{
     updateLatLong(store){
         return axios.post(url + '/CreateLatLong',store).then(response => response.data);  
     },
-    updateRate(id, rate){
-        return axios.post(url + '/UpdateRatePoint?id='+ id + '&RatePoint=' + rate).then(response => response.data);
+    updateRate(id){
+        return axios.post(url + '/UpdateRatePoint?id='+ id).then(response => response.data);
     },
     createMenu(){
         return axios.post(url5 + '/CreateMenu').then(response => response.data);
@@ -82,6 +88,9 @@ export default{
     },
     getByBussinessType(id){
         return axios.get('https://api.viefood.info/api/Store/GetByIDBusinessType?id='+ id).then(response => response.data);
+    },
+    getByBussinessType_distance(id,lat, long){
+        return axios.get('https://api.viefood.info/api/Store/GetByIDBusinessType?id='+ id + '&Lat='+lat+'&Long='+long).then(response => response.data);
     },
     getByDistrict(id){
         return axios.get('https://api.viefood.info/api/Store/GetByIDDistrict?id='+ id ).then(response => response.data);
@@ -114,4 +123,7 @@ export default{
           .post(url + '/DeleteByID?id='+ id, [],{ headers: {"Authorization" : `Bearer ${token}`}})
           .then(response => response.data);
     },
+    getListRate(id){
+        return axios.get( url+'/ListRate?id=' + id).then(response => response.data);
+    }
 }
