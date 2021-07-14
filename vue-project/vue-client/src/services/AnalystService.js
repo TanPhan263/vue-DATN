@@ -30,5 +30,12 @@ export default{
     },
     getStorePerBussinessType(){
         return axios.get(url +'/ThongKeTheoBusinessType').then(response => response.data);
+    },
+    getTotalViewOfStore(){
+        return axios.get(url +'/ThongKeView').then(response => response.data);
+    },
+    addVisitView(){
+        return axios.get(url +'/TangViewWebsite').then(response => response.data);
     }
+    
 }

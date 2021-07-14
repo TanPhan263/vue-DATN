@@ -1,79 +1,18 @@
 <template>
     <CRow>
-      <CCol md="6">
-        <CCard>
-          <CCardHeader>
-            <strong>Thông tin tài khoản</strong>
-          </CCardHeader>
-          <CCardBody>
-            <CForm>
-              <CInput
-                label="Id user"
-                placeholder="Disabled"
-                horizontal
-                value=''
-                v-model="id"
-                disabled
-              />
-              <CInput
-                label="Họ tên"
-                value=''
-                horizontal
-                autocomplete="name"
-                 v-model="name"
-              />
-              <CInput
-                label="Địa chỉ"
-                value=''
-                horizontal
-                v-model="address"
-              />
-              <CInput
-                label="Số điện thoại"
-                horizontal
-                value=''
-                v-model="phone"
-              />
-              <CInput
-                label="Ngày sinh"
-                type="text"
-                horizontal
-                :value='birth'
-                v-model="birth"
-              />
-              <CInput
-                label="Email "
-                description="Please enter your email"
-                placeholder="Enter your email"
-                type="email"
-                horizontal
-                autocomplete="email"
-                required
-                was-validated
-                value=''
-                v-model="mail"
-              />
-            </CForm>
-          </CCardBody>
-          <CCardFooter>
-            <CButton v-on:click="update"  class="btn_submit" type="submit" size="sm" color="primary"><CIcon name="cil-check-circle"/> Submit</CButton>
-            <CButton  class="btn_back" type="reset" size="sm" color="danger"><CIcon name="cil-ban"/> Back</CButton>
-          </CCardFooter>
-        </CCard>
-      </CCol>
-      <CCol md="6">
+      <CCol md="4">
         <CCard>
           <CCardBody style="width:100%;">
             <CForm style="width:100%;" class="center_div" >
                 <div class="center_div">
                 <div style="width:100%;" class="profile">
                 <img 
-                    :src="picture"
+                    v-lazy="picture"
                     style="border-radius:50%; height:150px;width:150px;
                     display: block;
                     margin-left: auto;
                     margin-right: auto;
-                    width: 40%;"
+                    width: 60%;"
                 />
                 </div>
                 </div>
@@ -95,6 +34,75 @@
                 <p v-if="uploadValue>0">progress: {{uploadValue.toFixed()+ "%"}}</p>
               </div>
             </div>
+          </CCardFooter>
+        </CCard>
+      </CCol>
+      <CCol md="8">
+        <CCard>
+          <CCardHeader>
+            <strong>Thông tin tài khoản</strong>
+          </CCardHeader>
+          <CCardBody>
+            <CForm>
+              <CRow>
+                <CCol sm="6">
+              <CInput
+                label="Id user"
+                placeholder="Disabled"
+                value=''
+                v-model="id"
+                disabled
+              />
+                </CCol>
+                 <CCol sm="6">
+              <CInput
+                label="Họ tên"
+                value=''
+                autocomplete="name"
+                 v-model="name"
+              />
+                 </CCol>
+              </CRow>
+              <CInput
+                label="Địa chỉ"
+                value=''
+                v-model="address"
+              />
+                <CRow>
+                <CCol sm="4">
+              <CInput
+                label="Số điện thoại"
+                value=''
+                v-model="phone"
+              />
+                </CCol>
+                 <CCol sm="8">
+              <CInput
+                label="Ngày sinh"
+                type="text"
+              
+                :value='birth'
+                v-model="birth"
+              />
+                 </CCol>
+                </CRow>
+              <CInput
+                label="Email "
+                description="Please enter your email"
+                placeholder="Enter your email"
+                type="email"
+              
+                autocomplete="email"
+                required
+                was-validated
+                value=''
+                v-model="mail"
+              />
+            </CForm>
+          </CCardBody>
+          <CCardFooter>
+            <CButton v-on:click="update"  class="btn_submit" type="submit" size="sm" color="primary"><CIcon name="cil-check-circle"/> Submit</CButton>
+            <CButton class="btn_back" type="reset" size="sm" color="danger"><CIcon name="cil-ban"/> Back</CButton>
           </CCardFooter>
         </CCard>
       </CCol>
@@ -203,10 +211,10 @@ export default {
     margin: 0 auto; 
 }
 .btn_submit{
-  margin-right: 255px;
   width:100px;
 }
 .btn_back{
+  float:right;
   width: 100px;
 }
 .profile{

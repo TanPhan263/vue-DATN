@@ -26,6 +26,16 @@ export default [
       // },
       {
         _name: 'CSidebarNavTitle',
+        _children: ['Tin nhắn']
+      },
+      {
+        _name: 'CSidebarNavItem',
+        name: 'Tin nhắn',
+        icon: 'cil-envelope-closed',
+        to: '/manage/chats'
+      },
+      {
+        _name: 'CSidebarNavTitle',
         _children: ['Quản lý']
       },
       {
@@ -71,15 +81,11 @@ export default [
         to: '/manage/navbar'
       },
       {
-        _name: 'CSidebarNavTitle',
-        _children: ['Tin nhắn']
-      },
-      {
         _name: 'CSidebarNavItem',
-        name: 'Tin nhắn',
-        icon: 'cil-envelope-closed',
-        to: '/manage/chats'
-      }
+        name: 'HereMap',
+        icon: 'cil-puzzle',
+        to: '/manage/heremap'
+      },
     ]
   }
 ]

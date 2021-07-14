@@ -26,6 +26,16 @@ export default [
       // },
       {
         _name: 'CSidebarNavTitle',
+        _children: ['Tin nhắn']
+      },
+      {
+        _name: 'CSidebarNavItem',
+        name: 'Tin nhắn',
+        icon: 'cil-envelope-closed',
+        to: '/manage/message/'
+      },
+      {
+        _name: 'CSidebarNavTitle',
         _children: ['QUẢN LÝ']
       },
       {
@@ -34,16 +44,6 @@ export default [
         icon: 'cil-puzzle',
         to: '/manage/managestores'
       },
-      {
-        _name: 'CSidebarNavTitle',
-        _children: ['Tin nhắn']
-      },
-      {
-        _name: 'CSidebarNavItem',
-        name: 'Tin nhắn',
-        icon: 'cil-envelope-closed',
-        to: '/manage/message/'
-      }
     ]
   }
 ]

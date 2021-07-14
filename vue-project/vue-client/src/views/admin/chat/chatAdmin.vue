@@ -340,7 +340,6 @@ export default {
         this.fectchInboxes(this.admin.adminID);
         if(typeof respone[0].picture != 'undefined')
         this.admin.adminPic = respone[0].picture;
-        console.log(this.admin.adminPic)
         this.fetchMessage();
       }
       else{

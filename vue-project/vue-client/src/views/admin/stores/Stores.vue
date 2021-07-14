@@ -1,5 +1,104 @@
 <template>
   <CRow>
+    <CModal
+      title="Thêm Quán"
+      :show.sync="primaryModal"
+      color="primary"
+      @update:show="closeModal"
+    >
+    <CRow>
+       <CCol sm="7">
+    <CInput
+      label="Tên Quán"
+      v-model ="storeName"
+    />
+   </CCol>
+  <CCol sm="5">
+    <p style="margin-right:10px;">Chủ quán</p>
+    <select v-if="users"
+          id="storeOwner"
+          class="country fl_left selectBox"
+          vertical
+          v-model="storeOwner"
+          placeholder="Chủ quán"
+          >
+          <option v-for="(user, index) in users" v-bind:key="index" :value="user.userID">
+              {{user.userName}}
+          </option>
+    </select>
+  </CCol>
+    </CRow>
+    <CInput
+      label="Địa chỉ"
+    v-model="storeAddress"
+  />
+  <CRow>
+    <CCol sm="6">
+    <p>Tỉnh</p>
+    <select
+        id="province"
+        class="country fl_left selectBox"
+        vertical
+        v-model="provinceSelected"
+        @change="getDistrict(provinceSelected)"
+        placeholder="chọn tỉnh"
+        >
+        <option v-for="(province,index) in provinces" v-bind:key="index" :value="province.provinceID">
+            {{province.provinceName}}
+        </option>
+    </select>
+    </CCol>
+    <CCol sm="6">
+    <p>Quận/huyện</p>
+    <select
+        id="district"
+        class="country fl_left selectBox"
+        vertical
+        v-model="districSelected"
+        placeholder="chọn quận/huyện"
+        >
+        <option v-for="(district,index) in districts" v-bind:key="index" :value="district.districtID">
+            {{district.districtName}}
+        </option>
+    </select>
+    </CCol>
+  </CRow>
+  <CRow>
+    <CCol sm="6">
+  <CInput
+      label="Open time"
+    v-model="openTime"
+      placeholder="07:00"
+  />
+    </CCol>
+     <CCol sm="6">
+    <CInput
+      label="Close time"
+    v-model="closeTime"
+    placeholder="21:30"
+  />
+     </CCol>
+  </CRow> 
+  <p>Loại Quán</p>
+  <select
+      id="province"
+      class="country fl_left selectBox"
+      vertical
+      v-model="businessTypeSelected"
+      placeholder="Loại món ăn"
+      >
+      <option >Loại quán</option>
+      <option v-for="(business,index) in businessTypes" v-bind:key="index" :value="business.businessTypeID">
+          {{business.businessTypeName}}
+      </option>
+  </select>
+  <CRow>
+    <CCol>
+      <p>Hình đại diện quán</p>
+      <input type="file"  @change="previewImage">
+    </CCol>
+  </CRow>
+  </CModal>
     <CCol >
       <CCard class="center_div">
         <CCardHeader>
@@ -11,8 +110,7 @@
                       placeholder="Tìm quán"
                       v-on:keyup="onChange(keyword)"
               />
-           
-           <transition v-if="active" >
+           <!-- <transition v-if="active" >
               <div class="modal-mask">
               <div class="modal-wrapper"  >
                 <div class="modal-container" style="width: 600px;
@@ -31,11 +129,6 @@
                     label="Tên Quán"
                       v-model ="storeName"
                     />
-                    <!-- <CInput
-                    label="Chủ quán"
-                      v-model ="storeOwner"
-                      placeholder="Nhập ID chủ quán"
-                    /> -->
                     <div class="row" style="margin-left: 0px;">
                       <p style="margin-right:10px;">Chủ quán</p>
                       <select v-if="users"
@@ -109,7 +202,7 @@
                 </div>
               </div>
               </div>
-            </transition>
+            </transition> -->
         </CCardHeader>
         <CCardBody>
           <CDataTable
@@ -163,6 +256,7 @@ export default {
   name: 'Stores',
   data () {
     return {
+      primaryModal: false,
       users: [],
       keyword: '',
       result: null,
@@ -173,6 +267,8 @@ export default {
         }
       ],
       provinceSelected: '',
+      districts:[],
+      districSelected:'',
       businessTypes:[
         {
           businessTypeID: String,
@@ -249,6 +345,9 @@ export default {
     async getProvince(){
       this.provinces = await ProvinceService.getAll();
     },
+     async getDistrict(id){
+      this.districts = await ProvinceService.getDistrictByID(id);
+    },
     async getBussinessType(){
       this.businessTypes = await StoreService.getAllBussinessType();
     },
@@ -263,6 +362,7 @@ export default {
         cLoseTime: this.closeTime,
         userID: this.storeOwner,
         provinceID: this.provinceSelected,
+        districtID: this.districSelected,
         menuID: response.toString(),
         businessTypeID: this.businessTypeSelected,
         ratePoint: '0',
@@ -283,15 +383,29 @@ export default {
       console.log(this.result)}
     },
     async openAddStore(){
-        this.active=true;
-        this.users = await UserService.getAll(localStorage.getItem('isAuthen'));
+        // this.active=true;
+      this.storeAddress = ''
+      this.storeName = ''
+      this.storePicture = ''
+      this.openTime = ''
+      this.closeTime = ''
+      this.storeOwner = ''
+      this.provinceSelected = ''
+      this.districSelected = ''
+      this.businessTypeSelected = ''
+      this.primaryModal = true;
+      this.users = await UserService.getAll(localStorage.getItem('isAuthen'));
     },
     onInit(){
       this.$http.get(url,{ headers: {'Content-Type': 'application/json' ,"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
               this.items = response.data;
               this.result= this.items;
       }); 
-    }
+    },
+    closeModal(status, evt, accept) { if (accept) { 
+      this.onUpload();
+      } 
+    },
   },
   mounted() {
     this.onInit();
@@ -307,6 +421,6 @@ export default {
   width:100% /* value of your choice which suits your alignment */
 }
 .selectBox{
-  width:490px;height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-bottom: 10px;
+  width:100%;height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-bottom: 10px;margin-top: -11px;
 }
 </style>

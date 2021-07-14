@@ -1,10 +1,87 @@
 <template>
   <CRow>
+    <CModal
+      title="Thêm người dùng"
+      :show.sync="primaryModal"
+      color="primary"
+      @update:show="closeModal"
+    >
+    <CRow>
+      <CCol sm="8">
+    <CInput
+    label="Tên User "
+      v-model ="userName"
+    />
+      </CCol>
+       <CCol sm="4">
+      <p>Quyền</p>
+      <select
+          id="usertype"
+          style="width:100%;height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-bottom: 10px;margin-top: -10px;"
+          class="country fl_left"
+          vertical
+          v-model="userTypeID"
+          placeholder="chọn tỉnh"
+          >
+          <option v-for="userType in userTypes" v-bind:key="userType.userTypeID" :value="userType.userTypeID">
+              {{userType.userTypeName}}
+          </option>
+      </select>
+      </CCol>
+    </CRow>
+    <CInput
+        label="Địa chỉ"
+      v-model="userAddress"
+    />
+      <CInput
+        label="Mật khẩu"
+      v-model="password"
+    />
+    <CRow>
+      <CCol sm="4">
+      <CInput
+        label="Giới tính"
+      v-model="sex"
+    />
+      </CCol>
+       <CCol sm="8">
+    <CInput
+        label="Ngày sinh"
+      v-model="birthday"
+    />
+       </CCol>
+    </CRow>
+    <CRow>
+      <CCol sm="6">
+      <CInput
+        label="Số điện thoại"
+      v-model="userPhone"
+    />
+      </CCol>
+       <CCol sm="6">
+    <CInput
+      label="Email "
+      description="Please enter your email"
+      placeholder="Enter your email"
+      type="email"
+      autocomplete="email"
+      required
+      was-validated
+      value=''
+      v-model="email"
+    />
+       </CCol>
+    </CRow>
+    <CCol sm="12">
+    <p>Hình đại diện</p>
+    <input type="file"  @change="previewImage">
+    </CCol>
+    </CModal>
     <CCol>
       <CCard class="center_div">
         <CCardHeader>
             <strong style="font-size: 25px;">Quản lý người dùng</strong>
-            <CButton @click="active=true" style="margin-left: 20px; height: 35px; float: right" color="primary" >Thêm User</CButton>
+            <CButton @click="openModal" style="margin-left: 20px; height: 35px; float: right" color="primary" >Thêm User</CButton>
             <CInput
             style="float: right"
                       v-model="keyword"
@@ -12,7 +89,7 @@
                       v-on:keyup="onChange(keyword)"
               />
           
-           <transition v-if="active" >
+           <!-- <transition v-if="active" >
               <div class="modal-mask">
               <div class="modal-wrapper"  >
                 <div class="modal-container" style="width: 600px;
@@ -95,7 +172,7 @@
                 </div>
               </div>
               </div>
-            </transition>
+            </transition> -->
         </CCardHeader>
         <CCardBody>
           <CDataTable
@@ -145,6 +222,7 @@ export default {
   name: 'Users',
   data () {
     return {
+      primaryModal: false,
       keyword: null,
       items: null ,
       result: null,
@@ -250,8 +328,23 @@ export default {
         return item.userName.toLowerCase().includes(key.toLowerCase());
       })
       console.log(this.result)}
-    }
-
+    },
+    openModal(){
+        this.userName = '';
+        this.userPhone = '';
+        this.userAddress = '';
+        this.password = '';
+        this.email = '';
+        this.picture = '';
+        this.sex = '';
+        this.birthday = '';
+        this.userTypeID = '';
+        this.primaryModal = true;
+    },
+     closeModal(status, evt, accept) { if (accept) { 
+      this.onUpload();
+      } 
+    },
   },
   mounted() {
     this.onInit();

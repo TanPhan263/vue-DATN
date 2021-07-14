@@ -29,6 +29,7 @@ const inforUser = () => import('@/views/admin/inforUser/update')
 const Navbar = () => import('@/views/admin/navbar/navBar')
 const Provinces = () => import('@/views/admin/provinces/manageProvince')
 const Footer = () => import('@/views/admin/footer/manageFooter')
+const HereMapApiKey = () => import('@/views/admin/hereMap/HereMapApiKey')
 //Homepage
 const Homepage = () => import('@/views/user/homepage/HomePage') 
 const Area = () => import('@/views/user/homepage/Area') 
@@ -174,6 +175,11 @@ function configRoutes () {
           path: 'footer',
           name: 'footer',
           component: Footer,
+        },
+        {
+          path: 'heremap',
+          name: 'heremap',
+          component: HereMapApiKey,
         },
         {
           path: 'update',

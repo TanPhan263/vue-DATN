@@ -81,119 +81,11 @@
 			</div>
 			</div>
 		</transition>
-
-    <CCol col="12" lg="6">
-      <CCard>
-        <CCardHeader style="font-weight: bold;">
-          THÔNG TIN QUÁN
-        </CCardHeader>
-         <CCardBody>
-            <CForm>
-              <CInput
-                label="Store ID"
-                horizontal
-                :value ="storeID"
-                disabled
-              />
-              <CInput
-                label="Tên quán"
-                horizontal
-                autocomplete="name"
-                v-model="storeName"
-              />
-              <!-- <CInput
-                label="Chủ quán"
-                horizontal
-                autocomplete="name"
-                :value="storeOwnerName.userName"
-              /> -->
-             
-              <div class="row" style="margin-left: 0px;">
-                <p style="margin-right:10px;">Chủ quán</p>
-                <select v-if="users"
-                      id="storeOwner"
-                      style="width:72%;height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-bottom: 10px; margin-left: 48px"
-                      class="country fl_left"
-                      vertical
-                      v-model="storeOwner"
-                      placeholder="Chủ quán"
-                      >
-                      <option v-for="(user, index) in users" v-bind:key="index" :value="user.userID">
-                          {{user.userName}}
-                      </option>
-                </select>
-               </div>
-                <p style="color:red" v-if="storeOwnerName.status === '-1'"> Tài khoản hiện chưa được xác nhận! <a :href="'/manage/users/'+storeOwnerName.userID"><strong>Đi đến tài khoản</strong></a></p>
-              <CInput
-                label="Địa chỉ"
-                horizontal
-                v-model="storeAddress"
-              ></CInput>
-              <CInput
-                label="Giờ mở cửa"
-                horizontal
-                v-model="openTime"
-              />
-               <CInput
-               
-                label="Giờ đóng cửa"
-                horizontal
-                v-model="closeTime"
-              />
-              <!-- <CInput
-             
-                label="Loại hình quán"
-                horizontal
-                v-model="storeStype"
-              /> -->
-               <div class="row" style="margin-left: 0px;">
-                <p style="margin-right:42px;"> Loại</p>
-                <select
-                      id="storeType"
-                      style="width:72%;height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-bottom: 10px; margin-left: 48px"
-                      class="country fl_left"
-                      vertical
-                      v-model="storeStype"
-                      placeholder="Địa điểm"
-                      >
-                      <option v-for="busi in bussinessType" v-bind:key="busi.businessTypeID" :value="busi.businessTypeID">
-                          {{busi.businessTypeName}}
-                      </option>
-                  </select>
-               </div>
-               <CInput
-              disabled
-                label="Rating"
-                horizontal
-               v-model="storeRate"
-              />
-            
-            </CForm>
-          </CCardBody>
-          <CCardHeader style="margin-top: -20px;font-weight: bold;">
-          KINH ĐỘ VÀ VĨ ĐỘ CỦA QUÁN <div @click="active= !active" style="width: 30px; height: 30px; border: 2px solid black; border-radius: 50%; float: right;"><i style="margin-left: 7px;margin-top: 3px;  font-size: 20px;" class="fa fa-question"></i></div>
-        </CCardHeader>
-         <CCardBody>
-            <CForm>
-              <CInput
-                label="Longtitude"
-                horizontal
-                v-model="storeLat"
-              ></CInput>
-              <CInput
-                label="Latitude"
-                horizontal
-                v-model="storeLong"
-              ></CInput>
-            </CForm>
-          </CCardBody>
-      </CCard>
-    </CCol>
-    <CCol md="6">
+    <CCol md="4">
       <CCard>
         <CCardHeader style="font-weight: bold;">
           <CIcon name="cil-justify-center"/>
-          <strong> Hình ảnh của cửa hàng</strong>
+          <strong> Hình ảnh đại diện cửa hàng</strong>
         </CCardHeader>
         <CCardBody>
           <CCarousel
@@ -206,8 +98,11 @@
               :image="storePicture"
             />
           </CCarousel>
-        </CCardBody>
-        <CCardFooter>
+           <CCol>
+            <input id="files" type="file"  @change="previewImage">
+          </CCOL>
+        
+         <h4 style="text-align: center; height: 50px"> {{storeName}}</h4>
           <CCardBody style="display: flex;
               justify-content: center;
               align-items: center;">
@@ -217,10 +112,8 @@
               <CButton @click="banStore" v-else color="danger">Chặn</CButton>
             </CButtonGroup>
             </CCardBody>
-           <div class="row">
-            <label for="files" class="btn">Select Image</label>
-            <input id="files" type="file"  @change="previewImage">
-          </div>
+        </CCardBody>
+        <CCardFooter>
           <CRow form class="form-group" style="float:right;">
             <CButton class="btn_left" color="danger" @click="goBack">Back</CButton>
            </CRow>
@@ -230,6 +123,119 @@
         </CCardFooter>
       </CCard>
     </CCol>
+    <CCol col="12" lg="8">
+      <CCard>
+        <CCardHeader style="font-weight: bold;">
+          THÔNG TIN QUÁN
+        </CCardHeader>
+         <CCardBody>
+            <CForm>
+              <CRow>
+                <CCol sm="4">
+              <CInput
+                label="Store ID"
+                :value ="storeID"
+                disabled
+              />
+                </CCol>
+                <CCol sm="8">
+              <CInput
+                label="Tên quán"
+                autocomplete="name"
+                v-model="storeName"
+              />
+                </CCol>
+              </CRow>
+             <CRow style="margin-bottom: 20px">
+               <CCol sm="6">
+                <p>Chủ quán</p>
+                <select v-if="users"
+                      id="storeOwner"
+                      style="width:100%;height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-top: -10px"
+                      class="country fl_left"
+                      vertical
+                      v-model="storeOwner"
+                      placeholder="Chủ quán"
+                      >
+                      <option v-for="(user, index) in users" v-bind:key="index" :value="user.userID">
+                          {{user.userName}}
+                      </option>
+                </select>
+                <p style="color:red" v-if="storeOwnerName.status === '-1'"> Tài khoản hiện chưa được xác nhận! <a :href="'/manage/users/'+storeOwnerName.userID"><strong>Đi đến tài khoản</strong></a></p>
+               </CCol>
+                <CCol sm="6">
+                <p> Loại</p>
+                <select
+                      id="storeType"
+                      style="width:100%;height:35px;border-radius:4px; border: 1px solid #D3D3D3;margin-top: -10px;"
+                      class="country fl_left"
+                      vertical
+                      v-model="storeStype"
+                      placeholder="Địa điểm"
+                      >
+                      <option v-for="busi in bussinessType" v-bind:key="busi.businessTypeID" :value="busi.businessTypeID">
+                          {{busi.businessTypeName}}
+                      </option>
+                  </select>
+                </CCol>
+             </CRow>
+             <CInput
+                label="Địa chỉ"
+                v-model="storeAddress"
+              ></CInput>
+              <CRow>
+                 <CCol sm="4">
+              <CInput
+                label="Giờ mở cửa"
+                v-model="openTime"
+              />
+                 </CCol>
+                  <CCol sm="4">
+               <CInput
+                label="Giờ đóng cửa"
+                v-model="closeTime"
+              />
+                  </CCol>
+              <!-- <CInput
+             
+                label="Loại hình quán"
+                horizontal
+                v-model="storeStype"
+              /> -->
+               <CCol sm="4">
+               <CInput
+              disabled
+                label="Rating"
+               v-model="storeRate"
+              />
+               </CCol>
+              </CRow>
+            </CForm>
+          </CCardBody>
+          <CCardHeader style="margin-top: -20px;font-weight: bold;">
+          KINH ĐỘ VÀ VĨ ĐỘ CỦA QUÁN <div @click="active= !active" style="width: 30px; height: 30px; border: 2px solid black; border-radius: 50%; float: right;"><i style="margin-left: 5px;margin-top: 3px;  font-size: 20px;" class="fa fa-question"></i></div>
+        </CCardHeader>
+         <CCardBody>
+            <CForm>
+              <CRow>
+                <CCol sm="6">
+              <CInput
+                label="Longtitude"
+                v-model="storeLat"
+              ></CInput>
+                </CCol>
+                 <CCol sm="6">
+              <CInput
+                label="Latitude"
+                v-model="storeLong"
+              ></CInput>
+                 </CCol>
+              </CRow>
+            </CForm>
+          </CCardBody>
+      </CCard>
+    </CCol>
+    
 
     <!-- <CCol col="12" lg="6">
       <CCard>
@@ -460,7 +466,6 @@ export default {
     },
     async getComments(index){
 			try{
-        console.log(index);
 				this.commentList = await CommentService.getCommentByStore(index);
 			}
 			catch{}

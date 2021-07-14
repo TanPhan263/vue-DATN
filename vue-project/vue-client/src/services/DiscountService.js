@@ -1,7 +1,7 @@
 import axios from 'axios';
 const urlDiscountType='https://api.viefood.info/api/DiscountType';
-const urlDiscount='https://api.viefood.info/api/Discount'
-const urlDiscountDish='https://api.viefood.info/api/DiscountDish'
+const urlDiscount='https://api.viefood.info/api/Discount';
+const urlDiscountDish='https://api.viefood.info/api/DiscountDish';
 export default{
     //DiscountType
     getAll(){
@@ -17,7 +17,7 @@ export default{
         return axios.post(urlDiscountType +'/Create',discount,{ headers: {"Authorization" : `Bearer ${token}`}}).then(response => response.data);
     },
     deleteDiscount(id,token){
-       return axios.post(urlDiscountType+'/DeleteByID?id='+id).then(response => response.data);
+       return axios.post(urlDiscountType+'/DeleteByID?id='+id, [],{ headers: {"Authorization" : `Bearer ${token}`}}).then(response => response.data);
     },
     //Discount
     getStore(id){

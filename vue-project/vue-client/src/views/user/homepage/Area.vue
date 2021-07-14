@@ -3,7 +3,7 @@
     <div style="margin-left: 20px" class="section">
       <ul> 
           <li><h1 style="font-size:1.7em; text-align: center">Khu vực</h1></li>
-          <li  v-for="(district, index) in districts" v-bind:key="index"><a @click=" districtClicked(district.districtID)" :class="[districtID === district.districtID? 'active':'']"> {{district.districtName}}</a></li>
+          <li  v-for="(district, index) in districts" v-bind:key="index"><a @click="districtClicked(district.districtID)" :class="[districtID === district.districtID? 'active':'']"> {{district.districtName}}</a></li>
       </ul>
     </div>
     <div class="artical">
@@ -11,7 +11,7 @@
           <ul v-if="!show">
             <li v-for="(store, index ) in stores" v-bind:key="index">
               <div v-if="store.discount === true" class="top-left">
-                  <div class="popup"  @click="openPopup('area'+ store.storeID,store.storeID)"
+                  <div class="popup" @click="openPopup('area'+ store.storeID,store.storeID)"
                   @mouseleave="closePopup('area'+ store.storeID)">
                       <span class="fa-stack fa-lg">
                           <i class="fa fa-certificate fa-stack-2x"></i>
@@ -30,8 +30,8 @@
                   <div class="middle">
                   <div class="text" style="background: #ff6666 ">Xem quán</div>
                   </div>
-                <div class="name-food">{{ subStringName(store.storeName)}}...</div>
-                <div class="address-store"><i class="fa fa-map-marker"  style="color: red"></i>  {{ subString(store.storeAddress) }}...
+                <div class="name-food">{{ subStringName(store.storeName)}}</div>
+                <div class="address-store"><i class="fa fa-map-marker"  style="color: red"></i>  {{ subString(store.storeAddress) }}
                 <div style="color: black; float:right;">{{store.khoangcach}} km</div></div>
                   <div class="address-store"> <span class="fas fa-utensils"></span>  {{ getType(store.businessTypeID) }}
                    <div v-if="store.ratePoint === 'NaN'" style="color: #585858; float:right;">{{0}} <span class="fa fa-star" style="color: orange"></span></div>
@@ -96,10 +96,14 @@ export default {
         return temp;
         },
         subString(index){
-          return index.toString().substring(0,13);
+           if(index.length>17)
+            return index.toString().substring(0,17)+'...';
+          return index;
         },
         subStringName(index){
-          return index.toString().substring(0,20);
+          if(index.length>20)
+            return index.toString().substring(0,20)+'...';
+          return index;
         },
         getType(index){
           var temp='Unknown'
@@ -120,7 +124,10 @@ export default {
               //this.stores = await StoreService.getByDistrict_distance(this.districtID,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
                this.stores = await StoreService.getByDistrict_distance(this.districtID,tempplace.lat,tempplace.lng);
             }
-            else this.stores = await StoreService.getByDistrict(this.districtID)
+            else this.stores = await StoreService.getByDistrict(this.districtID);
+            this.stores.sort(function(a,b){
+              return parseFloat(a.khoangcach) - parseFloat(b.khoangcach);
+            })
             this.stores = this.stores.slice(0,15);
             this.show = false;
           }
@@ -134,7 +141,10 @@ export default {
               let tempplace = JSON.parse(sessionStorage.getItem('place'));
               this.stores = await StoreService.getByDistrict_distance(this.districtID,tempplace.lat,tempplace.lng);
           }
-          else this.stores = await StoreService.getByDistrict(this.districtID)
+          else this.stores = await StoreService.getByDistrict(this.districtID);
+          this.stores.sort(function(a,b){
+              return parseFloat(a.khoangcach) - parseFloat(b.khoangcach);
+            })
           this.stores = this.stores.slice(0,15);
           this.show=false;
           }

@@ -73,7 +73,7 @@
 				</a>
 			</li>
           </ul>
-		  <ul v-else style="text-align: center;"><img src="../../../assets/imgs/wrong.jpg" style="width:60%; margin-bottom: 50px" alt=""></ul>
+		  <ul v-else style="text-align: center;"><img src="../../../assets/imgs/wrong.jpg" style="width:100%;" alt=""></ul>
         </div>
 		<div v-show="show"  class="slider">
 			<Loading v-bind:storeNumber="18"/>
@@ -92,6 +92,7 @@
 <script>
 import StoreService from '@/services/StoreService.js';
 import DiscountService from '@/services/DiscountService.js';
+import AnalystService from '@/services/AnalystService.js';
 import Loading from './Loading.vue';
 const customLabels = {
     first: '<<',
@@ -136,6 +137,7 @@ export default {
 	},
 	mounted(){
 		this.onInit();
+		AnalystService.addVisitView();
 	},
 	methods:{
 		onChangePage(pageOfItems){

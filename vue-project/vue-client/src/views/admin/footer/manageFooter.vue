@@ -541,7 +541,6 @@ export default {
     },
     updateCompanyInfo(id,lable,content){
        try{
-       console.log(id,lable,content)
        firebase
             .database()
             .ref("Footer/companyinfo/"+ id)

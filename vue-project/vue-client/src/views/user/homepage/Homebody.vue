@@ -1,17 +1,24 @@
 <template>
 <div class="main" :style="'margin-bottom:' + margin +'px;'">
    <vueper-slides 
-      style="width: 90%;margin: 0 auto; margin-top:20px;background-color:#f6f6f6;"
+      style="width: 90%;margin: 0 auto; margin-top:20px;background-color:#f6f6f6; z-index: 1;"
       fixed-height="230px"
       class="no-shadow"
-      :visible-slides="4"
+      :visible-slides="3"
       slide-multiple
       :gap="3"
-      :bullets="false"
-      :slide-ratio="1 / 4"
+      :bullets="true"
+      :slide-ratio="1 / 3"
       :dragging-distance="200"
+      :infinite="false"
       :breakpoints="{ 800: { visibleSlides: 2, slideMultiple: 2 } }">
-      <vueper-slide style="border-radius:7px;" v-for="(slide, i) in discount" :key="i" :image="slide.discountTypePicture"  @click.native="getDiscountStore(slide.discountTypeID,slide.discountTypeName)"  />
+       <template v-slot:arrow-left>
+      <i class="fas fa-arrow-circle-left arrow"></i>
+      </template>
+      <template v-slot:arrow-right>
+      <i class="fas fa-arrow-circle-right arrow"></i>
+      </template>
+      <vueper-slide style="border-radius:7px;" v-for="(slide, i) in discount" :key="i" :image="slide.discountTypePicture"  @click.native="getDiscountStore(slide.discountTypeID,slide.discountTypeName,slide.discountTypePicture)"  />
     </vueper-slides>
     <transition v-if="active">
 		<div class="modal-mask">
@@ -19,21 +26,25 @@
 				<div class="modal-container">
 				<div class="modal-header">
 					<slot name="header">
-					<h4>{{discountName}}</h4>
-           <i @click="active=false" class="fas fa-times" style="padding: 3px;float: right; font-size: 23px;"></i>
+					<strong style="font-size: 20px">{{discountName}}</strong>
+           <i @click="active=false" class="fas fa-times" style="padding: 3px;float: right; font-size: 20px;"></i>
 					</slot>
 				</div>
-				<div class="modal-body">
+				<div class="modal-body" style="overflow-x: hidden">
+        <img v-lazy="discountImg" alt="" style="width: 100%;margin-bottom: 20px">
+        <h4>Các cửa hàng gần đây</h4>
 					<slot name="body" v-if="!loadingDiscount">
               <div v-on:click="storeClicked(result.storeID)" href="" class="search_suggest" v-for="result in discountStore" v-bind:key="result.storeID" style="
-                text-align: left; display: flex; border-bottom: 1px solid darkgray;cursor: pointer;padding: 4px 45px 4px 10px;">
-                  <img v-lazy="result.storePicture" class="left-thing" style="border-radius:5px;">
+                text-align: left; display: flex; border-bottom: 1px solid #e6e6e6;cursor: pointer;padding: 10px 45px 10px 0px;height: 120px;	border-radius:0px;" >
+                  <div class="left-thing" style="width:20%">
+                    <img v-lazy="result.storePicture" style="border-radius:5px;width:100%">
+                  </div>
                   <div class="middle-thing" style="margin-left: 3px; height: 100%;">
-                    <p style="margin-top: 0px; height: 15%; font-size: 14px; font-weight: bold;">{{result.storeName}}</p>
-                    <p style="margin-top: 0px;">{{result.storeAddress}}</p>
+                    <p style="margin-top: 0px; height: 15%; font-size: 16px; font-weight: bold;">{{result.storeName}}</p>
+                    <p style="font-size: 14px;margin-top: 0px;">{{result.storeAddress}}</p>
                   </div>
                  <div v-if="getActiveTime(result.openTime,result.cLoseTime)" class="right-thing">
-                    <p style="font-size: 12px;margin-top: 0px; height: 15%; color:green;">Đang hoạt động <span class="dot"></span></p>
+                    <p style="font-size: 13px;margin-top: 0px; height: 15%; color:green;">Đang hoạt động <span class="dot"></span></p>
                     <p style="color: #585858;" >{{result.khoangcach}} km</p>
                   </div>
                   <div v-else class="right-thing">
@@ -66,7 +77,7 @@
             <img v-lazy="dish.dishPicture" style="border-radius:10px 10px 10px 10px; width:102px; height:90px;cursor: pointer;"/>
           </a>
           <div @click="dishClicked(dish.dishName)" style="margin: 0 auto;text-align:center; background-color:#f6f6f6; width: 80px; padding-bottom: 20px;"> 
-                <p style="margin-top: 3px; font-size:15px; font-weight:bold; word-break:keep-all;">{{dish.dishName}}</p></div>
+              <p style="margin-top: 3px; font-size:17px; font-weight:bold; word-break:keep-all;">{{dish.dishName}}</p></div>
           </li>
         </ul>
     </div>
@@ -111,8 +122,8 @@
               <div class="middle">
               <div class="text" style="background: #ff6666 ">Xem quán</div>
               </div>
-              <div class="name-food">{{ subStringName(store.storeName)}}...</div>
-              <div class="address-store"><i class="fa fa-map-marker" style="color: red"></i>{{ subString(store.storeAddress) }}...
+              <div class="name-food">{{ subStringName(store.storeName)}}</div>
+              <div class="address-store"><i class="fa fa-map-marker" style="color: red"></i>{{ subString(store.storeAddress) }}
               <div style="color: black; float:right;">{{store.khoangcach}} km</div>
               </div>
                 <div class="address-store"> <span class="fas fa-utensils"></span> {{ getType(store.businessTypeID) }}
@@ -164,8 +175,8 @@
               <div class="middle">
               <div class="text" style="background: #ff6666 ">Xem quán</div>
               </div>
-              <div class="name-food"> {{ subStringName(store.storeName)}}...</div>
-              <div class="address-store"><i class="fa fa-map-marker"  style="color: red"></i>  {{ subString(store.storeAddress) }}...
+              <div class="name-food"> {{ subStringName(store.storeName)}}</div>
+              <div class="address-store"><i class="fa fa-map-marker"  style="color: red"></i>  {{ subString(store.storeAddress) }}
               <div style="color: black; float:right;">{{store.khoangcach}} km</div></div>
                 <div class="address-store"> <span class="fas fa-utensils"></span>  {{ getType(store.businessTypeID) }}
                  <div v-if="store.ratePoint === 'NaN'" style="color: #585858; float:right;">{{0}} <span class="fa fa-star" style="color: orange"></span></div>
@@ -218,8 +229,8 @@
               <div class="middle">
               <div class="text" style="background: #ff6666 ">Xem quán</div>
               </div>
-                <div class="name-food">{{ subStringName(store.storeName) }}...</div>
-                <div class="address-store"> <i class="fa fa-map-marker"  style="color: red"></i> {{ subString(store.storeAddress) }}...
+                <div class="name-food">{{ subStringName(store.storeName) }}</div>
+                <div class="address-store"> <i class="fa fa-map-marker"  style="color: red"></i> {{ subString(store.storeAddress) }}
                   <div style="color: #585858; float:right;">{{store.khoangcach}} km</div>
                 </div>
                   <div class="address-store"> <span class="fas fa-utensils"></span>  {{ getType(store.businessTypeID) }}
@@ -255,6 +266,7 @@ import Area from './Area.vue';
 import Loading from './Loading.vue';
 const baseUrl='https://api.viefood.info/api/'
 import DiscountService from '@/services/DiscountService.js'
+import AnalystService from '@/services/AnalystService.js'
 
 export default {
     name: 'Homebody',
@@ -281,6 +293,7 @@ export default {
           discountStore: [],
           show: true,
           discountName:'',
+          discountImg:'',
           discountList:[],
           currDiscount:'',
           clicked: false,
@@ -296,6 +309,7 @@ export default {
         })
       },
       mounted(){
+        AnalystService.addVisitView();
       },
       methods:{
         async onInit(){
@@ -309,13 +323,16 @@ export default {
               // this.stores = await StoreService.getByProvince_distance(id,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
               // this.rates = await StoreService.getByProvince_distance(id,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
               this.stores = await StoreService.getByProvince_distance(id,tempplace.lat,tempplace.lng);
-              this.rates = await StoreService.getByProvince_distance(id,tempplace.lat,tempplace.lng);
+              // this.rates = await StoreService.getByProvince_distance(id,tempplace.lat,tempplace.lng);
             }
             else{
               this.stores = await StoreService.getByProvince(id)
-              this.rates = await StoreService.getByProvince(id);
+              // this.rates = await StoreService.getByProvince(id);
             }
-             this.rates.sort(function compare( a, b ) {
+            this.rates = this.stores.filter(function compare(store) {
+                return parseFloat(store.ratePoint) > 4;
+            });
+            this.rates.sort(function compare( a, b ) {
                 return parseFloat(b.ratePoint) - parseFloat(a.ratePoint);
             });
             this.nearest = this.stores.slice(0,12);
@@ -347,7 +364,9 @@ export default {
             this.index=0;
             var id = localStorage.getItem('provinceId');
             this.stores = await StoreService.getByProvince_distance(id, lat,long);
-            this.rates = await StoreService.getByProvince_distance(id,lat,long);
+            this.rates = this.stores.filter(function compare(store) {
+                return parseFloat(store.ratePoint) > 4;
+            });
             this.rates.sort(function compare( a, b ) {
                 return parseFloat(b.ratePoint) - parseFloat(a.ratePoint);
             });
@@ -370,10 +389,14 @@ export default {
           catch(err){console.log(err)}
         },
         subString(index){
-          return index.toString().substring(0,13);
+          if(index.length>17)
+            return index.toString().substring(0,17)+'...';
+          return index;
         },
         subStringName(index){
-          return index.toString().substring(0,20);
+          if(index.length>20)
+            return index.toString().substring(0,20)+'...';
+          return index;
         },
       loadMore(){
         try{
@@ -401,9 +424,10 @@ export default {
       viewMore(id){
         this.$router.push('/viewmore?key=' + id).catch(()=>{});
       },
-      async getDiscountStore(id,name){
+      async getDiscountStore(id,name,img){
         this.loadingDiscount = true;
         this.discountName = name;
+        this.discountImg = img;
         this.active=true;
         this.discountStore = await DiscountService.getStore(id)
         this.discountStore = this.discountStore.filter(function(item){
@@ -514,5 +538,8 @@ export default {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+.arrow{
+  font-size: 40px;
 }
 </style>

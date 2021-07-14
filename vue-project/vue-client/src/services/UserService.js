@@ -42,6 +42,6 @@ export default{
         return axios.get(url+ 'ThongKeNguoiOnline').then(respone => respone.data);
     },
     logOut(id){
-        return axios.post(url +'/Logout?id='+ id).then(response => response.data);
+        return axios.post(url +'Logout?id='+ id).then(response => response.data);
     }
 };

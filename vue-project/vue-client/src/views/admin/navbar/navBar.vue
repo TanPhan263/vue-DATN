@@ -17,7 +17,7 @@
       <CCardBody>
         <CNav>
           <div v-for="(nav,index) in navItems" v-bind:key="index">
-          <CNavItem :class="'navItems ' + [updateId === nav.navId? 'activeNav':'']" >{{nav.lable}}
+          <CNavItem :class="'navItems ' + [updateId === nav.navId? 'activeNav':'']" > {{nav.lable}}
             <i @click="updateId = nav.navId, updateName = nav.lable" class="fas fa-edit"></i>	<i @click="deleteNavItem(nav.navId)" class="fa fa-window-close"></i>
            </CNavItem>
              </div>
@@ -134,14 +134,15 @@ import StoreService from '@/services/StoreService.js'
              this.navItems =[];
             }
           });
-    },
+      },
     },
 }
 </script>
 
 <style>
 .navItems{
-  border: steelblue 2px solid;
+  border: none;
+  background: lightblue;
   margin: 0 10px 0 0;
 }
 .selectBox{
@@ -156,8 +157,7 @@ height:35px;border-radius:4px; border: 1px solid #D3D3D3; float: right;
   width: 100%;
 }
 .activeNav{
-  background: steelblue;
-  color:white;
-  font-size: 15px;
+  border: steelblue 2px solid;
+  font-weight: bold;
 }
 </style>

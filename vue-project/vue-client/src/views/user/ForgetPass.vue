@@ -102,6 +102,7 @@
 import axios from 'axios';
 import Navbar from './navBar/Navbar'
 import Footer from './footer/Footer'
+import AnalystService from '@/services/AnalystService.js';
 export default {
   beforeRouteEnter (to, from, next) {
     document.title = 'Đổi mật khẩu';
@@ -124,8 +125,10 @@ export default {
           page2: false,
         }
     },
-
- methods: {
+  mounted(){
+    AnalystService.addVisitView();
+  },
+  methods: {
     validator(val) {
       return val ? val.length >= 4 : false
     },

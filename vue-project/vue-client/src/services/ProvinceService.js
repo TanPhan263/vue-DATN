@@ -3,7 +3,7 @@ const url = 'https://api.viefood.info/api/Province';
 const url2 = 'https://api.viefood.info/api/District';
 export default{
     getAll(){
-        return axios.get( url +'/GetAll').then(response => response.data);
+        return axios.get( url +'/GetAllProvinceHaveStore').then(response => response.data);
     },
     getAllDistrict(){
         return axios.get( url2 +'/GetAll').then(response => response.data);

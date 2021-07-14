@@ -58,6 +58,7 @@
 import RouterService from '@/services/RouterService.js';
 import StoreService from '@/services/StoreService.js';
 import BussinessTypeService from '@/services/BussinessTypeService.js';
+import AnalystService from '@/services/AnalystService.js';
 import DiscountService from '@/services/DiscountService.js';
 import Loading from './Loading.vue';
 const customLabels = {
@@ -104,6 +105,7 @@ export default {
 	},
 	mounted(){
 		this.onInit();
+		AnalystService.addVisitView();
 	},
 	props:{
 		categoryID: String,

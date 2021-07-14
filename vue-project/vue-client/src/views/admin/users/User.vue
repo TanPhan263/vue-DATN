@@ -19,71 +19,7 @@
           </div>
       </div>
     </CCol>
-       <CCol md="6">
-        <CCard>
-          <CCardHeader>
-            <strong>Thông tin người dùng</strong>
-          </CCardHeader>
-          <CCardBody>
-            <CForm>
-              <CInput
-                label="Id user"
-                disabled
-                horizontal
-                :value="userID"
-              />
-              <CInput
-                label="Họ tên"
-                horizontal
-                autocomplete="name"
-                v-model="userName"
-              />
-              <CInput
-                label="Địa chỉ"
-               
-                horizontal
-                v-model="address"
-              ></CInput>
-              <CInput
-            
-                label="Số điện thoại"
-                horizontal
-                v-model="phone"
-              />
-              <CInput
-                label="Ngày sinh"
-                horizontal
-                v-model="birthday"
-              />
-              <div class="row">
-              <p class="select-lable">Quyền</p>
-                <select
-                    id="usertype"
-                    style="height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-bottom: 10px; margin-left: 70px;"
-                    class="country fl_left selectbox"
-                    vertical
-                    v-model="userTypeID"
-                    >
-                    <option v-for="userType in userTypes" v-bind:key="userType.userTypeID" :value="userType.userTypeID">
-                        {{userType.userTypeName}}
-                    </option>
-                </select>
-                </div>
-              <CInput
-                label="Email "
-                placeholder="Enter your email"
-                type="email"
-                horizontal
-                autocomplete="email"
-                required
-                was-validated
-               v-model="email"
-              />
-            </CForm>
-          </CCardBody>
-        </CCard>
-      </CCol>
-      <CCol md="6">
+     <CCol md="4">
         <CCard>
           <CCardBody style="width:100%;">
             <CForm style="width:100%;" class="center_div">
@@ -94,13 +30,16 @@
                     display: block;
                     margin-left: auto;
                     margin-right: auto;
-                    width: 40%;"
+                    width: 60%;"
                     v-lazy="picture"
                 />
                 </div>
                </div>
               <CCardHeader style="text-align:center; height: 50px;">
-              </CCardHeader>             
+              </CCardHeader>    
+                <CCardHeader style="text-align:center; height: 50px;">
+                <h4>{{userName}}</h4>
+              </CCardHeader>               
             <!-- <CRow form class="form-group" @click="status=!status" style="margin-top:20px;">
              <h5> Ban account </h5>
               <CSwitch 
@@ -130,6 +69,79 @@
           </CCardFooter>
         </CCard>
       </CCol>
+       <CCol md="8">
+        <CCard>
+          <CCardHeader>
+            <strong>Thông tin người dùng</strong>
+          </CCardHeader>
+          <CCardBody>
+            <CForm>
+              <CRow>
+                <CCol sm="4">
+                <CInput
+                  label="Id user"
+                  disabled
+                  :value="userID"
+                />
+                </CCol>
+                <CCol sm="8">
+                <CInput
+                  label="Họ tên"
+                  autocomplete="name"
+                  v-model="userName"
+                />
+                </CCol>
+              </CRow>
+              <CInput
+                label="Địa chỉ"
+                v-model="address"
+              ></CInput>
+                <CRow>
+                  <CCol sm="6">
+              <CInput
+                label="Số điện thoại"
+                v-model="phone"
+              />
+              </CCol>
+              <CCol sm="6">
+              <CInput
+                label="Ngày sinh"
+                v-model="birthday"
+              />
+                </CCol>
+                 </CRow>
+                 <CRow>
+                <CCol sm="6">
+                <p>Quyền</p>
+                <select
+                    id="usertype"
+                    style="height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-top: -10px"
+                    class="country fl_left selectbox"
+                    vertical
+                    v-model="userTypeID"
+                    >
+                    <option v-for="userType in userTypes" v-bind:key="userType.userTypeID" :value="userType.userTypeID">
+                        {{userType.userTypeName}}
+                    </option>
+                </select>
+                </CCol>
+             <CCol sm="6">
+              <CInput
+                label="Email "
+                placeholder="Enter your email"
+                type="email"
+                autocomplete="email"
+                required
+                was-validated
+               v-model="email"
+              />
+             </CCol>
+              </CRow>
+            </CForm>
+          </CCardBody>
+        </CCard>
+      </CCol>
+     
       <CCol md="12">
       <CCard>
         <CCardHeader >
@@ -355,11 +367,7 @@ export default {
     background-color:#CD5C5C;
     color: white;
   }
-.select-lable{
-  width: 10%;
-  margin-left: 15px;
-}
 .selectbox{
-  width: 70%;
+  width: 100%;
 }
 </style>

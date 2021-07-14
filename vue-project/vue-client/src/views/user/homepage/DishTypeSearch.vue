@@ -26,6 +26,7 @@
 
 <script>
 import RouterService from '@/services/RouterService.js'
+import AnalystService from '@/services/AnalystService.js';
 const baseUrl='https://api.viefood.info/api/'
 const customLabels = {
     first: '<<',
@@ -54,8 +55,9 @@ export default {
 	},
 	mounted(){
         this.$http.get(baseUrl + 'Dish/GetAll').then(response => {
-                this.dishes = response.data;
-        })
+            this.dishes = response.data;
+        });
+        AnalystService.addVisitView();
 	},
 	methods:{
 		onChangePage(pageOfItems){

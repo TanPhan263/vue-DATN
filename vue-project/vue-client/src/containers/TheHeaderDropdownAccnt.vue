@@ -40,6 +40,7 @@
 
 <script>
 import UserService from '@/services/UserService.js';
+import AuthService from '@/services/AuthService.js';
 export default {
   name: 'TheHeaderDropdownAccnt',
   data() {
@@ -64,9 +65,7 @@ export default {
           this.picture = this.user[0].picture;
     },
     logout() {
-      localStorage.removeItem("userInfor");
-      localStorage.removeItem("isAuthen");
-      this.$router.go();
+      AuthService.logout();
     },
     async created() {
     if (!this.$store.getters.isLoggedIn) {

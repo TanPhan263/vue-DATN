@@ -21,21 +21,21 @@
 				<form action="#" id="searchform" method="#" style="padding:10px;">
 					<div class="search-1 clearfix">
             <div id="vitri" class="vitri" @click="openMap">
-              <i class="fa fa-map-marker" style="color: red; font-size: 35px;text-shadow: 2px 2px 3px #585858;"></i>
+              <i class="fas fa-map-marker" style="color: red; font-size: 35px;text-shadow: 2px 2px 3px #585858;"></i>
               <p style="color:#484848;line-height: 20px;font-size: 18px; font-weight: bold;
                 border-bottom:2px solid #484848;"> {{location}} 
               </p>
             </div>
-            <input v-model="keyword" type="text" placeholder="Tìm kiếm món ăn, quán ăn,..." v-on:keyup.enter="onSearchClicked"  v-on:keyup="onkeychange(keyword)">
+            <input v-model="keyword" type="text" placeholder="Tìm kiếm món ăn, quán ăn,..." v-on:keyup.enter="onSearchClicked">
 						<a @click="onSearchClicked" class="icon-search"><i class="fa fa-search" style=" margin-top: 8px;font-size: 30px;"></i></a>
             <div class="dropdown" v-if="isDropdown" style="margin: 0 auto;">
             <div id="myDropdown" class="dropdown-content" style="width: 618px;
                 height: 550px;
-                overflow: auto; padding: 5px;">
+                overflow-y: auto;overflow-x: hidden; padding: 5px;">
               <div v-show="loading" name="fade" mode="out-in" style="width:100%; background-color: #fff; border-radius:7px;">
                 <div class="lds-facebook"><div></div><div></div><div></div><div></div><div></div></div>
               </div>
-              <div class="col-6" v-if="results && !loading">
+              <div class="col-7" v-if="results && !loading">
                 <Suggest v-bind:results="results" @click-store="storeClicked"/>
               </div>
             </div>
@@ -65,8 +65,6 @@
     <Footer/>
   </div>
 </template>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gmap-vue@1.2.2/dist/gmap-vue.min.js"></script>
 <script>
 import firebase from '@/firebase/init.js';
 import Navbar from '../navBar/Navbar'
@@ -77,11 +75,8 @@ import SearchPage from './SearchPage'
 import Footer from '../footer/Footer'
 import GoogleMapHome from './GoogleMapHome';
 import HereMap from './HereMap';
-import FormatWord from '@/services/FormatWord.js'
 import StoreService from '@/services/StoreService.js'
 import RouterService from '@/services/RouterService.js'
-import UserService from '@/services/UserService.js'
-import AuthService from '@/services/AuthService.js'
 export default {
   name:'Home',
   components:{
@@ -111,16 +106,24 @@ export default {
     this.getBanner();
     this.onInit();
   },
+  watch:{
+    keyword: function(){
+      this.isDropdown=true;
+      this.loading = true;
+      // this.stores = [];
+      this.search();
+    }
+  },
   methods:{
     async onInit(){
-      var id= localStorage.getItem('provinceId');
+      // var id= localStorage.getItem('provinceId');
       if(sessionStorage.getItem('place')){
         let tempplace = JSON.parse(sessionStorage.getItem('place'));
         this.location = tempplace.formatted_address;
-         this.stores = await StoreService.getByProvince_distance(id,tempplace.lat,tempplace.lng);
+        // this.stores = await StoreService.getByProvince_distance(id,tempplace.lat,tempplace.lng);
         //this.stores = await StoreService.getByProvince_distance(id,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
       }
-      else this.stores = await StoreService.getByProvince(id);
+      // else this.stores = await StoreService.getByProvince(id);
       this.isLoaded = true;
     },
     getBanner(){
@@ -148,39 +151,32 @@ export default {
     dishClicked(item) {
       RouterService.dishClicked(item);
     },
-    onkeychange(key){
-      try{
-        this.isDropdown=true;
-        this.loading = true;
-        if(key == '' || key == null)
-        {
-          this.loading = false;
-          return this.results=null;
-        }
-        else {
-          setTimeout(() =>{
-            this.results = this.stores.filter(function(store){
-                var name = FormatWord.xoadau(store.storeName.toString().toLowerCase());
-                var searchkey = FormatWord.xoadau(key.toString().toLowerCase());
-                if (name.includes(searchkey))
-                  return true;
-                return false;
-            });
-            this.loading = false;
-          }, 1500);
-        }
-      }
-      catch(err){
-        console.log(err);
-      }
-    },
-    searchfilter(store){
-      var name = FormatWord.xoadau(store.storeName.toString().toLowerCase());
-      var searchkey = FormatWord.xoadau(this.keyword.toString().toLowerCase());
-      if (name.includes(searchkey))
-        return true;
-      return false;
-    },
+    // onkeychange(key){
+    //   try{
+    //     this.isDropdown=true;
+    //     this.loading = true;
+    //     if(key == '' || key == null)
+    //     {
+    //       this.loading = false;
+    //       return this.results=null;
+    //     }
+    //     else {
+    //       setTimeout(() =>{
+    //         this.results = this.stores.filter(function(store){
+    //             var name = FormatWord.xoadau(store.storeName.toString().toLowerCase());
+    //             var searchkey = FormatWord.xoadau(key.toString().toLowerCase());
+    //             if (name.includes(searchkey))
+    //               return true;
+    //             return false;
+    //         });
+    //         this.loading = false;
+    //       }, 1500);
+    //     }
+    //   }
+    //   catch(err){
+    //     console.log(err);
+    //   }
+    // },
     onSearchClicked(){
       localStorage.setItem("keyword", this.keyword);
       RouterService.onSearchClicked(this.keyword);
@@ -192,15 +188,39 @@ export default {
     async getPlace(place,lat,long){
       try{
         this.location = place; 
-        var id= localStorage.getItem('provinceId');
-        this.stores = await StoreService.getByProvince_distance(id,lat,long);
+        // var id= localStorage.getItem('provinceId');
+        // this.stores = await StoreService.getByProvince_distance(id,lat,long);
         this.active=false;
       }
       catch(err){console.log(err)}
     },
     openMap(){
       this.active = true;
-    }
+    },
+    //test
+    search: _.debounce(async function(){
+       if(this.keyword == '')
+        {
+          this.loading = false;
+          return this.results=null;
+        }
+      if(sessionStorage.getItem('place')){
+					let tempplace = JSON.parse(sessionStorage.getItem('place'));
+					console.log(tempplace)
+					//this.stores = await StoreService.searchStore_distance(key,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
+					this.results = await StoreService.searchStore_distance(this.keyword,tempplace.lat,tempplace.lng);
+				}
+			else
+        {
+          this.results = await StoreService.searchStore(this.keyword);
+        }
+      if(this.results.length > 0 ){
+        this.results = this.results.filter(function(store){
+          return parseFloat(store.khoangcach) < 5;
+        })
+      }
+      this.loading =false;
+    },500)
   }
 }
 </script>

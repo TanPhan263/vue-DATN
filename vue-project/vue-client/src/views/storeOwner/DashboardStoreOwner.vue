@@ -435,6 +435,7 @@ export default {
       this.resultStore = this.store;
       this.storeID = this.store[0].storeID;
       this.storeName=this.store[0].storeName;
+      this.totalView = this.store[0].numberView;
       this.getComments(this.storeChoosed.storeID);
       // const url = 'https://api.viefood.info/api/Store/GetAllManage'
       // this.$http.get(url,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
@@ -493,7 +494,6 @@ export default {
 			catch(err){console.log(err)}
 		},
     async getTotalView(){
-      this.totalView = await AnalystService.getAllView();
       var d = new Date();
       let total = await AnalystService.getDateStore(this.storeID,d.getDate(),d.getMonth() + 1,d.getFullYear());
       total.forEach(element =>{

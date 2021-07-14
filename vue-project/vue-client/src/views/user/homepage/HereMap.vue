@@ -12,6 +12,7 @@
 </template>
 
 <script>
+import firebase from '@/firebase/init.js';
 import StoreService from '@/services/StoreService.js';
 export default {
   name: "HereMap",
@@ -32,14 +33,19 @@ export default {
       map:{},
       geocodingService:{},
       routingService:{},
+      ui:{},
       iconStart:{},
       iconFinish:{},
-      ui:{}
     };
+  },
+  watch:{
+    apikey(){
+    }
   },
   async mounted() {
     this.onInit();
-    // Initialize the platform object:
+    this.getKeys();
+    //Initialize the platform object:
     const platform = new window.H.service.Platform({
       apikey: this.apikey
     });
@@ -47,21 +53,40 @@ export default {
     this.geocodingService = this.platform.getGeocodingService();
     this.routingService = this.platform.getRoutingService();
     this.initializeHereMap();
-    if(this.lat && this.lng && this.storeName){
-        this.finish = {lat: parseFloat(this.lat), lng:parseFloat(this.lng) };
-        this.drawRoute(this.center,this.finish);
-    }
   },
   methods: {
+    reset(){
+      this.platform =  null;
+      this.map ={};
+      this.geocodingService ={};
+      this.routingService = {};
+      this.ui ={};
+      this.stores =[];
+      this.show= true;
+    },
+    getKeys(){
+      const apiRef = firebase.database().ref("HereMap/ListApi/");
+      apiRef.on("value", snapshot => {
+        let data = snapshot.val();
+        if(data){
+        Object.keys(data).forEach(key => {
+            if(data[key].status == 1) 
+            {
+              this.apikey = data[key].apikey;
+            }
+        });
+        }
+      });
+    },
     onInit(){
         if(sessionStorage.getItem('place')){
-            let tempplace = JSON.parse(sessionStorage.getItem('place'));
-            this.location = tempplace.formatted_address;
-            const marker = {
-              lat: tempplace.lat,
-              lng: tempplace.lng
-            };
-            this.center = marker;
+          let tempplace = JSON.parse(sessionStorage.getItem('place'));
+          this.location = tempplace.formatted_address;
+          const marker = {
+            lat: tempplace.lat,
+            lng: tempplace.lng
+          };
+          this.center = marker;
         }
       },
     initializeHereMap() { // rendering map
@@ -77,14 +102,13 @@ export default {
       addEventListener("resize", () => this.map.getViewPort().resize());
       // add behavior control
       new H.mapevents.Behavior(new H.mapevents.MapEvents(this.map));
-
       // add UI
       H.ui.UI.createDefault(this.map, maptypes);
       this.ui = H.ui.UI.createDefault(this.map, maptypes);
       this.iconStart = new H.map.Icon('https://image.flaticon.com/icons/png/32/1673/1673221.png');
       this.iconFinish = new H.map.Icon('https://image.flaticon.com/icons/png/32/1673/1673188.png');
       // End rendering the initial map
-      this.finish = {lat: parseFloat(this.lat), lng:parseFloat(this.lng)};
+
       let markerStart = new H.map.Marker(this.center,{icon: this.iconStart});
       markerStart.setData('<p>Vị trí của bạn</p>');
       markerStart.addEventListener('tap', event =>{
@@ -96,16 +120,18 @@ export default {
       });
       this.map.addObject(markerStart);
       if(this.lat && this.lng && this.storeName){
-      let markerFinish = new H.map.Marker(this.finish,{icon: this.iconFinish});
-      markerFinish.setData('<p>'+ this.storeName +'</p>');
-      markerFinish.addEventListener('tap', event =>{
-        const buble = new H.ui.InfoBubble(event.target.getGeometry(),
-        {
-            content: event.target.getData()
+        this.finish = {lat: parseFloat(this.lat), lng:parseFloat(this.lng)};
+        let markerFinish = new H.map.Marker(this.finish,{icon: this.iconFinish});
+        markerFinish.setData('<p>'+ this.storeName +'</p>');
+        markerFinish.addEventListener('tap', event =>{
+          const buble = new H.ui.InfoBubble(event.target.getGeometry(),
+          {
+              content: event.target.getData()
+          });
+          this.ui.addBubble(buble);
         });
-        this.ui.addBubble(buble);
-      });
-      this.map.addObject(markerFinish);
+        this.map.addObject(markerFinish);
+        this.drawRoute(this.center,this.finish);
       }
     },
     addMarker(){
@@ -164,14 +190,29 @@ export default {
                             lat: lat, lng:lng
                         });
                     })
-                    let poyline = new window.H.map.Polyline(lineString,
+                    var poylineOutline = new window.H.map.Polyline(lineString, {
+                        style: {
+                          lineWidth: 7,
+                          strokeColor: 'rgba(0, 128, 255, 0.7)',
+                          lineTailCap: 'arrow-tail',
+                          lineHeadCap: 'arrow-head'
+                        }
+                      });
+                    let polylineArrow = new window.H.map.Polyline(lineString,
                     {
                         style:{
-                            lineWidth: 6
+                            lineWidth: 7,
+                            fillColor: 'white',
+                            strokeColor: 'rgba(255, 255, 255, 1)',
+                            lineDash: [0, 2],
+                            lineTailCap: 'arrow-tail',
+                            lineHeadCap: 'arrow-head'
                         }
                     });
-                    this.map.addObject(poyline);
-                    this.map.getViewModel().setLookAtData({bounds: poyline.getBoundingBox()});
+                    var routeLine = new window.H.map.Group();
+                    routeLine.addObjects([poylineOutline,polylineArrow]);
+                    this.map.addObject(routeLine)
+                    this.map.getViewModel().setLookAtData({bounds: poylineOutline.getBoundingBox()});
                 }
             },
             err =>{

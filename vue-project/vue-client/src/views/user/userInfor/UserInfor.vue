@@ -103,6 +103,7 @@ import Footer from '../footer/Footer'
 import axios from 'axios';
 import UserService from '@/services/UserService.js';
 import AuthService from '@/services/AuthService.js';
+import AnalystService from '@/services/AnalystService.js';
 export default {
     beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -136,6 +137,7 @@ export default {
     },
     mounted(){
       this.onInit();
+      AnalystService.addVisitView();
     },
     methods: {
           async onInit(){
@@ -254,16 +256,13 @@ label.btn {
 .text-light {
     color: #babbbc !important;
 }
-
 .card {
     background-clip: padding-box;
     box-shadow: 0 1px 4px rgba(24,28,33,0.012);
 }
-
 .row-bordered {
     overflow: hidden;
 }
-
 .account-settings-fileinput {
     position: absolute;
     visibility: hidden;

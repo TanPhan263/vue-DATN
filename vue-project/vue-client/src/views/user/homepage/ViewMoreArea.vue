@@ -94,6 +94,7 @@ import StoreService from '@/services/StoreService.js';
 import RouterService from '@/services/RouterService.js';
 import DiscountService from '@/services/DiscountService.js';
 import ProvinceService from '@/services/ProvinceService.js';
+import AnalystService from '@/services/AnalystService.js';
 import Loading from './Loading.vue';
 const customLabels = {
     first: '<<',
@@ -130,6 +131,7 @@ export default {
 	},
 	mounted(){
 		this.onInit();
+		AnalystService.addVisitView();
 	},
 	methods:{
 		onChangePage(pageOfItems){
