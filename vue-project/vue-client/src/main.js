@@ -9,7 +9,6 @@ import store from './store'
 import axios from 'axios'
 import babelPolyfill from 'babel-polyfill'
 import * as VueGoogleMaps from "vue2-google-maps"
-import VueGoogleAutocomplete from 'vue-google-autocomplete'
 import { BFormRating } from 'bootstrap-vue'
 import CommentGrid from 'vue-comment-grid'
 import { library } from '@fortawesome/fontawesome-svg-core'

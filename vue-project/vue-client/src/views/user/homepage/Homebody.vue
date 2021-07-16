@@ -73,13 +73,14 @@
     <div class="sub-menu-ship">
         <ul>
           <li v-for="(dish, index) in dishes" v-bind:key="index" style="height:90px;width:100px;"  @click="dishClicked(dish.dishName)">
-          <a :href="'/search?key='+ dish.dishName">
+          <a :href="'/search?key='+ dish.dishName" style="border:none">
             <img v-lazy="dish.dishPicture" style="border-radius:10px 10px 10px 10px; width:102px; height:90px;cursor: pointer;"/>
           </a>
           <div @click="dishClicked(dish.dishName)" style="margin: 0 auto;text-align:center; background-color:#f6f6f6; width: 80px; padding-bottom: 20px;"> 
-              <p style="margin-top: 3px; font-size:17px; font-weight:bold; word-break:keep-all;">{{dish.dishName}}</p></div>
+              <p style="margin-top: 3px; font-size:17px; font-weight:bold; word-break:keep-all; background: transparent;">{{dish.dishName}}</p></div>
           </li>
         </ul>
+        <LoadingDish v-show="dishes.length==0"/>
     </div>
     <div>
       <div class="ship">
@@ -264,6 +265,7 @@ import RouterService from '@/services/RouterService.js';
 import { loadOptions } from '@babel/core';
 import Area from './Area.vue';
 import Loading from './Loading.vue';
+import LoadingDish from './LoadingDish.vue';
 const baseUrl='https://api.viefood.info/api/'
 import DiscountService from '@/services/DiscountService.js'
 import AnalystService from '@/services/AnalystService.js'
@@ -271,7 +273,7 @@ import AnalystService from '@/services/AnalystService.js'
 export default {
     name: 'Homebody',
     components:{
-        VueperSlides, VueperSlide,Area,Loading
+        VueperSlides, VueperSlide,Area,Loading,LoadingDish
     },
     data() {
         return {
@@ -304,8 +306,11 @@ export default {
         this.onInit();
         this.$http.get(baseUrl + 'Dish/GetAll').then(response => {
             this.dishes = response.data;
+            this.dishes = this.dishes.filter(function(dish){
+              return dish.dishName.length < 20;
+            })
             let x = Math.floor(Math.random()*(this.dishes.length-10))
-            this.dishes = this.dishes.slice(119,129);
+            this.dishes = this.dishes.slice(x,x+10);
         })
       },
       mounted(){
@@ -330,7 +335,7 @@ export default {
               // this.rates = await StoreService.getByProvince(id);
             }
             this.rates = this.stores.filter(function compare(store) {
-                return parseFloat(store.ratePoint) > 4;
+                return parseFloat(store.ratePoint) >= 4;
             });
             this.rates.sort(function compare( a, b ) {
                 return parseFloat(b.ratePoint) - parseFloat(a.ratePoint);

@@ -12,8 +12,7 @@
 				vertical
 				v-model="provinceSelected"
 				placeholder="Địa điểm"
-				@change="getProvince()"
-            >
+				@change="getProvince()">
 			<option v-on:click="getProvince" v-for="pro in provinces" v-bind:key="pro.provinceID" :value="pro.provinceID">
 				{{pro.provinceName}}
 			</option>
@@ -85,7 +84,6 @@ import firebase from '@/firebase/init.js';
 const baseUrl='https://api.viefood.info/api/'
 import TheHeaderDropdownAccnt from '@/containers/TheHeaderDropdownAccnt'
 import Suggest from '../homepage/Suggest'
-import AuthService from '@/services/AuthService.js';
 import UserService from '@/services/UserService.js';
 import RouterService from '@/services/RouterService.js';
 export default {
@@ -142,9 +140,11 @@ data(){
       try{
         if(localStorage.getItem('isAuthen')){
 			let infor = await UserService.getInfo(localStorage.getItem('isAuthen'));
+			console.log(infor)
 			if(infor[0] == "Bạn cần đăng nhập"){
 				this.isLoggedin = false;
-				AuthService.logout();
+				localStorage.removeItem("userInfor");
+				localStorage.removeItem("isAuthen");
 				return;
 			}
 			this.isLoggedin = true;
@@ -153,7 +153,11 @@ data(){
         }
 		this.isLoggedin = false;
       }
-      catch{}
+      catch{
+		localStorage.removeItem("userInfor");
+		localStorage.removeItem("isAuthen");
+		this.isLoggedin = false;
+	  }
     },
 	getNavItem(){
 		try{

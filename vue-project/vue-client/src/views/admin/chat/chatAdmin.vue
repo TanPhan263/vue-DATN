@@ -265,6 +265,7 @@ export default {
                   this.storeClickedID = inboxes[0].senderID;
                   this.roomID = inboxes[0].roomID;
                   this.ownerID = inboxes[0].ownerID;
+                  this.senderPic = inboxes[0].senderPic;
                   this.fetchMessage();
                 }
             }

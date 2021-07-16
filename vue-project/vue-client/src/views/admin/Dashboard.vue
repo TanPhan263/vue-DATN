@@ -12,7 +12,17 @@
                   <i class="fas fa-circle" style="font-size:15px;color:#f86c6b"></i> {{lableRed}}
               </div>
           </CCol>
-          <CCol sm="7" class="d-none d-md-block">
+          <CCol sm="5">
+            <CRow>
+            <CCol sm="3">
+            <strong>Chọn ngày</strong>
+            </CCol>
+            <CCol sm="8">
+             <date-picker v-model="date" valueType="format"></date-picker>
+            </CCol>
+            </CRow>
+          </CCol>
+          <CCol sm="2" class="d-none d-md-block">
             <CButtonGroup class="float-right mr-3">
               <CButton
                 color="outline-secondary"
@@ -81,6 +91,8 @@
   </div>
 </template>
 <script>
+import DatePicker from 'vue2-datepicker';
+import 'vue2-datepicker/index.css';
 import { CChartPie } from '@coreui/vue-chartjs'
 import { CChartBar } from '@coreui/vue-chartjs'
 import MainChartExample from './charts/MainChartExample'
@@ -106,7 +118,8 @@ export default {
     WidgetsBrand,
     CChartPie,
     CChartBar,
-    ComfirmStore
+    ComfirmStore,
+    DatePicker
   },
   created(){
     //  this.getDate();
@@ -117,6 +130,7 @@ export default {
   },
   data () {
     return {
+      date: null,
       selected: 'Day',
       loaded: false,
       dataBlue: [],
@@ -136,6 +150,14 @@ export default {
       totalYear:0,
     }
   },
+  watch:{
+    date(){
+      if(this.date != null){
+        this.optionChanged('Day');
+        this.getData_date();
+      }
+    }
+  },
   methods: {
     color (value) {
       let $color
@@ -153,29 +175,69 @@ export default {
     optionChanged(value){
       this.selected=value;
       if(value == 'Day'){
-        this.lableBlue = 'Hôm nay';
-        this.lableGreen = 'Hôm qua';
-        this.lableRed = '2 Ngày trước';
+        if(this.date != null)
+        {
+          var d = new Date(this.date);
+          this.lableBlue = d.toJSON().slice(0,10).split('-').reverse().join('/')
+          d.setDate(d.getDate() - 1)
+          this.lableGreen = d.toJSON().slice(0,10).split('-').reverse().join('/')
+          d.setDate(d.getDate() - 1)
+          this.lableRed = d.toJSON().slice(0,10).split('-').reverse().join('/')
+        }
+        else{
+          var d = new Date();
+          this.lableBlue = d.toJSON().slice(0,10).split('-').reverse().join('/')
+          d.setDate(d.getDate() - 1)
+          this.lableGreen = d.toJSON().slice(0,10).split('-').reverse().join('/')
+          d.setDate(d.getDate() - 1)
+          this.lableRed = d.toJSON().slice(0,10).split('-').reverse().join('/')
+        }
         this.getData_date();
       }
       else if(value == 'Month')
       {
-        this.lableBlue = 'Tháng này';
-        this.lableGreen = 'Tháng trước';
-        this.lableRed = '2 Tháng trước';
+        if(this.date != null)
+        {
+          var d = new Date(this.date);
+          this.lableBlue = d.toJSON().slice(0,7).split('-').reverse().join('/')
+          d.setMonth(d.getMonth() - 1)
+          this.lableGreen = d.toJSON().slice(0,7).split('-').reverse().join('/')
+          d.setMonth(d.getMonth() - 1)
+          this.lableRed = d.toJSON().slice(0,7).split('-').reverse().join('/')
+        }
+        else{
+          var d = new Date();
+          this.lableBlue = d.toJSON().slice(0,7).split('-').reverse().join('/')
+          d.setMonth(d.getMonth() - 1)
+          this.lableGreen = d.toJSON().slice(0,7).split('-').reverse().join('/')
+          d.setMonth(d.getMonth() - 1)
+          this.lableRed = d.toJSON().slice(0,7).split('-').reverse().join('/')
+        }
         this.getData_month();
       }
       else
       {
-        this.lableBlue = 'Năm này';
-        this.lableGreen = 'Năm trước';
-        this.lableRed = '2 Năm trước'
+        if(this.date != null)
+        {
+          var d = new Date(this.date);
+          this.lableBlue = d.getFullYear();
+          this.lableGreen = d.getFullYear()-1;
+          this.lableRed =d.getFullYear()-2;
+        }else{
+          var d = new Date();
+          this.lableBlue = d.getFullYear();
+          this.lableGreen = d.getFullYear()-1;
+          this.lableRed =d.getFullYear()-2;
+        }
         this.getData_year();
       }
     },
     async getData_date(){
       this.loaded = false;
-      var d = new Date();
+      if(this.date == null){
+        var d = new Date();
+      }
+      else d= new Date(this.date);
       this.dataBlue = await AnalystService.getDate(d.getDate(),d.getMonth() + 1,d.getFullYear());
       d.setDate(d.getDate() - 1)
       this.dataGreen = await AnalystService.getDate(d.getDate(),d.getMonth() + 1,d.getFullYear());
@@ -189,7 +251,10 @@ export default {
     },
     async getData_month(){
       this.loaded = false;
-      var d = new Date();
+      if(this.date == null){
+        var d = new Date();
+      }
+      else d= new Date(this.date);
       this.dataBlue = await AnalystService.getMonth(d.getMonth() + 1,d.getFullYear());
       d.setMonth(d.getMonth() - 1);
       this.dataGreen = await AnalystService.getMonth(d.getMonth() + 1,d.getFullYear());
@@ -203,7 +268,10 @@ export default {
     },
     async getData_year(){
       this.loaded = false;
-      var d = new Date();
+      if(this.date == null){
+        var d = new Date();
+      }
+      else d= new Date(this.date);
       this.dataBlue = await AnalystService.getYear(d.getFullYear());
       this.dataGreen = await AnalystService.getYear(d.getFullYear()-1);
       this.dataRed = await AnalystService.getYear(d.getFullYear()-2);

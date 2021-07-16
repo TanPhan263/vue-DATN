@@ -185,7 +185,7 @@
 			</div>
 		</transition> -->
     <CCol  v-for="(discount,index) in discounts" v-bind:key="index" sm="6" lg="3" >
-      <CWidgetDropdown class="widget_dropdown" color="info" :text="discount.discountTypeName">
+      <CWidgetDropdown class="widget_dropdown" style="background: #3c4b64" :text="discount.discountTypeName">
         <template #default>
           <CDropdown
             color="transparent p-0"
@@ -204,11 +204,11 @@
       </CWidgetDropdown>
     </CCol>
     <CCol sm="6" lg="3" @click="isCreate()">
-         <CWidgetDropdown style="border:none; border-radius:0px" color="info">
+         <CWidgetDropdown style="border:none; border-radius:0px;background: #3c4b64" >
         <template #default>
         </template>
         <template #footer>
-           <div style="width: 100%; height:150px; background-color: transparent; float:right; border-radius: 5px;"><p style="text-align: center; margin-top: 25px; font-size: 50px"><span class="fa fa-plus fl-right" style="color:white;"></span></p></div>
+           <div style="width: 100%; height:250px; background-color: transparent; float:right; border-radius: 5px;"><p class="center"><span class="fa fa-plus fl-right" style="color:white;"></span></p></div>
         </template>
       </CWidgetDropdown>
     </CCol>
@@ -408,5 +408,13 @@ export default {
 }
 .widget_dropdown{height:270px;
   border:none;border-radius:0px
+}
+.center{
+  position: absolute;
+  font-size: 70px;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
 }
 </style>

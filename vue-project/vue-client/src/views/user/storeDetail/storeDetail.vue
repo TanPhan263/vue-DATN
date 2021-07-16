@@ -5,7 +5,7 @@
         <div class="modal-wrapper">
           <div>
               <div name="fade" mode="out-in" style="width:100%; background-color: #fff; border-radius:7px;">
-                <div class="lds-facebook"><div></div><div></div><div></div><div></div><div></div></div>
+                <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
               </div>
           </div>
         </div>
@@ -205,7 +205,7 @@
               </a>
             </div>
             <!-- <GoogleMap v-if="storeOpen[0].lat" v-bind:lat="storeOpen[0].lat" v-bind:lng="storeOpen[0].long"/> -->
-            <HereMap v-if="storeOpen[0].lat" v-bind:lat="storeOpen[0].lat" v-bind:lng="storeOpen[0].long" v-bind:storeName="storeOpen[0].storeName"/>
+            <HereMap v-if="storeOpen[0].lat && apikey" v-bind:apikey="apikey" v-bind:lat="storeOpen[0].lat" v-bind:lng="storeOpen[0].long" v-bind:storeName="storeOpen[0].storeName"/>
             <div id="map"></div>
         </div>
         <!-- <div id="realtive" class="microsite-gallery" style="margin-top: 15px; overflow:visible">
@@ -225,6 +225,7 @@
 </template>
 
 <script>
+import firebase from '@/firebase/init.js';
 import { freeSet } from '@coreui/icons';
 import Header from '../containers/Header';
 import Navbar from '../navBar/Navbar';
@@ -243,6 +244,7 @@ export default {
    icons: { freeSet },
   data(){
     return{
+      apikey:'',
       isLoaded: false,
       // chat: false,
       // address: '',
@@ -388,7 +390,21 @@ export default {
     },
     changeRate(rate){
       this.storeRate = rate;
-    }
+    },
+    getKeys(){
+      const apiRef = firebase.database().ref("HereMap/ListApi/");
+      apiRef.on("value", snapshot => {
+        let data = snapshot.val();
+        if(data){
+        Object.keys(data).forEach(key => {
+            if(data[key].status == 1) 
+            {
+              this.apikey = data[key].apikey;
+            }
+        });
+        }
+      });
+    },
   },
   created(){
     this.storeID=this.$route.params.id;
@@ -413,6 +429,7 @@ export default {
       //       this.getType(this.storeOpen[0].businessTypeID);
       //       this.isLoaded = true;
       // });
+      this.getKeys();
       this.onInit();
       this.onScroll();
     }
@@ -468,5 +485,60 @@ html {
 	height: 30px;
 	cursor: pointer;
 	color: #000;
+}
+.lds-ellipsis {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.lds-ellipsis div {
+  position: absolute;
+  top: 33px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #ff6e51;
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.lds-ellipsis div:nth-child(1) {
+  left: 8px;
+  animation: lds-ellipsis1 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(2) {
+  left: 8px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(3) {
+  left: 32px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(4) {
+  left: 56px;
+  animation: lds-ellipsis3 0.6s infinite;
+}
+@keyframes lds-ellipsis1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes lds-ellipsis3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+@keyframes lds-ellipsis2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(24px, 0);
+  }
 }
 </style>

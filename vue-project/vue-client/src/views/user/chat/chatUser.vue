@@ -72,6 +72,7 @@
 <script>
 import firebase from '@/firebase/init.js';
 import UserService from '@/services/UserService.js'
+import AuthService from '@/services/AuthService.js'
 export default {
     data(){
       return{
@@ -144,7 +145,8 @@ export default {
               this.show = false;
             }
           }
-          catch{}
+          catch{
+          }
         },
         createInbox(id,name,picture,owner){
           if(id && name && owner){

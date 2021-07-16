@@ -35,8 +35,9 @@
         class="selectBox"
         style="float:left"
         vertical
+        v-model="updateId"
         @change="updateNavItem($event)">
-        <option v-for="(business,index) in businessTypes" v-bind:key="index" :value="index">
+        <option v-for="(business,index) in businessTypes" v-bind:key="index" :value="business.businessTypeID">
           {{business.businessTypeName}}
         </option>
       </select>
@@ -143,7 +144,7 @@ import StoreService from '@/services/StoreService.js'
 .navItems{
   border: none;
   background: lightblue;
-  margin: 0 10px 0 0;
+  margin: 10px 10px 0 0;
 }
 .selectBox{
 height:35px;border-radius:4px; border: 1px solid #D3D3D3; float: right;

@@ -49,7 +49,7 @@
     <CHeaderNav class="mr-4">
        <CHeaderNavItem class="d-md-down-none mx-2">
         <CHeaderNavLink>
-            Xin chao {{ userName }}
+            Xin chào {{ userName }}
         </CHeaderNavLink>
       </CHeaderNavItem>
       <CHeaderNavItem class="d-md-down-none mx-2">

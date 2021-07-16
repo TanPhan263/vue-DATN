@@ -15,7 +15,7 @@ export default [
       {
         _name: 'CSidebarNavItem',
         name: 'Cập nhật thông tin',
-        to: '/manage/update',
+        to: '/manage/profile',
         icon: 'cil-pencil'
       },
       // {

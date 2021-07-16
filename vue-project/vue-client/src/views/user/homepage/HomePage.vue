@@ -5,7 +5,7 @@
         <div class="modal-wrapper">
           <div>
               <div name="fade" mode="out-in" style="width:100%; background-color: #fff; border-radius:7px;">
-                <div class="lds-facebook"><div></div><div></div><div></div><div></div><div></div></div>
+                <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
               </div>
           </div>
         </div>
@@ -33,7 +33,7 @@
                 height: 550px;
                 overflow-y: auto;overflow-x: hidden; padding: 5px;">
               <div v-show="loading" name="fade" mode="out-in" style="width:100%; background-color: #fff; border-radius:7px;">
-                <div class="lds-facebook"><div></div><div></div><div></div><div></div><div></div></div>
+                <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
               </div>
               <div class="col-7" v-if="results && !loading">
                 <Suggest v-bind:results="results" @click-store="storeClicked"/>
@@ -54,7 +54,7 @@
               <i v-on:click="active=false" class="fas fa-times" style="padding: 3px;float: right; font-size: 23px;"></i>
             </div>
               <!-- <GoogleMapHome @send-place="getPlace"/> -->
-              <HereMap @send-place="getPlace"/>
+              <HereMap v-bind:apikey="apikey" @send-place="getPlace"/>
           </div>
         </div>
       </div>
@@ -89,6 +89,7 @@ export default {
     },
   data() {
     return {
+      apikey:'',
       isLoaded: false,
       location: '1 Võ Văn Ngân, Linh Chiểu, Thủ Đức, Thành phố Hồ Chí Minh, Vietnam',
       active: false,
@@ -106,6 +107,9 @@ export default {
     this.getBanner();
     this.onInit();
   },
+  mounted(){
+    this.getKeys();
+  },
   watch:{
     keyword: function(){
       this.isDropdown=true;
@@ -115,7 +119,8 @@ export default {
     }
   },
   methods:{
-    async onInit(){
+    onInit: _.debounce( function(){
+       document.title = "Viefood";
       // var id= localStorage.getItem('provinceId');
       if(sessionStorage.getItem('place')){
         let tempplace = JSON.parse(sessionStorage.getItem('place'));
@@ -125,7 +130,7 @@ export default {
       }
       // else this.stores = await StoreService.getByProvince(id);
       this.isLoaded = true;
-    },
+    },1000),
     getBanner(){
       const socialRef = firebase.database().ref("Footer/banner/");
         socialRef.on("value", snapshot => {
@@ -216,11 +221,25 @@ export default {
         }
       if(this.results.length > 0 ){
         this.results = this.results.filter(function(store){
-          return parseFloat(store.khoangcach) < 5;
+          return parseFloat(store.khoangcach) < 10;
         })
       }
       this.loading =false;
-    },500)
+    },500),
+    getKeys(){
+      const apiRef = firebase.database().ref("HereMap/ListApi/");
+      apiRef.on("value", snapshot => {
+        let data = snapshot.val();
+        if(data){
+        Object.keys(data).forEach(key => {
+            if(data[key].status == 1) 
+            {
+              this.apikey = data[key].apikey;
+            }
+        });
+        }
+      });
+    },
   }
 }
 </script>
@@ -247,43 +266,6 @@ export default {
   border-radius: 50%;
   display: inline-block;
 }
-.lds-facebook {
-  display: inline-block;
-  position: relative;
-  width: 80px;
-  height: 80px;
-}
-.lds-facebook div {
-  display: inline-block;
-  position: absolute;
-  left: 8px;
-  width: 10px;
-  background: #DC143C;
-  border-radius: 3px;
-  animation: lds-facebook 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
-}
-.lds-facebook div:nth-child(1) {
-  left: 8px;
-  animation-delay: -0.24s;
-}
-.lds-facebook div:nth-child(2) {
-  left: 32px;
-  animation-delay: -0.12s;
-}
-.lds-facebook div:nth-child(3) {
-  left: 56px;
-  animation-delay: 0;
-}
-@keyframes lds-facebook {
-  0% {
-    top: 8px;
-    height: 64px;
-  }
-  50%, 100% {
-    top: 24px;
-    height: 32px;
-  }
-}
 [class*="col-"] {
   width: 100%;
 }
@@ -301,5 +283,60 @@ export default {
   .col-10 {width: 83.33%;}
   .col-11 {width: 91.66%;}
   .col-12 {width: 100%;}
+}
+.lds-ellipsis {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.lds-ellipsis div {
+  position: absolute;
+  top: 33px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #ff603b;
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.lds-ellipsis div:nth-child(1) {
+  left: 8px;
+  animation: lds-ellipsis1 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(2) {
+  left: 8px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(3) {
+  left: 32px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(4) {
+  left: 56px;
+  animation: lds-ellipsis3 0.6s infinite;
+}
+@keyframes lds-ellipsis1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes lds-ellipsis3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+@keyframes lds-ellipsis2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(24px, 0);
+  }
 }
 </style>

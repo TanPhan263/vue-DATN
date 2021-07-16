@@ -1,5 +1,5 @@
 <template>
-<div  style="font-family: 'Dosis', sans-serif !important;">
+<div style="font-family: 'Dosis', sans-serif !important;">
 <Navbar style="padding-bottom: 5px"/>
 <div class="c-app flex-row align-items-center">
   <CRow class="center_div col-md-4">
@@ -16,7 +16,7 @@
             closeButton
             :show.sync="showSuccess">
            {{ msg }}
-      </CAlert>
+    </CAlert>
   <CCard v-if="!page2" class="col-md-12">
     <CCardHeader> <strong>Đổi mật khẩu</strong>
     <div class="card-header-actions">
@@ -41,8 +41,7 @@
       </CCardBody>
       <CCardFooter>
         <CButton @click="sendCode" class="center_div" size="sm" color="primary"
-          ><CIcon name="cil-check-circle"/>Send code</CButton
-        >
+          ><CIcon name="cil-check-circle"/>Send code</CButton>
       </CCardFooter>
     </CForm>
   </CCard>
@@ -85,10 +84,10 @@
         />
       </CCardBody>
       <CCardFooter>
-        <CButton @click="isValid" class="btn_left" size="sm" color="primary"
-          ><CIcon name="cil-check-circle" /> Change</CButton>
-        <CButton href="/login" class="btn_right" type="reset" size="sm" color="danger">
-        <CIcon name="cil-ban"/>Cancle</CButton>
+        <CButton @click="isValid" color="primary">
+          Change</CButton>
+        <CButton @click="gotoHome" style="float:right" color="danger">
+         Cancle </CButton>
       </CCardFooter>
     </CForm>
   </CCard>
@@ -104,10 +103,6 @@ import Navbar from './navBar/Navbar'
 import Footer from './footer/Footer'
 import AnalystService from '@/services/AnalystService.js';
 export default {
-  beforeRouteEnter (to, from, next) {
-    document.title = 'Đổi mật khẩu';
-    next();
-  },
   components:{
     Navbar,
     Footer
@@ -127,6 +122,7 @@ export default {
     },
   mounted(){
     AnalystService.addVisitView();
+    document.title = "Đổi mật khẩu";
   },
   methods: {
     validator(val) {
@@ -151,10 +147,6 @@ export default {
         return false;
       }
       else{
-        if(this.code!=this.code2) {
-          this.msg='Mã code không trùng khớp, mời bạn nhập lại'
-          return false;
-        }
         if(this.validator_pass(this.pass))
         {
           this.msg = 'Mật khẩu quá ngắn!';
@@ -173,11 +165,12 @@ export default {
     },
     sendCode(){
       try{
-        if(this. ValidateEmail(this.email))
+        if(this.ValidateEmail(this.email))
         {
           axios.post("https://api.viefood.info/api/User/ForgetPass?Email="+ this.email).then(respone =>{ 
-              this.code=respone.data.code;
-              this.page2 = true;
+            console.log(respone.data);
+            this.code=respone.data.code;
+            this.page2 = true;
           });
         }
         else {
@@ -194,7 +187,7 @@ export default {
       if(this.check())
           { 
             try{ 
-              axios.post("https://api.viefood.info/api/User/ResetPass?Email=" + this.email +"&Password="+ this.pass);
+              axios.post("https://api.viefood.info/api/User/ResetPass?Email=" + this.email +"&Password="+ this.pass + "&code=" + this.code2);
               this.showSuccess=true;
               this.msg='Đổi mật khẩu thành công';
             }
@@ -208,6 +201,9 @@ export default {
             this.showErr=true;
       }
     },
+    gotoHome(){
+      this.$router.push('/');
+    }
   }
 }
 </script>
@@ -216,11 +212,10 @@ export default {
 @import url('../../assets/css/comments.css');
 @import url('../../assets/css/alert.css');
 .center_div{
-    margin: 0 auto;
-    width:100%;
+  margin: 0 auto;
+  width:100%;
 }
 .btn_left{
-  margin-right: 80px;
   width:100px;
 }
 .btn_right{
@@ -229,5 +224,13 @@ export default {
 }
 ul{
   padding-left: 20px;
+}
+.cancle{
+  color: white;
+  text-decoration: none;
+}
+.cancle:hover{
+   text-decoration: none;
+   color: white;
 }
 </style>

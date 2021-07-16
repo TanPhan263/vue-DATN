@@ -1,50 +1,63 @@
 <template>
   <div id="map">
-      <div style="padding: 10px">
-       <input type="text" v-model="location" v-on:keyup.enter="addMarker" style="height: 50px;border:none;font-size: 17px">
-         <button class="btn_change"  @click="addMarker" >Thay đổi</button>
-            <button v-if="show" @click="getNearByStore" class="btn_nearby">Xem quán gần bạn</button>
-             <button v-if="!show" @click="removeNearByStore" class="btn_nearby">Ẩn tất cả quán</button>
-            </div>
+  <div v-if="lat && lng && storeName">
+    <p v-if="travelTime<=15" class="timeTravel"> <img src="../../../assets/imgs/smiling.png" height="32" width="32" alt="">  Chỉ mất khoảng {{ travelTime }} phút để đi từ vị trí của bạn đến quán, Đi ngay thôi nào!!! </p>
+    <p v-if="travelTime>15 && travelTime <= 30" class="timeTravelMedium"> <img src="../../../assets/imgs/happy.png" height="32" width="32" alt=""> Khoảng {{ travelTime }} phút!!! Nhưng vẫn chưa quá xa đâu</p>
+    <p v-if="travelTime>30" class="timeTravelFar"> <img src="../../../assets/imgs/sad.png" height="32" width="32" alt=""> Mất khoảng {{ travelTime }} phút!!! Một chuyến đi dài...</p>
+  </div>
+  <div style="padding: 10px">
+    <input type="text" v-model="location" v-on:keyup.enter="addMarker" style="height: 50px;border:none;font-size: 17px">
+      <button class="btn_change"  @click="addMarker" >Thay đổi</button>
+        <button v-if="show" @click="getNearByStore" class="btn_nearby">Xem quán gần bạn</button>
+          <button v-if="!show" @click="removeNearByStore" class="btn_nearby">Ẩn tất cả quán</button>
+        </div>
   <!--In the following div the HERE Map will render-->
     <div id="mapContainer" style="height:400px;width:100%" ref="hereMap"></div>
   </div>
 </template>
 
 <script>
-import firebase from '@/firebase/init.js';
 import StoreService from '@/services/StoreService.js';
 export default {
   name: "HereMap",
   props:{
+    apikey: String,
     lat: String,
     lng: String,
     storeName: String
   },
+  computed:{
+   travelTime(){
+      return Math.ceil(this.timeTravel/60);
+    }
+  },
   data() {
     return {
-      stores:[],
-      show: true,
       platform: null,
-      apikey: 'yS3OXwUUCPu4saZkhFUozPLGpnkLfaGcKSTNpJKJjec',//yS3OXwUUCPu4saZkhFUozPLGpnkLfaGcKSTNpJKJjec
-      center: { lat: 10.851170, lng: 106.755493 },
-      finish:{},
-      location:'1 Võ Văn Ngân, Linh Chiểu, Thủ Đức, Thành phố Hồ Chí Minh',
+      //apikey: '',//yS3OXwUUCPu4saZkhFUozPLGpnkLfaGcKSTNpJKJjec
       map:{},
+      mapContainer: {},
+      maptypes:{},
       geocodingService:{},
       routingService:{},
       ui:{},
       iconStart:{},
       iconFinish:{},
+      center: { lat: 10.84959, lng: 106.77194 },
+      finish:{},
+      timeTravel: 0,
+      location:'1 Võ Văn Ngân, Linh Chiểu, Thủ Đức, Thành phố Hồ Chí Minh, Vietnam',
+      stores:[],
+      show: true,
     };
   },
   watch:{
     apikey(){
+      this.$forceUpdate();
     }
   },
   async mounted() {
     this.onInit();
-    this.getKeys();
     //Initialize the platform object:
     const platform = new window.H.service.Platform({
       apikey: this.apikey
@@ -55,29 +68,6 @@ export default {
     this.initializeHereMap();
   },
   methods: {
-    reset(){
-      this.platform =  null;
-      this.map ={};
-      this.geocodingService ={};
-      this.routingService = {};
-      this.ui ={};
-      this.stores =[];
-      this.show= true;
-    },
-    getKeys(){
-      const apiRef = firebase.database().ref("HereMap/ListApi/");
-      apiRef.on("value", snapshot => {
-        let data = snapshot.val();
-        if(data){
-        Object.keys(data).forEach(key => {
-            if(data[key].status == 1) 
-            {
-              this.apikey = data[key].apikey;
-            }
-        });
-        }
-      });
-    },
     onInit(){
         if(sessionStorage.getItem('place')){
           let tempplace = JSON.parse(sessionStorage.getItem('place'));
@@ -88,14 +78,14 @@ export default {
           };
           this.center = marker;
         }
-      },
+    },
     initializeHereMap() { // rendering map
-      const mapContainer = this.$refs.hereMap;
+      this.mapContainer = this.$refs.hereMap;
       const H = window.H;
       // Obtain the default map types from the platform object
-      var maptypes = this.platform.createDefaultLayers();
+      this.maptypes = this.platform.createDefaultLayers();
       // Instantiate (and display) a map object:
-      this.map = new H.Map(mapContainer, maptypes.vector.normal.map, {
+      this.map = new H.Map(this.mapContainer, this.maptypes.vector.normal.map, {
         zoom: 17,
         center: this.center
       });
@@ -103,12 +93,12 @@ export default {
       // add behavior control
       new H.mapevents.Behavior(new H.mapevents.MapEvents(this.map));
       // add UI
-      H.ui.UI.createDefault(this.map, maptypes);
-      this.ui = H.ui.UI.createDefault(this.map, maptypes);
+      H.ui.UI.createDefault(this.map, this.maptypes);
+      this.ui = H.ui.UI.createDefault(this.map, this.maptypes);
       this.iconStart = new H.map.Icon('https://image.flaticon.com/icons/png/32/1673/1673221.png');
       this.iconFinish = new H.map.Icon('https://image.flaticon.com/icons/png/32/1673/1673188.png');
       // End rendering the initial map
-
+      //add marker
       let markerStart = new H.map.Marker(this.center,{icon: this.iconStart});
       markerStart.setData('<p>Vị trí của bạn</p>');
       markerStart.addEventListener('tap', event =>{
@@ -119,6 +109,7 @@ export default {
         this.ui.addBubble(buble);
       });
       this.map.addObject(markerStart);
+      //if in a store 
       if(this.lat && this.lng && this.storeName){
         this.finish = {lat: parseFloat(this.lat), lng:parseFloat(this.lng)};
         let markerFinish = new H.map.Marker(this.finish,{icon: this.iconFinish});
@@ -177,12 +168,14 @@ export default {
             "mode":"fastest;car;traffic:enabled",
             "waypoint0": `${start.lat},${start.lng}`,
             "waypoint1":`${finish.lat},${finish.lng}`,
-            "representation": "display"
+            "representation": "display",
+            "routeAttributes": "summary"
             },
             data =>{
                 console.log(data);
                 if(data.response.route.length > 0)
                 {
+                    this.timeTravel = parseInt(data.response.route[0].summary.travelTime);
                     let lineString = new window.H.geo.LineString();
                     data.response.route[0].shape.forEach(point =>{
                         let [lat,lng] = point.split(",");
@@ -234,7 +227,17 @@ export default {
           this.nearByMarker(element.lat,element.long,element.storeName,element.storeID);
       })
       this.map.setCenter(this.center);
-      alert('Hoàn tất, mời bạn di chuyển map để xem các quán');
+      this.$notify({
+        title:'Tải quán thành công',
+        text: 'Các quán gần bạn đã sẵn sàng, mời bạn di chuyển bản đồ để xem',
+        duration: 3000,
+         type: 'success',
+      });
+      this.$notify({
+        title:'Tips',
+        text: 'Nhấn vào các marker để xem tên quán,<br> Nhấn vào tên quán để đi đến quán đó',
+        duration: 6000,
+      });
       this.show= false;
     },
     nearByMarker(lat,lng,name,id){
@@ -265,8 +268,13 @@ export default {
         this.map.addObject(markerStart);
         this.map.setCenter(this.center);
         this.show = true;
+        if(this.lat && this.lng && this.storeName){
+          let markerFinish = new H.map.Marker(this.finish,{icon: this.iconFinish});
+          this.map.addObject(markerFinish);
+          this.drawRoute(this.center, this.finish);
+        }
+      }
     }
-  }
 };
 </script>
 
@@ -314,5 +322,20 @@ input {
 }
 .btn_nearby:hover{
   border: 1px solid  #666;
+}
+.timeTravel{
+  font-size:17px;
+  color: limegreen;
+  font-weight: bold;
+}
+.timeTravelMedium{
+  font-size:17px;
+  color: 	#ffcc00;
+  font-weight: bold;
+}
+.timeTravelFar{
+  font-size:17px;
+  color: 	#cc3300;
+  font-weight: bold;
 }
 </style>

@@ -109,6 +109,15 @@
 import firebase from '@/firebase/init.js';
 import AuthService from '@/services/AuthService.js';
 export default {
+  beforeRouteEnter (to, from, next) {
+    var isAuthen = localStorage.getItem('isAuthen');
+    if( isAuthen != null)
+    {
+      next('/userinformation');
+      return;
+    }
+    else {next();}
+  },
   name: "Login",
   data() {
     return { 

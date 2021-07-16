@@ -32,7 +32,7 @@ export default {
 </script>
 <style>
 .message{
-  z-index: 3;
+  z-index: 4;
   position: fixed;
   bottom: 0;
   right: 0;
@@ -48,17 +48,9 @@ export default {
   font-size: 30px;
 }
 .chat-area{
-  z-index: 2;
+  z-index: 3;
   height: 450px;
   width: 970px;
-  position: fixed;
-  bottom: 0;
-  right: 0;
-}
-.chatArea{
-  z-index: 1;
-  height: 500px;
-  width: 700px;
   position: fixed;
   bottom: 0;
   right: 0;

@@ -1,7 +1,7 @@
 <template>
 <CCol>
     <CModal
-    title="Thêm tỉnh"
+    title="Thêm Key"
     :show.sync="addModal"
     color="primary"
     @update:show="closeModal">
@@ -35,7 +35,7 @@
           <strong> API key đang sử dụng: </strong> <p style="float:right"> <strong> {{apiKey.name}} : </strong> {{apiKey.apikey}} </p>
       </CCardHeader>
       <CCardBody>
-          <HereMap/>
+          <HereMap v-if="render==true && this.apiKey" v-bind:apikey="apiKey.apikey"/>
       </CCardBody>
   </CCard>
 </CCol>
@@ -52,6 +52,7 @@ export default {
     data(){
         return{
             //add
+            render: false,
             apikeyName:'',
             apikeyValue:'',
             addModal: false,
@@ -63,7 +64,7 @@ export default {
         this.getKeys();
     },
     methods: {
-        getKeys(){
+        getKeys:_.debounce(function(){
             this.apiKey = '';
             const apiRef = firebase.database().ref("HereMap/ListApi/");
             apiRef.on("value", snapshot => {
@@ -88,12 +89,14 @@ export default {
                 this.listApikey = apikeys
             }
             else{
-            this.listApikey='';
+                this.listApikey='';
             }
           });
-        },
+           this.render = true;
+        },1000),
         updateKey(newid){
             try{
+            this.render = false;
             if(this.apiKey.id){
             firebase
                 .database()

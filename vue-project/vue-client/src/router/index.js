@@ -182,7 +182,7 @@ function configRoutes () {
           component: HereMapApiKey,
         },
         {
-          path: 'update',
+          path: 'profile',
           component: {
             render(c) {
               return c('router-view')
@@ -305,17 +305,17 @@ function configRoutes () {
       component: Register     
     },
     {
-      path: '/forgetpass',      
+      path: '/doi-mat-khau',      
       name: 'forgetpassword',
       component: ForgetPass
     },
     {
-      path: '/registerstore',      
-      name: '/RegisterStore',
+      path: '/dang-ki-quan',      
+      name: 'RegisterStore',
       component: RegisterStore
     },
     {
-      path: '/userinformation',      
+      path: '/thong-tin-tai-khoan',      
       name: 'UserInfor',
       component: UserInfor
     },

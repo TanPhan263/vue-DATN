@@ -22,10 +22,10 @@
     <CDropdownItem v-if="getRole() === true" @click="gotoProfile()">
       <i class="fas fa-user dropdownItem"></i> Profile
     </CDropdownItem>
-     <CDropdownItem v-else href="/userinformation">
+     <CDropdownItem v-else href="/thong-tin-tai-khoan">
       <i class="fas fa-user dropdownItem"></i> Profile
     </CDropdownItem>
-    <CDropdownItem href="/forgetpass">
+    <CDropdownItem href="/doi-mat-khau">
       <i class="fa fa-lock dropdownItem" aria-hidden="true"></i> Change password
     </CDropdownItem>
     <CDropdownItem @click="openChat" v-if="getRole() === false" >
@@ -78,7 +78,7 @@ export default {
     else return false;
     },
     gotoProfile(){
-      this.$router.push('/manage/update')
+      this.$router.push('/manage/profile')
     },
     gotoUserInfor(){
       this.$router.push('/userinformation')

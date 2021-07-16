@@ -1,6 +1,6 @@
 <template>
   <ul>
-        <li v-for="(store, index ) in array" v-bind:key="index"  style="position: relative;border: #dadada 1px solid;">
+        <li v-for="(store, index ) in array" v-bind:key="index"  style="position: relative;">
         <a style="height: 100%">
             <img src="../../../assets/imgs/error.png"/>
             <div class="store-contain">

@@ -1,32 +1,22 @@
 <template>
   <ul>
-        <li v-for="(store, index ) in array" v-bind:key="index"  style="position: relative;border: #dadada 1px solid;">
-        <a style="height: 100%">
-            <img src="../../../assets/imgs/error.png"/>
-            <div class="store-contain">
-            <div class="store-name animated-background"></div>
-            <div class="store-address animated-background"></div>
-            <div class="store-rate animated-background"></div>
-            <div class="intro"></div>
-            </div>
-            </a>
-        </li>
+    <li v-for="(index) in array" v-bind:key="index" style="height:90px;width:100px;">
+    <a class="animated-background" style="border-radius:10px 10px 10px 10px; width:102px; height:90px;cursor: pointer; border:none">    
+    </a>
+    </li>
     </ul>
 </template>
 
 <script>
 export default {
     name: 'loadingComponent',
-    props:{
-        storeNumber: Number
-    },
     data(){
         return{
             array:[]
         }
     },
     mounted(){
-        for (let i = 0 ; i < this.storeNumber ; i++)
+        for (let i = 0 ; i < 10 ; i++)
         {
             this.array.push(i);
         }
@@ -46,18 +36,6 @@ export default {
 	box-shadow: 2px 2px 2px #AAA;
     height: 16em;
 }
-.store-contain{
-    padding: 0 0 0 15px;
-}   
- .store-name{
-    width: 80%;
- }
-  .store-address{
-    width: 90%;
- }
-  .store-rate{
-    width: 50%;
- }
 @keyframes placeHolderShimmer{
     0%{
         background-position: -468px 0
