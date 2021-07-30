@@ -16,6 +16,7 @@
 
 <script>
 export default {
+    //Component loading khi đang tải các quán
     name: 'loadingComponent',
     props:{
         storeNumber: Number

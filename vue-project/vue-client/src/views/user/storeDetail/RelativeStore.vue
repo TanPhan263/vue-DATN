@@ -55,16 +55,15 @@ export default {
     name:'RelativeStore',
     data(){
         return{
-            pageOfItems: [],
-            show:true,
-            viewmore: false,
-            loadingStoreDiscount: false,
-            discount: [],
-            discountList:[],
-            clicked: false,
-            stores:[],
-            type:[],
-            menuWidth: 193,
+            show:true,                    //biến cờ cho biết quán tải xong hay chưa
+            viewmore: false,              //biến cờ cho biết còn quán để xem thêm hay không
+            loadingStoreDiscount: false,  //biến load khi tải khuyến mãi của quán
+            discount: [],                 //danh sách tất cả khuyến mãi 
+            discountList:[],              //danh sách khuyến mãi của quán
+            clicked: false,               //biến cờ xác định đã click vào xem khuyến mãi hay chưa
+            stores:[],                    //danh sách quán
+            type:[],                      //danh sách loại quán
+            menuWidth: 193,               //độ rộng menu chứa các quán
         }
     },
     props:{
@@ -77,30 +76,32 @@ export default {
     methods: {
       async onInit(){
         let id = this.storeID;
-        this.type = await StoreService.getAllBussinessType();
-        this.discount = await DiscountService.getAll();
-        let storeList = await StoreService.getByBussinessType(this.bussinessTypeID);
-        var storeListRemoveCurr = storeList.filter(function(store){
+        this.type = await StoreService.getAllBussinessType();       //lấy danh sách loại quán
+        this.discount = await DiscountService.getAll();             //lấy danh sách khuyến mãi
+        let storeList = await StoreService.getByBussinessType(this.bussinessTypeID); //lấy danh sách quán theo id loại quán
+        var storeListRemoveCurr = storeList.filter(function(store){ //trừ quán đang mở 
           return store.storeID !== id
         })
-        if(storeListRemoveCurr.length > 14){
+        if(storeListRemoveCurr.length > 14){                        //nếu nhiều hơn 14 quán thì sẽ có xem thêm
           this.viewmore = true;
           this.stores = storeListRemoveCurr.slice(0,14);
-          this.menuWidth = 193 * (this.stores.length + 1);
+          this.menuWidth = 197 * (this.stores.length + 1);          //tính toán độ rộng của menu chứa các quán
         }
         else {
           this.stores = storeListRemoveCurr;
-          this.menuWidth = 200 * (this.stores.length);
+          this.menuWidth = 200 * (this.stores.length);              //tính toán độ rộng của menu chứa các quán
         }
         
         this.show = false;
       },
+      //hàm cắt chuỗi nếu quá dài
       subString(index){
         return index.toString().substring(0,20);
       },
       subString_address(index){
         return index.toString().substring(0,12);
       },
+      //lấy tên loại quán ăn theo id
       getType(index){
         try{
           var temp='Unknown'
@@ -114,51 +115,51 @@ export default {
           console.log(err);
       }
 		},
+    //Hàm mở Popup khuyến mãi
 		openPopup(name,id) {
         this.loadingStoreDiscount = true;
-        // if(this.currDiscount){
-        //   var popupcurr = document.getElementById(this.currDiscount);
-        //   popupcurr.classList.toggle("show");
-        // }
         var popupnew = document.getElementById(name);
         popupnew.classList.toggle("show");
-        this.currDiscount = name;
         this.clicked = true;
         this.getDisCount(id);
-      },
-      closePopup(name) {
-        if(this.clicked == true){
-          this.discountList = [];
-          this.loadingStoreDiscount = false;
-          this.currDiscount = '';
-          var popupnew = document.getElementById(name);
-          popupnew.classList.toggle("show");
-          this.clicked = false;
-        }
-      },
-      async getDisCount(id){
-        try{
-          this.discountList = [];
-          this.discountList = await DiscountService.getDiscountbyStore(id);
-          this.loadingStoreDiscount = false;
-        }
-        catch(err){
-          console.log(err)
-        }
-      },
-      getDiscountName(id){
-        let temp = ''
-        this.discount.forEach(element => {
-          if(element.discountTypeID == id)
-            temp = element.discountTypeName;
-        });
-        return temp;
-      },
-      viewMore(){
-        RouterService.viewMore(this.bussinessTypeID);
+    },
+      //Hàm đóng Popup khuyến mãi
+    closePopup(name) {
+      if(this.clicked == true){
+        this.discountList = [];
+        this.loadingStoreDiscount = false;
+        var popupnew = document.getElementById(name);
+        popupnew.classList.toggle("show");
+        this.clicked = false;
       }
     },
-   
+
+     //Lấy discount của quán 
+    async getDisCount(id){  
+      try{
+        this.discountList = [];
+        this.discountList = await DiscountService.getDiscountbyStore(id);
+        this.loadingStoreDiscount = false;
+      }
+      catch(err){
+        console.log(err)
+      }
+    },
+    //hàm lấy tên của discount theo id
+    getDiscountName(id){
+      let temp = ''
+      this.discount.forEach(element => {
+        if(element.discountTypeID == id)
+          temp = element.discountTypeName;
+      });
+      return temp;
+    },
+    //đi đến trang xem thêm quán
+    viewMore(){
+      RouterService.viewMore(this.bussinessTypeID);
+    }
+  },
+  
 }
 </script>
 

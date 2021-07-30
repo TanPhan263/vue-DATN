@@ -58,41 +58,40 @@ import StoreService from '@/services/StoreService.js'
   name: 'manageNavBar',
   data(){
       return{
-        businessTypes: [],
-        navItems: [],
-        collapse: false,
-        updateId: '',
-        updateName: '',
-        businessTypeSelected: '',
-        active:''
+        businessTypes: [],        //danh sách các loại hình quán
+        navItems: [],             //danh sách các mục trên thanh menu
+        updateId: '',             //id item cần update
+        updateName: '',           //tên item cần update
+        businessTypeSelected: '', //id loại hình quán dang được chọn
       }
   },
   mounted(){
-    this.getBussinessType();
-    this.getNavItem();
+    this.getBussinessType();     //lấy danh sách các loại hình quán
+    this.getNavItem();           //lấy danh sách các mục trên thanh menu
   },
   methods:{
-    async getBussinessType(){
+    async getBussinessType(){     //lấy danh sách các loại hình quán
       this.businessTypes = await StoreService.getAllBussinessType();
     },
-    updateNavItem(event){
-      let index = event.target.value;
+    updateNavItem(event){         //update một mục trên thanh menu
+      let index = event.target.value; //lấy vị trí của loại hình quán mới chọn
         try{
           firebase
-                .database()
-                .ref("Nav/"+ this.updateId)
-                .update({lable: this.businessTypes[index].businessTypeName, id: this.businessTypes[index].businessTypeID });
+            .database()           //update trên firebase
+            .ref("Nav/"+ this.updateId)
+            .update({lable: this.businessTypes[index].businessTypeName,
+                     id: this.businessTypes[index].businessTypeID });
             alert("update thành công");
           }
           catch(err){
             console.log(err);
         }
       },
-    deleteNavItem(id){
+    deleteNavItem(id){                                //xóa 1 mục trên thanh menu
     try{
       if(confirm('Bạn có muốn xóa mục này???'))
       {
-         firebase
+         firebase                                     //xóa trên firebase
             .database()
             .ref("Nav/"+ id).remove();
           alert("delete thành công");
@@ -103,20 +102,20 @@ import StoreService from '@/services/StoreService.js'
       }
       catch(err){console.log(err)}
     },
-    addNavItem(event){
+    addNavItem(event){                                //thêm các mục trên thanh menu
         let index = event.target.value;
         index = parseInt(index);
-        const nav = {
-                lable: this.businessTypes[index].businessTypeName,
-                id: this.businessTypes[index].businessTypeID,
-          };
-          firebase
-            .database()
-            .ref("Nav")
-            .push(nav);
-      alert("Thêm thành công");
+        const nav = {                                 //tạo một đối tượng nav chứa các thông tin vừa nhập
+          lable: this.businessTypes[index].businessTypeName,
+          id: this.businessTypes[index].businessTypeID,
+        };
+        firebase                                       //thêm vào firebase 
+          .database()
+          .ref("Nav")
+          .push(nav);
+        alert("Thêm thành công");
     },
-    getNavItem(){
+    getNavItem(){                                     //lấy danh sách các mục trên thanh menu
       const navRef = firebase.database().ref("Nav");
             navRef.on("value", snapshot => {
             let data = snapshot.val();

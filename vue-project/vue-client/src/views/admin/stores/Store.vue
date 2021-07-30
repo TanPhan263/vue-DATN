@@ -1,5 +1,29 @@
 <template>
   <CRow>
+    <CModal
+      title="Quản lý khuyến mãi"
+      :show.sync="active2"
+      color="primary">
+    <CRow>
+    <CCol sm="12">
+    <CCard>
+      <CCardHeader>
+        <strong>Thêm khuyến mãi của website</strong>
+      </CCardHeader>
+      <CCardBody>
+        <CRow v-for="(discount,index) in discountAdmin" v-bind:key="index" >
+          <CCol style="padding: 5px;" sm="11"> <span class="fa fa-tag" style="font-size: 17px; color: red"></span>
+            {{discount.discountTypeName}} 
+          </CCol> 
+          <CCol  v-if="checkRegisteredDiscount(discount.discountTypeID)" style="padding: 5px;" sm="1">
+            <i @click="addStoreToDiscount(discount.discountTypeID)" class="fa fa-plus-circle" style="font-size: 20px;color:green;"></i>
+          </CCol>
+        </CRow>
+      </CCardBody>
+      </CCard>
+      </CCol>
+      </CRow>
+    </CModal>
     <CCol md="12">
       <div v-if="status === '-1'" class="alert-red" >
             <div class="row">
@@ -52,7 +76,7 @@
 			</div>
 		</transition>
 
-     <transition v-if="active2">
+    <!-- <transition v-if="active2">
 		<div class="modal-mask">
 			<div class="modal-wrapper">
 				<div class="modal-container">
@@ -80,7 +104,7 @@
 				</div>
 			</div>
 			</div>
-		</transition>
+		</transition> -->
     <CCol md="4">
       <CCard>
         <CCardHeader style="font-weight: bold;">
@@ -150,32 +174,32 @@
                <CCol sm="6">
                 <p>Chủ quán</p>
                 <select v-if="users"
-                      id="storeOwner"
-                      style="width:100%;height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-top: -10px"
-                      class="country fl_left"
-                      vertical
-                      v-model="storeOwner"
-                      placeholder="Chủ quán"
-                      >
-                      <option v-for="(user, index) in users" v-bind:key="index" :value="user.userID">
-                          {{user.userName}}
-                      </option>
+                    id="storeOwner"
+                    style="width:100%;height:35px;border-radius:4px; border: 1px solid #D3D3D3; margin-top: -10px"
+                    class="country fl_left"
+                    vertical
+                    v-model="storeOwner"
+                    placeholder="Chủ quán"
+                    >
+                    <option v-for="(user, index) in users" v-bind:key="index" :value="user.userID">
+                        {{user.userName}}
+                    </option>
                 </select>
                 <p style="color:red" v-if="storeOwnerName.status === '-1'"> Tài khoản hiện chưa được xác nhận! <a :href="'/manage/users/'+storeOwnerName.userID"><strong>Đi đến tài khoản</strong></a></p>
                </CCol>
                 <CCol sm="6">
                 <p> Loại</p>
                 <select
-                      id="storeType"
-                      style="width:100%;height:35px;border-radius:4px; border: 1px solid #D3D3D3;margin-top: -10px;"
-                      class="country fl_left"
-                      vertical
-                      v-model="storeStype"
-                      placeholder="Địa điểm"
-                      >
-                      <option v-for="busi in bussinessType" v-bind:key="busi.businessTypeID" :value="busi.businessTypeID">
-                          {{busi.businessTypeName}}
-                      </option>
+                  id="storeType"
+                  style="width:100%;height:35px;border-radius:4px; border: 1px solid #D3D3D3;margin-top: -10px;"
+                  class="country fl_left"
+                  vertical
+                  v-model="storeStype"
+                  placeholder="Địa điểm"
+                  >
+                  <option v-for="busi in bussinessType" v-bind:key="busi.businessTypeID" :value="busi.businessTypeID">
+                      {{busi.businessTypeName}}
+                  </option>
                   </select>
                 </CCol>
              </CRow>
@@ -196,12 +220,6 @@
                 v-model="closeTime"
               />
                   </CCol>
-              <!-- <CInput
-             
-                label="Loại hình quán"
-                horizontal
-                v-model="storeStype"
-              /> -->
                <CCol sm="4">
                <CInput
               disabled
@@ -214,7 +232,7 @@
           </CCardBody>
           <CCardHeader style="margin-top: -20px;font-weight: bold;">
           KINH ĐỘ VÀ VĨ ĐỘ CỦA QUÁN <div @click="active= !active" style="width: 30px; height: 30px; border: 2px solid black; border-radius: 50%; float: right;"><i style="margin-left: 5px;margin-top: 3px;  font-size: 20px;" class="fa fa-question"></i></div>
-        </CCardHeader>
+          </CCardHeader>
          <CCardBody>
             <CForm>
               <CRow>
@@ -235,29 +253,6 @@
           </CCardBody>
       </CCard>
     </CCol>
-    
-
-    <!-- <CCol col="12" lg="6">
-      <CCard>
-        <CCardHeader style="margin-top: -50px;font-weight: bold;">
-          KINH ĐỘ VÀ VĨ ĐỘ CỦA QUÁN <div @click="active= !active" style="width: 30px; height: 30px; border: 2px solid black; border-radius: 50%; float: right;"><i style="margin-left: 7px;margin-top: 3px;  font-size: 20px;" class="fa fa-question"></i></div>
-        </CCardHeader>
-         <CCardBody>
-            <CForm>
-              <CInput
-                label="Longtitude"
-                horizontal
-                v-model="storeLat"
-              ></CInput>
-              <CInput
-                label="Latitude"
-                horizontal
-                v-model="storeLong"
-              ></CInput>
-            </CForm>
-          </CCardBody>
-      </CCard>
-    </CCol> -->
     <CCol md="12">
       <CCard>
          <CCardHeader>
@@ -279,22 +274,6 @@
           <strong style="font-size: 25px">Comments</strong>
       </CCardHeader>
       <CCardBody>
-        <!-- <CDataTable
-          style="margin-left: 15px;width: 97%"
-          hover
-          border
-          striped
-          small
-          fixed
-          :items="commentList"
-          :fields="fields"
-          :items-per-page="5"
-          clickable-rows
-          :active-page="activePage"
-          :pagination="{ doubleArrows: false, align: 'center'}"
-          @page-change="pageChange"
-          >
-          </CDataTable> -->
           <div class="row" >
             <div class="col-12" >
               <table class="table table-image" >
@@ -363,13 +342,13 @@ export default {
   },
   data () {
     return {
-      discounts:[],
-      discountList:[],
-      discountAll:[],
-      bussinessType: '',
-      active: false,
-      active2: false,
-      // check: false,
+      discounts:[],               //danh sách tất cả khuyến mãi
+      discountAdmin:[],           //danh sách khuyến mãi của website(admin tạo)
+      discountList:[],            //danh sách khuyến mãi của quán
+      bussinessType: '',          //danh sách loại quán
+      active: false,              //biến mở modal kinh độ vĩ độ
+      active2: false,             //biến mở modal thêm khuyến mãi
+                                  //các thuộc tính của quán
       status: '',
       storeID: '',
       storeName: '',
@@ -385,29 +364,15 @@ export default {
       storeProvince:'',
       storeStype: '',
       storeRate: '',
-      commentList: [],
-      fields: [
-        { key: 'commentID', label: 'ID Comment', _classes: 'font-weight-bold' },
-        { key: 'userName', label: 'Người comment', _classes: 'font-weight-bold' },
-        { key: 'content', label: 'Nội dung', _classes: 'font-weight-bold' },
-        { key: 'date', label: 'Ngày', _classes: 'font-weight-bold' },
-      ],
+      commentList: [],            //danh sách comments
       activePage: 1,
-      users: [],
-    }
-  },
-  computed: {
-    visibleData () {
-      return this.userData.filter(param => param.key !== 'username')
-    },
-    username () {
-      return this.userData.filter(param => param.key === 'username').value
+      users: [],                  //danh sách người dùng
     }
   },
    watch: {
     $route: {
       immediate: true,
-      handler (route) {
+      handler (route) {           //hàm thay đổi danh sách quán khi đổi trang trong bảng
         if (route.query && route.query.page) {
           this.activePage = Number(route.query.page)
         }
@@ -415,33 +380,31 @@ export default {
     }
   },
   methods: {
-    previewImage(event){
-          this.storePicture=null;
-          this.imageData= event.target.files[0];
+    previewImage(event){ //hàm lấy thông tin hình ảnh trước khi nhấn vào input file
+      this.storePicture=null;
+      this.imageData= event.target.files[0];
     },
-    async addStoreToDiscount(id){
-          const discount = {
-              iDStore: this.storeID,
-              iDDiscountType: id
-          }
-          const response = await DiscountService.addStoreToDiscount(discount,localStorage.getItem('isAuthen'));
-          alert(response);
-          this.getDisCount(this.storeID)
-        },
-    async removeStoreToDiscount(id){
-          console.log(this.storeID);
-          console.log(id);
-          const response = await DiscountService.removeStoreToDiscount(this.storeID,id,localStorage.getItem('isAuthen'));
-          this.getDisCount(this.storeID);
-          alert(response);
-        },
-    goBack() {
+    async addStoreToDiscount(id){//thêm quán vào khuyến mãi
+      const discount = {          //tạo một đối tượng chứa id quán và id của khuyến mãi
+          iDStore: this.storeID,
+          iDDiscountType: id
+      }
+      //gọi api thêm mới 
+      const response = await DiscountService.addStoreToDiscount(discount,localStorage.getItem('isAuthen'));
+      alert(response);//thông báo kết quả
+      this.getDisCount(this.storeID)//loại thông tin 
+    },
+    async removeStoreToDiscount(id){//xóa liên kêt giữa quán và khuyến mãi
+      //gọi api xóa liên kết
+      const response = await DiscountService.removeStoreToDiscount(this.storeID,id,localStorage.getItem('isAuthen'));
+      this.getDisCount(this.storeID);
+      alert(response);
+    },
+    goBack() { //trở về trang /store
       this.usersOpened ? this.$router.go(-1) : this.$router.push({path: '/store'})
     },
-    async updateStore(){
-      // if(this.check == true) this.status = '2';
-      // else this.status = '1';
-      const id = this.$route.params.id
+    async updateStore(){                        //cập nhật thông tin của  quán
+      const id = this.$route.params.id          //tạo một đối tượng quán với dữ liệu người dùng nhập
       const store ={
         storeAddress: this.storeAddress,
         storeName:this.storeName,
@@ -456,106 +419,117 @@ export default {
         lat: this.storeLat,
         long: this.storeLong
       };
-      const response = await StoreService.updateStore(id, store, localStorage.getItem('isAuthen'));
-      alert(response)
+      const response = await StoreService.updateStore(id, store, localStorage.getItem('isAuthen'));//gọi api cập nhật thông tin của quán
+      alert(response);                                                                              //thông báo kết quả
     },
-    getStoreOwner() {
+    getStoreOwner() {                                                                               //lấy thông tin của chủ quán
       this.$http.get('https://api.viefood.info/api/User/GetByID?id='+this.storeOwner,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
             this.storeOwnerName = response.data[0];
       })
     },
-    async getComments(index){
+    async getComments(index){                                                                        //lấy danh sách comment của quán
 			try{
 				this.commentList = await CommentService.getCommentByStore(index);
 			}
 			catch{}
 		},
-    async getDisCount(id){
+    async getDisCount(id){                                                                            //lấy danh sách khuyến mãi của quán
       this.discountList = await DiscountService.getDiscountbyStore(id);
-      this.discountAll =  await DiscountService.getAll();
     },
-    getDiscountName(id){
+    getDiscountName(id){                                                                              //lấy tên của khuyến mãi theo id
       let temp = ''
-      this.discountAll.forEach(element => {
+      this.discounts.forEach(element => {
         if(element.discountTypeID == id)
           temp = element.discountTypeName;
       });
       return temp;
     },
-    async getDiscounts(){
+    async getDiscounts(){                                                                             //lấy danh sách tất cả khuyến mãi
       this.discounts = await DiscountService.getAll();
+      this.discountAdmin = await DiscountService.getByAdmin();
     },
-    openAddDiscount(){
+    checkRegisteredDiscount(id){                                                                   //kiểm tra khuyến mãi đã có trong món hay chưa
+      for(var i =0 ; i< this.discountList.length;i++){
+        if(this.discountList[i].idDiscountType == id)
+          return false;                                                                           //return false nếu đã có 
+      }
+      return true;
+    },
+    openAddDiscount(){                                                                                 //mở hộp thoại thêm khuyến mãi
       this.active2=true;
       this.getDiscounts();
     },
-    rowClicked (item) {
-      this.$router.push({path: `store/${item.storeID}`})
+    // rowClicked (item) {
+    //   this.$router.push({path: `store/${item.storeID}`})
+    // },
+    // pageChange (val) {
+    //   this.$router.push({ query: { page: val }})
+    // },
+    async onInit(){                                                               
+      this.users = await UserService.getAll(localStorage.getItem('isAuthen')); //lấy danh sách người dùng
     },
-    pageChange (val) {
-      this.$router.push({ query: { page: val }})
-    },
-    async onInit(){
-      this.users = await UserService.getAll(localStorage.getItem('isAuthen')); 
-    },
-    async confirmStore(){
+    async confirmStore(){                                                      //hàm kích hoạt quán
       try{
         if(this.storeOwner != ''){
           const id = this.$route.params.id;
-          const responseStore =  await StoreService.changeStatus(localStorage.getItem('isAuthen'), '1', id);
-          const responseOwner =  await UserService.block(localStorage.getItem('isAuthen'), this.storeOwner, '1');
-          alert(responseStore);
+          const responseStore =  await StoreService.changeStatus(localStorage.getItem('isAuthen'), '1', id);     //gọi api kích hoạt quán
+          const responseOwner =  await UserService.block(localStorage.getItem('isAuthen'), this.storeOwner, '1');//gọi api kích hoạt tài khoản chủ quán
+          alert(responseStore);                                                                                  //thông báo kết quả
+          this.$router.go();
         }
       }
       catch{
       }
     },
-    async unBanStore(){
+    async unBanStore(){                                                       //hàm hủy chặn quán
       try{
         if(this.storeOwner != ''){
           const id = this.$route.params.id;
-          const responseStore =  await StoreService.changeStatus(localStorage.getItem('isAuthen'), '1', id);
-          alert(responseStore);
+          const responseStore =  await StoreService.changeStatus(localStorage.getItem('isAuthen'), '1', id);//gọi api kích hoạt quán
+          alert(responseStore);                                                                              //thông báo kết quả
+          this.$router.go();
         }
       }
       catch{
       }
     },
-    async banStore(){
+    async banStore(){                                                        //hàm chặn quán               
       try{
         if(this.storeOwner != ''){
           const id = this.$route.params.id;
-          const responseStore =  await StoreService.changeStatus(localStorage.getItem('isAuthen'), '2', id);
-          alert(responseStore);
+          const responseStore =  await StoreService.changeStatus(localStorage.getItem('isAuthen'), '2', id);//gọi api chặn quán
+          alert(responseStore);                                                                              //thông báo kết quả
+          this.$router.go();
         }
       }
       catch{
       }
     },
-    async deleteStore(){
+    async deleteStore(){                                                    //hàm chặn quán  
       try{
         if(confirm('Bạn chắc chắn muốn xóa')){
           const id = this.$route.params.id;
-          const response = await StoreService.delete(id,localStorage.getItem('isAuthen'))
-          alert(response);
-          this.$router.push("/confirmstore");
+          const response = await StoreService.delete(id,localStorage.getItem('isAuthen'))//gọi api chặn quán
+          alert(response);                                                               //thông báo kết quả
+          this.$router.push("/manage/confirmstore");                                     //trở về trang xác nhận quán
         }
       }
       catch{}
     },
-    async deleteComment(id){
+    async deleteComment(id){                                                  //hàm xóa bình luận
       if(confirm('Bạn chắc muốn xóa bình luận này?')){
-        const response = await CommentService.deleteCommentAdmin(id,localStorage.getItem('isAuthen'));
+        const response = await CommentService.deleteCommentAdmin(id,localStorage.getItem('isAuthen'));//gọi api xóa bình luận
         alert(response);
       }
     },
-    openChat(){
+    openChat(){                                                                                       //hàm chuyển đến trang chat 
       this.$router.push('/manage/chats')
-      this.$root.$refs.chatAdmin.createInbox(this.storeID, this.storeName,this.storePicture,this.storeOwner);
+      this.$root.$refs.chatAdmin.createInbox(this.storeID, this.storeName,this.storePicture,this.storeOwner);//gọi hàm tạo inbox mới ở component chatAdmin
     }
   },
    mounted(){
       const id = this.$route.params.id
+      //lấy thông tin quán thông qua id
       this.$http.get('https://api.viefood.info/api/Store/GetByIDManage?id='+id,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
             this.storeName = response.data[0].storeName;
             this.storeAddress = response.data[0].storeAddress;
@@ -570,14 +544,13 @@ export default {
             this.storeLat = response.data[0].lat;
             this.storeLong = response.data[0].long;
             this.status = response.data[0].status;
-            // if(response.data[0].status == '1') this.check == false;
-            // else this.check = true;
-            this.getStoreOwner();  
-            this.getComments(this.storeID)                
+            this.getStoreOwner();                           //lấy thông tin chủ quán
+            this.getComments(this.storeID)                  //lấy danh sách comments             
     });
      this.onInit();
-     this.getDisCount(id);
-     this.$http.get('https://api.viefood.info/api/BusinessType/GetAll').then(response => {
+      this.getDiscounts();
+     this.getDisCount(id);                                  //lấy danh sach khuyến mãi của quán
+     this.$http.get('https://api.viefood.info/api/BusinessType/GetAll').then(response => {//lấy danh sách loại quán
             this.bussinessType = response.data
     })
   }

@@ -47,12 +47,12 @@ export default {
    },
    data(){
       return{
-         socials:[],
-         logo:'',
-         companyInfo:[],
-         categories:[],
-         childcategories:[],
-         chat: false,
+         socials:[],        //danh sách kết nối mạng xã hội 
+         logo:'',           //logo
+         companyInfo:[],    //thông tin cua trang web trong footer
+         categories:[],     //danh sách danh mục
+         childcategories:[],//item của từng danh mục
+         chat: false,       //biến mở hộp thư
       }
    },
    created(){
@@ -66,11 +66,13 @@ export default {
       this.getCategoryChild();
    },
    methods:{
-      openChat(storeID,storeName,storePicture,storeOwner){
+     //Hàm mở hộp thư 
+      openChat(storeID,storeName,storePicture,storeOwner){ 
         this.chat = true;
-        this.$root.$refs.chatUser.createInbox(storeID,storeName,storePicture,storeOwner);
+        this.$root.$refs.chatUser.createInbox(storeID,storeName,storePicture,storeOwner);//gọi hàm createInbox của component chatUser để tạo mới một cuộc trò chuyện
       },
-      getLogo(){
+      // Các hàm lấy thông tin từ firebase để show lên trang web
+      getLogo(){                                                //Load logo
       const socialRef = firebase.database().ref("Footer/logo/");
             socialRef.on("value", snapshot => {
             let data = snapshot.val();
@@ -89,7 +91,7 @@ export default {
             }
           });
       },
-      getSocial(){
+      getSocial(){                                                  //load mục kết nối với chúng tôi
       const socialRef = firebase.database().ref("Footer/socials/");
             socialRef.on("value", snapshot => {
             let data = snapshot.val();
@@ -110,7 +112,7 @@ export default {
             }
           });
     },
-     getCompanyInfo(){
+     getCompanyInfo(){                                                  //load thông tin trang web ở footer
       const companyRef = firebase.database().ref("Footer/companyinfo/");
             companyRef.on("value", snapshot => {
             let data = snapshot.val();
@@ -130,7 +132,7 @@ export default {
             }
           });
     },
-    getCategory(){
+    getCategory(){                                                        //load danh mục ở footer
       const categoryRef = firebase.database().ref("Footer/categories/");
             categoryRef.on("value", snapshot => {
             let data = snapshot.val();
@@ -150,7 +152,7 @@ export default {
             }
           });
     },
-    getCategoryChild(){
+    getCategoryChild(){                                                           //load item của từng danh mục
       firebase.database().ref("Footer/categories-child").on("value", snapshot => {
         let data = snapshot.val();
         if(data){

@@ -11,7 +11,7 @@
                       v-on:keyup="onChange(keyword)"
               />
           </div>
-           <transition v-if="active" >
+           <!-- <transition v-if="active" >
               <div class="modal-mask">
               <div class="modal-wrapper"  >
                 <div class="modal-container" style="width: 600px;
@@ -95,7 +95,7 @@
                 </div>
               </div>
               </div>
-            </transition>
+            </transition> -->
         </CCardHeader>
         <CCardBody>
           <CDataTable
@@ -114,10 +114,13 @@
             :pagination="{ doubleArrows: false, align: 'center'}"
             @page-change="pageChange"
           >
-            <template #status="data">
+            <template #status="{item}">
               <td>
-                <CBadge :color="getBadge(data.item.status)">
-                  {{data.item.status}}
+               <CBadge v-if="item.status === '1'" :color="getBadge(item.status)">
+                 OK
+                </CBadge>
+                <CBadge v-else :color="getBadge(item.status)">
+                  Banned
                 </CBadge>
               </td>
             </template>
@@ -142,31 +145,31 @@ export default {
   name: 'OwnerStores',
   data () {
     return {
-      user: null,
-      keyword: '',
-      result: null,
-      provinces:[
+      user: null,                       //thông tin người dùng
+      keyword: '',                      //từ khóa để tim kiếm quán
+      result: null,                     //danh sách quán sau khi lọc bằng từ khóa
+      provinces:[                       //danh sách tỉnh
         {
           provinceID: String,
           provinceName: String
         }
       ],
-      provinceSelected: '',
-      businessTypes:[
+      businessTypes:[                 //danh sách loại quán
         {
           businessTypeID: String,
           businessTypeName: String
         }
       ],
-      businessTypeSelected: '',
-      items: null,
-      fields: [
+      items: null,                    //danh sách quán 
+      fields: [                       //các trường trong bảng quán
         { key: 'storeName', label: 'Tên quán', _classes: 'font-weight-bold' },
         { key: 'storeAddress', label: 'Địa chỉ', _classes: 'font-weight-bold' },
         { key: 'openTime', label: 'Giờ mở cửa', _classes: 'font-weight-bold' },
         { key: 'cLoseTime', label: 'Giờ đóng cửa', _classes: 'font-weight-bold' },
         { key: 'ratePoint', label: 'Đánh giá', _classes: 'font-weight-bold' },
+        { key: 'status', label: 'Trạng thái' },
       ],
+      //thuộc tính của quán
       storeName: '',
       storeAddress: '',
       storeOwner: '',
@@ -176,14 +179,15 @@ export default {
       storePicture: null,
       storeLat:'',
       storeLong:'',
-      activePage: 1,
-      active: false
+      provinceSelected: '', 
+      businessTypeSelected: '',    
+      activePage: 1,//trang hiển thị của bảng
     }
   },
   watch: {
     $route: {
       immediate: true,
-      handler (route) {
+      handler (route) {//hàm thay đổi danh sách quán khi đổi trang trong bảng
         if (route.query && route.query.page) {
           this.activePage = Number(route.query.page)
         }
@@ -200,48 +204,44 @@ export default {
         this.getProvince();
         this.getBussinessType();
     },
-    getBadge (status) {
+    getBadge(status) {      //hiện trạng thái quán 
       switch (status) {
-        case 'Active': return 'success'
-        case 'Inactive': return 'secondary'
-        case 'Pending': return 'warning'
-        case 'Banned': return 'danger'
-        default: 'primary'
+        case '2': return 'danger'   //bị ban
+        case '1': return 'primary'   //bình thường
       }
     },
-    rowClicked (item) {
+    rowClicked (item) {     //đến trang chi tiết quán
       this.$router.push({path: `managestores/${item.storeID}`})
     },
-    pageChange (val) {
+    pageChange (val) {      //thay đổi giá trị trang của bảng
       this.$router.push({ query: { page: val }})
     },
-    previewImage(event){
+    previewImage(event){     //hàm lấy thông tin hình ảnh trước khi nhấn vào input file
           this.storePicture=null;
           this.imageData= event.target.files[0];
     },
-    onUpload(){
-      const storageRef = firebase.storage().ref(`image/${this.imageData.name}`).put(this.imageData);
-      storageRef.on(`state_change`, snapshot => {
+    onUpload(){              //thêm quán mới
+      const storageRef = firebase.storage().ref(`image/${this.imageData.name}`).put(this.imageData);//tải ảnh lên firebase
+      storageRef.on(`state_change`, snapshot => { 
       },error =>{console.log(error.message)},
       ()=> {
-        storageRef.snapshot.ref.getDownloadURL().then((url) => { 
-          this.active=false;
-          this.storePicture=url;
-          this.addStore();
+        storageRef.snapshot.ref.getDownloadURL().then((url) => {   //trả về url của ản
+          this.storePicture=url;                                   //gán url mới nhận vào hình ảnh của quán
+          this.addStore();                                         //tiến hành thêm quán
         })
         }
       )
     },
-    async getProvince(){
+    async getProvince(){                                            //lấy danh sách tỉnh
       this.provinces = await ProvinceService.getAll();
     },
-    async getBussinessType(){
+    async getBussinessType(){                                        //lấy danh sách loại quán
       this.businessTypes = await StoreService.getAllBussinessType();
     },
-    async addStore(){
-      const token = localStorage.getItem('isAuthen');
-      const store = {
-        storeAddress: this.storeAddress,
+    async addStore(){                                                  //hàm thêm quán
+      const token = localStorage.getItem('isAuthen');         
+      const store = {                                                  //tạo một đối tượng quán với dữ liệu người dùng nhập vào             
+        storeAddress: this.storeAddress,  
         storeName:this.storeName,
         storePicture: this.storePicture,
         openTime: this.openTime,
@@ -252,22 +252,22 @@ export default {
         businessTypeID: this.businessTypeSelected,
         ratePoint: '0'
       }
-      const response = await StoreService.addStore(store, token);
-      alert(response);
+      const response = await StoreService.addStore(store, token);     //gọi api thêm quán
+      alert(response);                                                //thông báo kết quả
 
     },
-    onChange(key){
+    onChange(key){                                                    //tìm kiếm quán theo từ khóa
       if(key == '' || key == null)
-        return this.result=this.items;
+        return this.result=this.items;                                //nếu từ khóa rỗng thì không tìm trả về danh sách ban đầu
       else {
-        this.result = this.items.filter(function(item){
+        this.result = this.items.filter(function(item){               //lọc những quán có tên chứa từ khóa 
         return item.storeName.toLowerCase().includes(key.toLowerCase());
       })
-      console.log(this.result)}
+      }
     }
   },
   mounted() {
-      this.onInit();
+      this.onInit();//hàm khởi tạo
   },
 }
 </script>

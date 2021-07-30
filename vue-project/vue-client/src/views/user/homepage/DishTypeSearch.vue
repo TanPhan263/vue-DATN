@@ -9,7 +9,7 @@
     <div class="sub-menu-ship">
         <ul>
           <li v-for="(dish, index) in  pageOfItems" v-bind:key="index" style="height:90px;width:100px;margin:40px 15px 40px 0px;"  @click="dishClicked(dish.dishName)">
-             <a>
+             <a style="height:90px">
               <img v-lazy="dish.dishPicture" style="border-radius:10px 10px 10px 10px; width:102px; height:90px;cursor: pointer;"/>
           </a>
           <div @click="dishClicked(dish.dishName)" style="margin: 0 auto;text-align:center; background-color:#f6f6f6; width: 80px; padding-bottom: 20px;"> 
@@ -46,24 +46,24 @@ export default {
 	name:'DishType',
 	data(){
 		return{
-            dishes:[],
-            pageOfItems: [],
-            customLabels,
+            dishes:[],          //danh sách món ăn
+            pageOfItems: [],    //danh sách món theo trang 
+            customLabels,       //biến custom giao diện của jw-pagination
             customStyles,
             pageSize: 40
 		}
 	},
 	mounted(){
         this.$http.get(baseUrl + 'Dish/GetAll').then(response => {
-            this.dishes = response.data;
+            this.dishes = response.data;                            //lấy danh sách tất cả món ăn
         });
         AnalystService.addVisitView();
 	},
 	methods:{
-		onChangePage(pageOfItems){
+		onChangePage(pageOfItems){                                  //thay đổi danh sách món theo trang
 			this.pageOfItems = pageOfItems;
 		},
-		dishClicked(name){
+		dishClicked(name){                                          //hiển thị quán theo món ăn vừa chọn
 			RouterService.dishClicked(name);
 		}
 	}

@@ -1,5 +1,5 @@
 <template>
-  	<div :class="'navbar-fixed ' + scroll">
+  	<div class="navbar-fixed">
 		<div class="container-header clearfix">
 			<div class="logo fl_left">
 				<a href="/" title="">
@@ -7,15 +7,14 @@
 				</a>
 				<select
 				id="province"
-				style="width:160px; font-weight:bold; font-size: 15px;"
 				class="country provinces"
 				vertical
 				v-model="provinceSelected"
 				placeholder="Địa điểm"
 				@change="getProvince()">
-			<option v-on:click="getProvince" v-for="pro in provinces" v-bind:key="pro.provinceID" :value="pro.provinceID">
-				{{pro.provinceName}}
-			</option>
+				<option v-on:click="getProvince" v-for="pro in provinces" v-bind:key="pro.provinceID" :value="pro.provinceID">
+					{{pro.provinceName}}
+				</option>
             </select>
 			</div>
             
@@ -45,7 +44,6 @@
 			  <CHeaderNav class="mr-4">
 				<CHeaderNavItem class="d-md-down-none mx-2">
 					<CHeaderNavLink>
-					<i @click="search=true" style="font-weight: 300;font-size:20px; padding-right: 10px; float: right;color:black;" class="fa fa-search"/>
 					 <div style="color:black;" v-if="user">Xin chào {{ user.userName }}</div>	
 					</CHeaderNavLink>
 				</CHeaderNavItem>
@@ -53,29 +51,10 @@
 			  </CHeaderNav>
 			</div>
 			<div v-else id="login" class="fl_right">
-				<!-- <i  @click="search=true" style="font-size:20px; padding-right: 10px; float:left;color:black; margin-top:8px" class="fa fa-search"/> -->
 				<a href="/login" class="button" style="border-radius: 10px;margin-right: 5px;margin-top: 3px;" >Đăng nhập</a>
 				<a  href="/register" class="button" style="border-radius: 10px;margin-right: 5px; width: 90px; text-align:center;">Đăng kí</a>
 			</div>
 		</div>
-		<!-- <transition v-if="search">
-		  <div class="modal-mask">
-				<div class="modal-container2" style="width: 618px;overflow: auto;
-                height: 550px; padding: 5px;"> 
-			    <i @click="search=false" style="font-size:20px; float:right; color:white;" class="fa fa-times"></i>
-				<img src="" alt="">
-			    <input v-model="keyword" style="width: 600px;display: block;
-					margin-right: auto;
-					margin-left: auto;;padding:5px; font-size: 20px;color: white;background-color: transparent;border: none;border-bottom: 2px solid white;height:40px;box-sizing: border-box;" type="text"  v-on:keyup="onkeychange(keyword)" >
-				<div v-show="loading && keyword !== ''" name="fade" mode="out-in" style="text-align:center;width:600px; background-color: #fff; border-radius:7px;">
-                <div class="lds-facebook"><div></div><div></div><div></div><div></div><div></div></div>
-              	</div>
-				<div v-if="results  && !loading">
-                	<Suggest v-bind:results="results" @click-store="storeClicked"/>
-              	</div>
-				</div>
-		  </div>
-		</transition> -->
 	</div>
 </template>
 
@@ -94,24 +73,19 @@ components:{
 },
 data(){
     return{
-		user: '',
-		provinceSelected: '',
-		avt:'',
-		provinces: '',
-		search: false,
-		scroll: '',
-		keyword:'',
-		results: [],
-		loading: false,
-		isLoggedin: false,
-		logo:'',
-		navItems:[],
+		user: '', 				//thông tin user
+		provinceSelected: '',	//tỉnh được chọn
+		avt:'',					//hình của user
+		provinces: '',			//danh sách 
+		isLoggedin: false, 		//biến kiểm tra đăng nhập hay chưa
+		logo:'', 
+		navItems:[], 			//các items trên thanh menu
       }
 	},
 	created(){
-	this.getUser();
-	this.getLogo();
-	this.getNavItem();
+		this.getUser();//lấy thông tin user 
+		this.getLogo();//load Logo từ firebase
+		this.getNavItem();//load các items trên thanh menu
 	},	
   methods:{
 	  getLogo(){
@@ -140,7 +114,6 @@ data(){
       try{
         if(localStorage.getItem('isAuthen')){
 			let infor = await UserService.getInfo(localStorage.getItem('isAuthen'));
-			console.log(infor)
 			if(infor[0] == "Bạn cần đăng nhập"){
 				this.isLoggedin = false;
 				localStorage.removeItem("userInfor");
@@ -161,7 +134,7 @@ data(){
     },
 	getNavItem(){
 		try{
-      const navRef = firebase.database().ref("Nav");
+      	const navRef = firebase.database().ref("Nav");
             navRef.on("value", snapshot => {
             let data = snapshot.val();
             if(data){
@@ -182,85 +155,59 @@ data(){
 		}
 		catch{}
     },
-	check(){
+	check(){ //kiểm tra 
 		if(this.user == 'null'){
 			this.isLoggedin = false;return;}
 		this.isLoggedin = true;
 	},
-	  getName(){
-		  try{
-		   	return this.user.userName;
-		  }
-		  catch{
-		  }
-		   
-	  },
-	  getProvince(){
+	getName(){ //lấy tên user
+		try{
+			return this.user.userName;
+		}
+		catch{
+		}
+	},
+	getProvince(){ 			//hàm thay đổi tỉnh va load lại trang 
 		try{
 			localStorage.setItem('provinceId',this.provinceSelected);
 			this.$router.go();
 		}
 		catch(e)
-		{
-
-		}
-	  },
-	  getAvt(){
-		  if(this.user!='null')
-			  if(this.user.picture =='') return '../assets/imgs/userPic.png';
-		  return this.user.picture;
-	  	},
-	  	getProvinceSelected(){
-		  if(this.provinces!=''){
-			this.provinces.forEach(element => {
-				if(element.provinceID == localStorage.getItem('provinceId'))
-					return element.provinceName
-			});
-		  }
-		  return 'TP Hồ Chí Minh';
-		},
-		storeClicked(item){
-        	RouterService.storeClicked(item);
-			this.$router.go();
-    	},
-		dishClicked(index){
-			RouterService.dishClicked(index);
-		},
-		onkeychange(key){
-			try{
-			this.isDropdown=true;
-			this.loading = true;
-			this.$http.get('https://api.viefood.info/api/Dish/Search?dishname=' + key).then(response => {
-				if(response.data !='Không có kết quả tìm kiếm')
-				{
-					this.results = response.data;
-					this.loading = false;
-				}});
-			}
-			catch(err){console.log(err)}
-		},
-		viewMore(index){
-			RouterService.viewMore(index);
-		},
-		viewMore_bussinessType(index){
-			RouterService.viewMore_Search(index);
-		},
+		{}
+	},
+	getAvt(){ //lấy avt của user
+		if(this.user!='null')
+			if(this.user.picture =='') return '../assets/imgs/userPic.png';
+		return this.user.picture;
+	},
+	// getProvinceSelected(){		
+	// 	if(this.provinces!=''){ 
+	// 	this.provinces.forEach(element => {
+	// 		if(element.provinceID == localStorage.getItem('provinceId'))
+	// 			return element.provinceName
+	// 	});
+	// 	}
+	// 	return 'TP Hồ Chí Minh';
+	// },
+	viewMore(index){ 					//đi đến trang xem thêm các quán có businessTypeID là index
+		RouterService.viewMore(index);
+	},
   },
   mounted(){
-	  try{
-			this.$http.get(baseUrl + 'Province/GetAll').then(response => {
-					this.provinces=response.data
-			})
-			if(localStorage.getItem('provinceId')==null)
-			{
-				this.provinceSelected='-MO5b_1K2_tF_C4GVDo3';
-				localStorage.setItem('provinceId', this.provinceSelected)
-			}
-			if(localStorage.getItem('provinceId')!=''){
-				this.provinceSelected=localStorage.getItem('provinceId')
-			}
+	try{																//lấy danh sách tỉnh có quán
+		this.$http.get(baseUrl + 'Province/GetAllProvinceHaveStore').then(response => {
+			this.provinces=response.data				
+		})
+		if(!localStorage.getItem('provinceId')) 						//nếu localStorage không có Id tỉnh thì mặc định là Id của HCM
+		{
+			this.provinceSelected='-MO5b_1K2_tF_C4GVDo3';
+			localStorage.setItem('provinceId', this.provinceSelected)	//tạo mới item provinceId trong localStorage
 		}
-		catch{}
+		else{ 															//nếu có thì gán vào tỉnh được chọn
+			this.provinceSelected=localStorage.getItem('provinceId')
+		}
+	}
+	catch{}
   }
 }
 </script>
@@ -275,6 +222,7 @@ data(){
 }
 .provinces{
 	height: 32px;
+	width: 127px;
 	display:inline-block;
 	font-size: 16px !important;
 	font-weight: bold;

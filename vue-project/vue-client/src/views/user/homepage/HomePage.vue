@@ -18,7 +18,7 @@
 				<img id="banner" style="margin: auto; height: 270px;width: 100%; display: block;">
 			</div>
 			<div class="search" :style="'background: url('+ banner +')'">
-				<form action="#" id="searchform" method="#" style="padding:10px;">
+				<div id="searchform" style="padding:10px;">
 					<div class="search-1 clearfix">
             <div id="vitri" class="vitri" @click="openMap">
               <i class="fas fa-map-marker" style="color: red; font-size: 35px;text-shadow: 2px 2px 3px #585858;"></i>
@@ -41,7 +41,7 @@
             </div>
             </div>
 					</div>
-				</form>
+				</div>
 			</div>
 	</div>
 
@@ -89,29 +89,25 @@ export default {
     },
   data() {
     return {
-      apikey:'',
-      isLoaded: false,
-      location: '1 Võ Văn Ngân, Linh Chiểu, Thủ Đức, Thành phố Hồ Chí Minh, Vietnam',
-      active: false,
-      banner: '',
-      show: true,
-      loading: false,
-      user: 'null',
-      stores:null,
-      keyword: '',
-      results: null,
+      apikey:'',                      //apikey truyền vào bản đồ 
+      isLoaded: false,                //biến cờ khi load thông tin xong
+      location: '1 Võ Văn Ngân, Linh Chiểu, Thủ Đức, Thành phố Hồ Chí Minh, Vietnam',//địa chỉ mặc định
+      active: false,                  //biến mở cửa sổ bản đồ
+      banner: '',                     //ảnh banner                  
+      loading: false,                 //biến loading khi đan tìm quán
+      stores:null,                    //Danh sách quán 
+      keyword: '',                    //từ khóa để tìm quán
+      results: null,                  //danh sach quán sau khi lọc 
       isDropdown: false,
     }
   },
   created(){
-    this.getBanner();
-    this.onInit();
+    this.onInit();                    //hàm khởi tạo
   },
-  mounted(){
-    this.getKeys();
+  mounted(){                
   },
   watch:{
-    keyword: function(){
+    keyword: function(){                //hàm watch của biến keyword hàm này sẽ chạy khi biến thay đổi 
       this.isDropdown=true;
       this.loading = true;
       // this.stores = [];
@@ -119,19 +115,18 @@ export default {
     }
   },
   methods:{
-    onInit: _.debounce( function(){
-       document.title = "Viefood";
+    onInit: _.debounce(function(){
+      document.title = "Viefood";
+      this.getBanner();                  //load banner
+      this.getKeys();                    //load apikey cho map
       // var id= localStorage.getItem('provinceId');
       if(sessionStorage.getItem('place')){
-        let tempplace = JSON.parse(sessionStorage.getItem('place'));
+        let tempplace = JSON.parse(sessionStorage.getItem('place'));//lấy địa điểm có trong sessionStorage
         this.location = tempplace.formatted_address;
-        // this.stores = await StoreService.getByProvince_distance(id,tempplace.lat,tempplace.lng);
-        //this.stores = await StoreService.getByProvince_distance(id,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
       }
-      // else this.stores = await StoreService.getByProvince(id);
-      this.isLoaded = true;
+      this.isLoaded = true;                                         //hoàn tất tải 
     },1000),
-    getBanner(){
+    getBanner(){                                                    //lấy link ảnh của banner trên firebase
       const socialRef = firebase.database().ref("Footer/banner/");
         socialRef.on("value", snapshot => {
         let data = snapshot.val();
@@ -150,60 +145,32 @@ export default {
         }
       });
     },
-    storeClicked(item) {
+    storeClicked(item) {                                            //chuyển đến trang em chi tiết quán
       RouterService.storeClicked(item);
     },
     dishClicked(item) {
-      RouterService.dishClicked(item);
+      RouterService.dishClicked(item);                              
     },
-    // onkeychange(key){
-    //   try{
-    //     this.isDropdown=true;
-    //     this.loading = true;
-    //     if(key == '' || key == null)
-    //     {
-    //       this.loading = false;
-    //       return this.results=null;
-    //     }
-    //     else {
-    //       setTimeout(() =>{
-    //         this.results = this.stores.filter(function(store){
-    //             var name = FormatWord.xoadau(store.storeName.toString().toLowerCase());
-    //             var searchkey = FormatWord.xoadau(key.toString().toLowerCase());
-    //             if (name.includes(searchkey))
-    //               return true;
-    //             return false;
-    //         });
-    //         this.loading = false;
-    //       }, 1500);
-    //     }
-    //   }
-    //   catch(err){
-    //     console.log(err);
-    //   }
-    // },
-    onSearchClicked(){
+    onSearchClicked(){                                              //khi nhấn tìm hoặc enter sẽ chuyển đến trang tìm kiếm
       localStorage.setItem("keyword", this.keyword);
-      RouterService.onSearchClicked(this.keyword);
+      this.$router.push('/search?key=' + this.keyword).catch(()=>{});
     },
-    disableDropdown(){     
+    disableDropdown(){                                               //ẩn hộp thoại gợi ý tìm quán 
       this.isDropdown = false;
       return this.isDropdown;
     },
-    async getPlace(place,lat,long){
+    async getPlace(place,lat,long){                                   //lấy tên địa điểm sau khi người dùng đổi 
       try{
         this.location = place; 
-        // var id= localStorage.getItem('provinceId');
-        // this.stores = await StoreService.getByProvince_distance(id,lat,long);
         this.active=false;
       }
       catch(err){console.log(err)}
     },
-    openMap(){
+    openMap(){                                                          //mở cửa sổ bản đồ
       this.active = true;
     },
     //test
-    search: _.debounce(async function(){
+    search: _.debounce(async function(){                                //hàm tìm kiếm
        if(this.keyword == '')
         {
           this.loading = false;
@@ -212,21 +179,21 @@ export default {
       if(sessionStorage.getItem('place')){
 					let tempplace = JSON.parse(sessionStorage.getItem('place'));
 					console.log(tempplace)
-					//this.stores = await StoreService.searchStore_distance(key,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
+          //gọi api lấy danh sách quán theo từ khóa và lat lng của địa chỉ mới 
 					this.results = await StoreService.searchStore_distance(this.keyword,tempplace.lat,tempplace.lng);
 				}
 			else
-        {
+        { //nếu không có địa chỉ mới thì gọi api lấy danh sách quán theo từ khóa và lat lng của địa chỉ mặc định 
           this.results = await StoreService.searchStore(this.keyword);
         }
       if(this.results.length > 0 ){
-        this.results = this.results.filter(function(store){
+        this.results = this.results.filter(function(store){ //lọc khoảng cách < 10km
           return parseFloat(store.khoangcach) < 10;
         })
       }
       this.loading =false;
     },500),
-    getKeys(){
+    getKeys(){                                      //hàm lấy apikey từ firebase
       const apiRef = firebase.database().ref("HereMap/ListApi/");
       apiRef.on("value", snapshot => {
         let data = snapshot.val();

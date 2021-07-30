@@ -29,7 +29,7 @@
                 type="file"
                 @change="previewImage"
               />
-              <CButton style="float:right;" @click="onUpload" type="submit" color="primary">Upload</CButton>
+              <CButton style="float:right;" @click="onUpload" type="submit" color="primary">Đổi ảnh</CButton>
               <div class="row">
                 <p v-if="uploadValue>0">progress: {{uploadValue.toFixed()+ "%"}}</p>
               </div>
@@ -101,8 +101,8 @@
             </CForm>
           </CCardBody>
           <CCardFooter>
-            <CButton v-on:click="update"  class="btn_submit" type="submit" size="sm" color="primary"><CIcon name="cil-check-circle"/> Submit</CButton>
-            <CButton class="btn_back" type="reset" size="sm" color="danger"><CIcon name="cil-ban"/> Back</CButton>
+            <CButton v-on:click="update"  class="btn_submit" type="submit" size="sm" color="primary"><CIcon name="cil-check-circle"/> Cập nhật</CButton>
+            <CButton class="btn_back" type="reset" size="sm" color="danger"><CIcon name="cil-ban"/> Trở về</CButton>
           </CCardFooter>
         </CCard>
       </CCol>
@@ -123,12 +123,12 @@ export default {
     name: 'update',
     data(){
         return{
-            imageData: null,
-            picture: null,
-            uploadValue: 0,
-            changeAvt: false,
+            uploadValue: 0, //giá trị % trong lúc tải lên
+            //các thuộc tính của user
             id: '',
             name: '',
+            picture: null,
+            imageData: null,
             address: '',
             phone: '',
             birth: '',
@@ -139,24 +139,20 @@ export default {
         };
     },
     methods: {
-        uploadfile(){
-            changeAvt = !changeAvt
-        },
-        previewImage(event){
+        previewImage(event){ //hàm lấy thông tin hình ảnh trước khi nhấn vào input file
           this.uploadValue=0;
-          this.picture=null;
           this.imageData= event.target.files[0];
         },
         onUpload(){
           this.picture=null;
-          const storageRef = firebase.storage().ref(`image/${this.imageData.name}`).put(this.imageData);
+          const storageRef = firebase.storage().ref(`image/${this.imageData.name}`).put(this.imageData);//tải anh lên firebase
           storageRef.on(`state_change`, snapshot => {
             this.uploadValue=(snapshot.bytesTransfered/snapshot.totalBytes)*100;
           },error =>{console.log(error.message)},
           ()=> {
             this.uploadValue=100;
-            storageRef.snapshot.ref.getDownloadURL().then((url) => {this.picture=url;
-            this.update();
+            storageRef.snapshot.ref.getDownloadURL().then((url) => {this.picture=url;  //trả về url của ảnh
+            this.update();                                                              //update thông tin 
             })
             }
           )
@@ -164,18 +160,19 @@ export default {
         },
         update(){
           try{
-          const credentials = {
-          userID: this.id,
-          userName: this.name,
-          phone: this.phone,
-          address: this.address,
-          password: this.pass,
-          email: this.mail,
-          picture: this.picture,
-          sex: this.sex,
-          birthday: this.birth,
-          userTypeID: this.type
+          const credentials = {   //tạo một đối tượng chứa các thược tính người dùng
+            userID: this.id,
+            userName: this.name,
+            phone: this.phone,
+            address: this.address,
+            password: this.pass,
+            email: this.mail,
+            picture: this.picture,
+            sex: this.sex,
+            birthday: this.birth,
+            userTypeID: this.type
           };
+          //gọi api update 
           axios.post("https://api.viefood.info/api/User/EditByID" , credentials ,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{ 
             alert(respone.data)})
           }
@@ -185,9 +182,9 @@ export default {
         }
     },
     mounted() {
-      try{
+      try{//api lấy thông tin người dùng bằng token
           this.$http.get("https://api.viefood.info/api/User/GetByID" , { headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{
-            this.id= respone.data[0].userID
+            this.id= respone.data[0].userID //gán các giá trị vào thuộc tính tương ứng của người dùng
             this.name=respone.data[0].userName
             this.phone=respone.data[0].phone
             this.address= respone.data[0].address

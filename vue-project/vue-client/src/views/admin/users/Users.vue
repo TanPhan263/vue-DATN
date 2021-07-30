@@ -210,31 +210,30 @@
 
 <script>
 import firebase from '@/firebase/init.js';
-import usersData from './UsersData'
 import UserService from '@/services/UserService';
 import AuthService from '@/services/AuthService';
 export default {
    beforeRouteEnter (to, from, next) {
-    AuthService.checkUser(localStorage.getItem('isAuthen'));
-    AuthService.checkAdmin(localStorage.getItem('isAuthen'));
+    AuthService.checkUser(localStorage.getItem('isAuthen'));//kiểm tra có đăng nhập hay không 
+    AuthService.checkAdmin(localStorage.getItem('isAuthen'));//kiểm tra quyền có là admin hay khong
     next();
   },
   name: 'Users',
   data () {
     return {
-      primaryModal: false,
-      keyword: null,
-      items: null ,
-      result: null,
-      fields: [
+      primaryModal: false,                      //biến mở hộp thoại thêm quán
+      keyword: null,                            //từ khóa để tim kiếm người dùng
+      items: null ,                             //danh sách người dùng 
+      result: null,                             //danh sách quán sau khi lọc bằng từ khóa
+      fields: [                                 //các trường trong bảng người dùng
         { key: 'userName', label: 'Name' },
         { key: 'phone', label: 'Phone'  },
         { key: 'address', label: 'Address'  },
         { key: 'email', label: 'Email' },
         { key: 'status', label: 'status' },
       ],
-      activePage: 1,
-      active: false,
+      activePage: 1,                             //trang hiển thị của bảng
+                                                 //các thuộc tính của người dùng   
       userID: '',
       userName: '',
       userAddress: '',
@@ -252,7 +251,7 @@ export default {
   },
   watch: {
     $route: {
-      immediate: true,
+      immediate: true,                        //hàm thay đổi danh sách quán khi đổi trang trong bản
       handler (route) {
         if (route.query && route.query.page) {
           this.activePage = Number(route.query.page)
@@ -261,51 +260,50 @@ export default {
     }
   },
   methods: {
-    async onInit(){
-      this.items = await UserService.getAll(localStorage.getItem('isAuthen')); 
+    async onInit(){                               //hàm khởi tạo
+      this.items = await UserService.getAll(localStorage.getItem('isAuthen')); //lấy danh sách người dùng
       console.log(this.items)
       this.result = this.items;
-      this.userTypes = await UserService.getUserType(localStorage.getItem('isAuthen'));
+      this.userTypes = await UserService.getUserType(localStorage.getItem('isAuthen'));//lấy danh sách loại người dùng
     },
-    getBadge(status) {
+    getBadge(status) {  //hiện trạng thái quán
       switch (status) {
-        case '3': return 'success'
-        case '2': return 'danger'
-        case '1': return 'primary'
-        case '-1': return 'warning'
+        case '3': return 'success'    //đang đăng nhập
+        case '2': return 'danger'     //bị ban
+        case '1': return 'primary'    //bình thường
+        case '-1': return 'warning'   //chờ xác nhận
       }
     },
-    rowClicked (item) {
+    rowClicked (item) {               //đến trang chi người dùng
       this.$router.push({path: `users/${item.userID}`})
     },
-    pageChange (val) {
+    pageChange (val) {                //thay đổi giá trị trang của bảng
       this.$router.push({ query: { page: val }})
     },
-     previewImage(event){
-          this.picture=null;
-          this.imageData= event.target.files[0];
+    previewImage(event){              //hàm lấy thông tin hình ảnh trước khi nhấn vào input file
+      this.picture=null;
+      this.imageData= event.target.files[0];
     },
-    onUpload(){
+    onUpload(){                        //upload ảnh và thêm người dùng mới 
       if(this.imageData == null)
       {
         this.picture='';
-        this.addUser();
+        this.addUser();                 //nếu không có hình thì tiến hành thêm người dùng không cần ảnh
         return;
       }
-      const storageRef = firebase.storage().ref(`image/${this.imageData.name}`).put(this.imageData);
+      const storageRef = firebase.storage().ref(`image/${this.imageData.name}`).put(this.imageData);//tải ảnh lên firebase
       storageRef.on(`state_change`, snapshot => {
       },error =>{console.log(error.message)},
       ()=> {
-        storageRef.snapshot.ref.getDownloadURL().then((url) => { 
-          this.active=false;
-          this.picture=url;
-          this.addUser();
+        storageRef.snapshot.ref.getDownloadURL().then((url) => { //trả về url của ảnh
+          this.picture=url;                                      //gán url mới nhận vào hình ảnh của người dùng
+          this.addUser();                                        //tiến hành thêm người dùng
         })
         }
       )
     },
-    async addUser(){
-      const user = {
+    async addUser(){                                             //hàm thêm người dùng
+      const user = {                                             //tạo một đối tượng người dùng với dữ liệu người dùng nhập vào
         userName: this.userName,
         phone: this.userPhone,
         address: this.userAddress,
@@ -316,21 +314,21 @@ export default {
         birthday: this.birthday,
         userTypeID: this.userTypeID
       }
-      const response = await AuthService.signUp(user);
-      alert(response);
-      this.onInit();
-    },
-    onChange(key){
+      const response = await AuthService.signUp(user);  //gọi api đăng kí người dùng
+      alert(response);                                  //thông báo kết quả
+      this.onInit();                                    //load lại thông tin
+    },  
+    onChange(key){                                      //tìm kiếm người dùng theo từ khóa
        if(key == '' || key == null)
-        return this.result=this.items;
+        return this.result=this.items;                  //nếu từ khóa rỗng thì không tìm, trả về danh sách ban đầu
       else {
-        this.result = this.items.filter(function(item){
+        this.result = this.items.filter(function(item){ //lọc những quán có tên chứa từ khóa
         return item.userName.toLowerCase().includes(key.toLowerCase());
       })
       console.log(this.result)}
     },
-    openModal(){
-        this.userName = '';
+    openModal(){                                         //hàm mở của sổ thêm quán  
+        this.userName = '';                              //set các giá trị thành rỗng trước khi mở     
         this.userPhone = '';
         this.userAddress = '';
         this.password = '';
@@ -341,8 +339,8 @@ export default {
         this.userTypeID = '';
         this.primaryModal = true;
     },
-     closeModal(status, evt, accept) { if (accept) { 
-      this.onUpload();
+     closeModal(status, evt, accept) { if (accept) { //hàm đóng modal thêm người dùng
+      this.onUpload();                               //nếu nhấn ok thì sẽ thêm người dùng
       } 
     },
   },

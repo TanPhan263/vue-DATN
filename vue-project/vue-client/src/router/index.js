@@ -53,29 +53,29 @@ const chatUser = () => import('@/views/user/chat/chatUser')
 const Discount =() => import('@/views/admin/discount/Discount')
 Vue.use(Router)
 
-const isAuthen = (to, from, next) => {
+const isAuthen = (to, from, next) => {//hàm kiểm tra đăng nhập
   var isAuthen = localStorage.getItem('isAuthen');
-  if(isAuthen != null){
-    AuthService.checkUser(localStorage.getItem('isAuthen'))
-    var expireTime = AuthService.parseJwt(isAuthen);
+  if(isAuthen != null){     
+    AuthService.checkUser(localStorage.getItem('isAuthen'))//gọi api lấy thông tin user để kiểm tra token hết hạn chưa
+    var expireTime = AuthService.parseJwt(isAuthen);        //tính thời gian hết hạn của token
     var timeStamp = Math.floor(Date.now() / 1000);
     var timeCheck =  expireTime.exp - timeStamp;
     console.log(timeCheck)
-    if(timeCheck > 0){
+    if(timeCheck > 0){                                      //nếu chưa hết hạn
       var user = localStorage.getItem('userInfor');
       user =JSON.parse(user);
       const role = user.userTypeID;
-      if (role != '-MO5VYNnWIjXtvJO4AXi'){
-        next();
+      if (role != '-MO5VYNnWIjXtvJO4AXi'){                  //không phải user bình thường
+        next();                                             //đi tiếp
         return;
       }
     }
     else{
-      AuthService.logout();
+      AuthService.logout();  //token hết hạn thì đăng xuất
       return;
     }
   }
-  next("/login");
+  next("/login");//không có token thì chuyển đến trang đăng nhập
 };
 
 export default new Router({

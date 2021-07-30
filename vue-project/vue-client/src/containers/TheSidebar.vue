@@ -45,16 +45,16 @@ export default {
   mounted(){
   },
   methods:{
-    isAdmin(){
+    isAdmin(){                              //kiểm tra có phải admin hay không 
       if(this.userType == '-MO5VBnzdGsuypsTzHaV') return true;
       return false;
     },
   },
   computed: {
-    show () {
-      return this.$store.state.sidebarShow 
+    show () {                               //hàm hiển thị sidebar
+      return this.$store.state.sidebarShow     
     },
-    minimize () {
+    minimize () {                           //hàm thu nhỏ sidebar
       return this.$store.state.sidebarMinimize 
     }
   }

@@ -20,7 +20,7 @@
             <a href="#">
               <img
                 v-lazy="storeOpen[0].storePicture"
-                alt="sunnie food finding"
+                alt="viefood.info"
                 style="width: 488px; height: 275px;border-radius: 15px 0px 0px 15px;"
               />
             </a>
@@ -36,38 +36,51 @@
                <div v-else class="numberCircle" style="float:right; background:red">
               {{ formatRate }}
               </div>
-              <h1 style="width: 600px; margin-top:20px;font-size: 25px" class="fl_left">{{storeOpen[0].storeName}}
+                <h1 style="width:600px; margin-top:20px;font-size: 25px;" class="fl_left">{{storeOpen[0].storeName}}
               </h1>
               <div class="clearfix"></div>
               <div class="category">
                 <div class="category-items fl_left" style="max-width: 200px;">
-                  <a title="category-items;" style="font-size:large;"><i class="fas fa-utensils"></i>  {{ businessTypeName }}</a>
+                  <iframe :src="'https://www.facebook.com/plugins/share_button.php?href=https%3A%2F%2Fviefood.info%2F'+storeID+'&layout=button&size=large&appId=396920051515132&width=87&height=28'" width="87" height="28" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
                 </div>
-                <div class="category-cuisines fl_left">
-                </div>
+                 <div class="category-items fl_left" style="max-width: 500px;">
+                 <iframe :src="'https://www.facebook.com/plugins/like.php?href=https%3A%2F%2Fviefood.info%2F'+storeID+'&width=108&layout=button_count&action=like&size=large&share=false&height=21&appId=396920051515132'" width="87" height="28" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+                 </div>
+                 <div class="category-items fl_left" style="max-width: 500px;">
+                  <button v-if="storeName != ''" @click="openChat" class="chat-btn"> <i style="font-size:16px" class="fab fa-facebook-messenger"></i> Nhắn tin</button>
+                 </div>
               </div>
             </div>
             <div class="res-summary-point"></div>
-            <div class="disableSection" style=" width:97%;border-top: 1px solid #888;">
+            <div class="disableSection" style="width:97%">
               <div class="res-common-add">
                 <span>
                   <a href="#map">
-                    <span> <span class="fa fa-location-arrow locationicon fa-3x" style="font-size: 15px"></span> {{storeOpen[0]['storeAddress']}}</span>
+                    <span> <span class="fa fa-map-marker icon" style="font-size: 17px"></span> {{storeOpen[0]['storeAddress']}}</span>
                   </a>
                 </span>
               </div>
-              <div class="res-common-price" style="padding-bottom: 10px;">
-                <div class="micro-timesopen" style="padding-top: 5px;padding-bottom: 15px;">
-                  <span class="fa fa-clock-o houricon" style="font-size: 15px"></span>
-                  <span v-if="getActiveTime(storeOpen[0].openTime,storeOpen[0].cLoseTime)" class="itsopen">Mở cửa </span>
-                  <span v-else class="itsclose" >Đóng cửa </span>
-                  <span style="font-size:medium" >{{storeOpen[0].openTime}} - {{storeOpen[0].cLoseTime}}</span>
+              <div class="res-common-add">
+                <span>
+                  <a href="#menu">
+                    <span> <span class="fas fa-utensils icon" style="font-size: 17px"></span> {{ businessTypeName }} </span>
+                  </a>
+                </span>
+              </div>
+              <div class="res-common-add">
+                <span>
+                  <a href="#menu">
+                    <span> <span class="fas fa-usd icon" style="font-size: 17px"></span> {{minprice}},000 - {{maxprice}},000 </span>
+                  </a>
+                </span>
+              </div>
+              <div class="res-common-price">
+                <div class="micro-timesopen">
+                  <span class="fa fa-clock-o houricon"></span>
+                  <span style="color:#333333;font-size:18px" >{{storeOpen[0].openTime}} - {{storeOpen[0].cLoseTime}}</span>
+                  <span v-if="getActiveTime(storeOpen[0].openTime,storeOpen[0].cLoseTime)" class="itsopen">Đang mở cửa </span>
+                  <span v-else class="itsclose">Đóng cửa</span>
                 </div>
-                <div class="res-common-minmaxprice"  style="border-top: 1px solid #888;">
-                  <span v-if="discountList"><span v-for="(discount,index) in discountList" v-bind:key="index" style="font-size: 15px; color: red; border: 1px solid red; padding: 2px; margin-right: 3px;"> <i class="fa fa-tag"/> {{getDiscountName(discount.idDiscountType)}}</span>  </span>
-                </div>
-                  <iframe :src="'https://www.facebook.com/plugins/share_button.php?href=https%3A%2F%2Fviefood.info%2F'+storeID+'&layout=button&size=large&appId=396920051515132&width=87&height=28'" width="87" height="28" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
-                    <p v-if="storeName != ''" @click="openChat" style="float: right; font-size: 15px; cursor:pointer"> <i class="fas fa-comment-alt"></i> Nhắn tin</p>
               </div>
             </div>
           </div>
@@ -75,7 +88,7 @@
       </div>
     </div>
     
-    <div :class="'micro-main-menu fl_left ' + scrollMenu">
+    <div id="micro-main-menu" :class="'micro-main-menu fl_left ' + scrollMenu">
       <div class="tool-bar">
         <ul class="list-tool" >
           <li style="border: none;">
@@ -122,12 +135,25 @@
     </div>
   
     <div class="micro-right fl_right">
-      <div class="micro-main-content" >
+      <div class="micro-main-content">
         <div v-if="storeMenu" id="menu" class="microsite-table-book" style="overflow: hidden;
           margin-bottom: 15px;
           border-radius: 15px;
-        width: 985px;">
+          width:100%;">
           <div class="tb-title">
+            <div v-if="discountList" class="tb-discount">
+              <div class="tb-discount-item" v-for="(discount,index) in discountList" v-bind:key="index">
+                <div class="row">
+                <div class="icontag"><i style="font-size:25px" class="fa fa-tag"/></div>
+                <div :class="[index === 0? 'discountName':'discount discountName']">
+                  <p>{{getDiscountName(discount.idDiscountType)}}</p>
+                </div> 
+                 <div :class="[index === 0? 'discountContent':'discount discountContent']">
+                  <p>{{getDiscountContent(discount.idDiscountType)}}</p> 
+                </div> 
+                </div>
+              </div>
+            </div>
             <h2 style="font-size: 17px; padding: 5px 0; cursor: pointer">
               MENU
             </h2>
@@ -196,7 +222,7 @@
               </div>
               </div>
         </transition>
-          <Comments @change-rate="changeRate" v-bind:storeID="storeID" v-bind:storeRate="storeRate"/>
+          <Comments v-if="storeOpen[0]" @change-rate="changeRate" v-bind:storeID="storeID" v-bind:storeRate="storeRate" v-bind:ownerID="storeOpen[0].userID" />
           <div id="map" class="microsite-gallery" style="margin-top: 15px">
             <div style="margin-bottom: 40px">
               <strong style="font-size: 20px">BẢN ĐỒ</strong>
@@ -206,8 +232,7 @@
             </div>
             <!-- <GoogleMap v-if="storeOpen[0].lat" v-bind:lat="storeOpen[0].lat" v-bind:lng="storeOpen[0].long"/> -->
             <HereMap v-if="storeOpen[0].lat && apikey" v-bind:apikey="apikey" v-bind:lat="storeOpen[0].lat" v-bind:lng="storeOpen[0].long" v-bind:storeName="storeOpen[0].storeName"/>
-            <div id="map"></div>
-        </div>
+          </div>
         <!-- <div id="realtive" class="microsite-gallery" style="margin-top: 15px; overflow:visible">
             <div style="margin-bottom: 40px">
               <h4>QUÁN CÙNG LOẠI</h4>
@@ -217,6 +242,7 @@
         </div> -->
            <RelativeStore id="relative" v-if="storeOpen[0]"  v-bind:bussinessTypeID="storeOpen[0].businessTypeID"  v-bind:storeID="storeOpen[0].storeID"/>
       </div>
+     
     </div>
   </div>
   <Footer id="footer" style="margin-top: 200px;"/>
@@ -244,47 +270,25 @@ export default {
    icons: { freeSet },
   data(){
     return{
-      apikey:'',
-      isLoaded: false,
-      // chat: false,
-      // address: '',
-      //binding class
-      activeClass: 'Thông tin quán',
-      scrollMenu: '',
-      //dishChoosed
-      active: false,
-      dishChoosed:'',
-      dishChoosedIndex: 0,
-      storeID:'',
+      apikey:'',                          //apikey truyền vào map
+      isLoaded: false,                    //biến xác nhận đã tải xong hay chưa
+      activeClass: 'Thông tin quán',      //biến dùng để bind class 
+      scrollMenu: '',                     //biến dùng để bind class 
+      active: false,                      //biến mở xem chi tiết món ăn
+      dishChoosed:'',                     //món ăn được chọn
+      dishChoosedIndex: 0,                //vị trí của món ăn đc chọn trong mảng
+      storeID:'',                         //các thông tin của quán
       storeName: '',
       storePicture: '',
       storeRate:0,
-      storeOpen: [
-        // {
-        // storeID: String,
-        // storeAddress: String,
-        // storeName: String,
-        // storePicture: String,
-        // openTime: String,
-        // cLoseTime: String ,
-        // userID: String,
-        // provinceID:String ,
-        // menuID: String,
-        // businessTypeID:String,
-        // ratePoint: String,
-        // }
-      ],
-      storeMenu:[],
-      // menuId: '',
-      // isMapOpen: false,
-      // provinces: [],
-      businessTypeName:'',
-      // ratePoint:[],
-      // totalRate:5,
-      // commentList:[],
-      discountList:[],
-      discountAll:[],
-      dishDiscountList:[]
+      maxprice:0,
+      minprice:0,
+      storeOpen: [],
+      storeMenu:[], 
+      businessTypeName:'',             
+      discountList:[],                     //danh sách khuyến mãi của quán
+      discountAll:[],                     //danh sách các loại khuyến mãi
+      dishDiscountList:[]                 //danh sách khuyến mãi của món ăn
     }
   },
   components:{
@@ -297,25 +301,21 @@ export default {
     HereMap
   },
   computed:{
-    formatRate(){
+    formatRate(){   //format điểm của quán trước khi hiển thị
       return Math.ceil(this.storeRate*100)/100;
     }
   },
   methods:{
-    // getType(index){
-    //   this.$http.get(baseUrl +'/BusinessType/GetByID?id='+ index).then(response =>{
-    //     this.businessTypeName = response.data[0].businessTypeName })
-    // },
-    showDishChoosed(dish,index)
+    showDishChoosed(dish,index) // hiển thị món ăn được chọn
     {
       this.active = true;
       this.dishChoosed = dish;
       this.dishChoosedIndex = index;
     },
-    changeActive(tab){
+    changeActive(tab){          //thay đổi tab
       this.activeClass = tab;
     },
-    getActiveTime(open,close){
+    getActiveTime(open,close){  //hàm kiểm tra quán có trong thời gian hoạt động hay không 
 		  const today = new Date();
       const hour = today.getHours();
       const min = today.getMinutes();
@@ -331,29 +331,23 @@ export default {
           return true
       else return false;
     },
-     dishClicked (item) {
-       this.$router.push({path: `dishtype`, query:{key: item}})
-    },
-    storeClicked(item){
-      this.$router.push('/'+ item);
-      this.$router.go();
-    },
-    onScroll(){
+    onScroll(){       //hàm thay đổi class của element có id="micro-main-menu"
       window.onscroll = () => {
-        var relative_bot = document.getElementById('relative').offsetTop + document.getElementById('relative').offsetHeight;
-        if(document.documentElement.scrollTop > 300 && document.documentElement.scrollTop <  (relative_bot - 100)) {
-          this.scrollMenu= 'sticky';
+        var relative_bot = document.getElementById('relative').offsetTop + document.getElementById('relative').offsetHeight; //vị trí bottom của element relative
+        if(document.documentElement.scrollTop > 300 && document.documentElement.scrollTop <  (relative_bot - 100)) { 
+          this.scrollMenu= 'sticky'; //nếu document.documentElement.scrollTop trong khoảng [300:(relative_bot - 100)] thì element sẽ có thêm class tên là sticky
         } else {
-          this.scrollMenu= '';
+          this.scrollMenu= '';    //nếu không thì class sẽ trỏ về như mặc định
         }
       };
     },
-    async getDisCount(id,array){
+    //lấy khuyến mãi của quán và của món ăn
+    async getDisCount(id,array){ 
       try{
         this.discountList = await DiscountService.getDiscountbyStore(id);
         this.discountAll =  await DiscountService.getAll();
         for (let i = 0; i < array.length ; i++) {
-          let discount = await DiscountService.getDishDiscounts(array[i].dish_ID)
+          let discount = await DiscountService.getDishDiscounts(array[i].dish_ID)  //lấy khuyến mãi của từng món
           this.dishDiscountList.push(discount);
         };
       }
@@ -361,6 +355,7 @@ export default {
         console.log(err)
       }
     },
+    //lấy tên của khuyến mãi bằng id
     getDiscountName(id){
       let temp = ''
       this.discountAll.forEach(element => {
@@ -369,29 +364,44 @@ export default {
       });
       return temp;
     },
+    //lấy nội dung của khuyến mãi bằng id
+    getDiscountContent(id){
+      let temp = ''
+      this.discountAll.forEach(element => {
+        if(element.discountTypeID == id)
+          temp = element.content;
+      });
+      return temp;
+    },
     async onInit(){
       try{
-        this.storeOpen = await StoreService.getByID(this.storeID);
-        this.storeName=this.storeOpen[0].storeName;
+        this.storeOpen = await StoreService.getByID(this.storeID); //Lấy thông tin quán
+        this.storeName=this.storeOpen[0].storeName;                 //set thông tin quán
         document.title = this.storeName;
         this.storePicture=this.storeOpen[0].storePicture;
         this.address=this.storeOpen[0].storeAddress;
         this.storeRate = this.storeOpen[0].ratePoint;
-        this.isLoaded = true;
+        this.isLoaded = true;                                     //đã lấy thông tin xong
         if(this.storeRate == null || this.storeRate == 'NaN' ) this.storeRate = 0;
-        this.storeMenu = await StoreService.getDishByStore(this.storeID);
+        this.storeMenu = await StoreService.getDishByStore(this.storeID); //lấy thông tin thực đơn
+        //lấy max price của thực đơn 
+        this.maxprice = Math.max.apply(Math, this.storeMenu.map(function(dish) { return parseFloat(dish.dishPrice); }))
+        //lấy max price của thực đơn 
+        this.minprice = Math.min.apply(Math, this.storeMenu.map(function(dish) { return parseFloat(dish.dishPrice); }))
+        //lấy tên loại hình quán
         this.businessTypeName = await StoreService.getBussinessTypeById(this.storeOpen[0].businessTypeID);
+        //lấy khuyến mãi
         this.getDisCount(this.storeID,this.storeMenu);
       }
       catch{}
     },
-    openChat(){
+    openChat(){ //gọi hàm openChat của component Footer để tạo mới một cuộc trò chuyện
       this.$root.$refs.Footer.openChat(this.storeID,this.storeName,this.storePicture,this.storeOpen[0].userID);
     },
-    changeRate(rate){
+    changeRate(rate){ //thay đổi điểm của quán sau khi có comment mới
       this.storeRate = rate;
     },
-    getKeys(){
+    getKeys(){        //lấy apikey từ firebase
       const apiRef = firebase.database().ref("HereMap/ListApi/");
       apiRef.on("value", snapshot => {
         let data = snapshot.val();
@@ -411,24 +421,6 @@ export default {
   },
   mounted(){
     try{
-      // this.$http.get('https://api.viefood.info/api/Store/GetByID?id='+ id).then(response => {
-      //       this.storeOpen = response.data
-      //       this.storeID=this.storeOpen[0].storeID;
-      //       this.storeName=this.storeOpen[0].storeName;
-      //       this.storePicture=this.storeOpen[0].storePicture;
-      //       this.address=this.storeOpen[0].storeAddress;
-      //       this.storeRate = this.storeOpen[0].ratePoint;
-      //       if(this.storeRate == null || this.storeRate == 'NaN' ) this.storeRate = 0;
-      //       this.$http.get('https://api.viefood.info/api/Dish/GetByIDStore?id=' +this.storeID).then(response => {
-      //           this.storeMenu = response.data;
-      //           this.storeMenu.forEach( element => {
-      //             if(!this.dishType.includes(element.dishType_ID))
-      //               this.dishType.push(element.dishType_ID);
-      //           });
-      //       });
-      //       this.getType(this.storeOpen[0].businessTypeID);
-      //       this.isLoaded = true;
-      // });
       this.getKeys();
       this.onInit();
       this.onScroll();
@@ -443,12 +435,10 @@ export default {
 #map {
   height: 100%;
 }
-html {
-  scroll-behavior: smooth;
-}
 .sticky {
   position: fixed;
   top: 50px;
+  width:14.7%;
 }
 .left-thing{
 	width: 10%; 

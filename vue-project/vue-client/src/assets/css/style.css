@@ -956,3 +956,7 @@
     border-radius: 10px;
     background: #6d6d6d; 
 }
+
+@media only screen and (max-width: 620px) {
+	/* For mobile phones: */
+  }

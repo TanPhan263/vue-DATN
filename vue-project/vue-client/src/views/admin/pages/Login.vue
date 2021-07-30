@@ -111,30 +111,29 @@ import AuthService from '@/services/AuthService.js';
 export default {
   beforeRouteEnter (to, from, next) {
     var isAuthen = localStorage.getItem('isAuthen');
-    if( isAuthen != null)
+    if( isAuthen != null)//nếu có token ==> đang đăng nhập 
     {
-      next('/userinformation');
+      next('/thong-tin-tai-khoan'); //chuyển đến trang thông tin người dùng
       return;
     }
-    else {next();}
+    else {next();}//tiếp tục đến login
   },
   name: "Login",
   data() {
     return { 
-      loading: false,
-      show: false,
-      username: "",
-      password: "",
-      mgs_err:'',
-      role: [],
-      logo:'',
+      loading: false, //loading khi đang gọi api
+      show: false,    //show thông báo
+      username: "",   //tên người dùng
+      password: "",   //mật khẩu
+      mgs_err:'',     //message thông báo lỗi
+      logo:'',        //logo của trang web
     }
   },
   mounted() {
     this.getLogo();
   },
   methods: {
-    getLogo(){
+    getLogo(){ //lấy url ảnh logo từ firebase
 		  try{
       		const socialRef = firebase.database().ref("Footer/logo/");
             socialRef.on("value", snapshot => {
@@ -156,25 +155,26 @@ export default {
         }
         catch(err){}
       },
-      async login() {
-        if(!this.ValidateEmail(this.username)) {
+      async login() {//hàm đăng nhập
+        if(!this.ValidateEmail(this.username)) {//kiểm tra định dạng email
           this.show=true;
           this.mgs_err = 'Email không hợp lệ!!!';
           return;
         }
-      if(this.check()){
+      if(this.check()){ //kiểm tra thông tin có trống hay không 
         try {
           this.loading=true;
           const credentials = {
             email: this.username,
             password: this.password
           };
-          const login = await AuthService.login(credentials);
-          if(login.token == 'Đăng nhập thất bại') 
+          const login = await AuthService.login(credentials);//gọi api đăng nhập
+          if(login.token == 'Đăng nhập thất bại') //thông báo lỗi khi đăng nhập thất bại
             {
               this.loading=false;
               this.show=true;
               this.mgs_err = 'Sai tên đăng nhập hoặc mật khẩu!!!';
+              this.reset();
               return;
             }
           // const token=response;
@@ -214,6 +214,7 @@ export default {
           this.loading=false;
           this.show=true;
           this.mgs_err = 'Sai tên đăng nhập hoặc mật khẩu!!!';
+          this.reset();
         }
       }
       else{
@@ -222,24 +223,24 @@ export default {
         return;
       }
     },
-    check(){
+    check(){    //kiểm tra thông tin có đầy đủ hay không 
       if(this.username == '' || this.password == '')
         return false;
       return true;
     },
-    reset(){
+    reset(){ //reset thông tin
       this.username= "";
       this.password= "";
     },
-    loginGoogle(){
+    loginGoogle(){ //login bằng google
       AuthService.loginGoogle();
-      this.loading=false;
+      this.loading=true;
     },
-    loginFacebook(){
+    loginFacebook(){ //login bằng facebook
        AuthService.loginFacebook();
-       this.loading=false;
+       this.loading=true;
     },
-    ValidateEmail(mail) 
+    ValidateEmail(mail) //kiểm tra định dạng email
     {
       if(mail == '') return false;
        var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;

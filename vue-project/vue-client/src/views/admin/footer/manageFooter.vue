@@ -264,25 +264,24 @@ export default {
   name: 'manageNavBar',
   data(){
       return{
-        socials:[],
-        socialName:'',
+        socials:[],                     //danh sách mạng xã hội hiển thị ở footer
+        socialName:'',                  //các biến chứa thông tin của liên kết
         socialPic:'',
         imageData: null,
         socialLink:'',
-        companyInfo:[],
-        logo:'',
-        isLogo:false,
-        banner:'',
-        isBanner:false,
-        lable: '',
+        companyInfo:[],                 //danh sách thông tin của website ở footer
+        lable: '',                      //các biến chứa thông tin của một info
         content:'',
-        categories:[],
-        cateID:'',
+        logo:'',                        //logo trang web
+        isLogo:false,                   //biến cờ xác nhận đang update logo
+        banner:'',                      //banner của trnag web 
+        isBanner:false,                 //biến cờ xác nhận đang update logo
+        categories:[],                  //danh sách danh mục ở footer
+        cateID:'',                      //các biến chứa thông tin của một danh mục
         cateName:'',
-        childcategories:[],
-        childName:'',
+        childcategories:[],             //danh sách danh mục con ở footer
+        childName:'',                   //các biến chứa thông tin của một danh mục con
         childLink:'',
-        collapse:''
       }
   },
   mounted() {
@@ -296,11 +295,11 @@ export default {
       this.getCompanyInfo();
       this.getCategory();
     },
-    getLogo(){
+    getLogo(){                                              //lấy logo từ firebase 
         const socialRef = firebase.database().ref("Footer/logo/");
         socialRef.on("value", snapshot => {
         let data = snapshot.val();
-        if(data){
+        if(data){                                           //nếu data tồn tại
           let logo = [];
           Object.keys(data).forEach(key => {
                 logo.push({
@@ -308,36 +307,36 @@ export default {
                   picture: data[key].picture,
                 });
             });
-            this.logo = logo[0].picture;
+            this.logo = logo[0].picture;                     //gán dữ liệu vừa nhận được vào logo
         }
         else{
           this.logo='';
         }
       });
     },
-    getBanner(){
+    getBanner(){                                            //lấy banner từ firebase 
       const socialRef = firebase.database().ref("Footer/banner/");
         socialRef.on("value", snapshot => {
         let data = snapshot.val();
-        if(data){
+        if(data){                                           //nếu data tồn tại
           let banner = [];
-          Object.keys(data).forEach(key => {
+          Object.keys(data).forEach(key => {                
               banner.push({
                 id: key,
                 picture: data[key].picture,
               });
           });
-          this.banner = banner[0].picture;
+          this.banner = banner[0].picture;                //gán dữ liệu vừa nhận được vào banner
         }
         else{
           this.banner='';
         }
       });
     },
-    getSocial(){
+    getSocial(){                                             //lấy danh sách mạng xã hội hiển thị ở footer
       const socialRef = firebase.database().ref("Footer/socials/");
             socialRef.on("value", snapshot => {
-            let data = snapshot.val();
+            let data = snapshot.val();                          //nếu data tồn tại
             if(data){
               let socials = [];
               Object.keys(data).forEach(key => {
@@ -348,16 +347,16 @@ export default {
                     link: data[key].link,
                     });
                 });
-                this.socials = socials;
+                this.socials = socials;                    //gán dữ liệu vừa nhận được vào socials
             }
             else{
              this.socials=[];
             }
           });
     },
-    getCompanyInfo(){
+    getCompanyInfo(){                                      //lấy danh sách thông tin của website ở firebase
       const companyRef = firebase.database().ref("Footer/companyinfo/");
-            companyRef.on("value", snapshot => {
+            companyRef.on("value", snapshot => {          //nếu data tồn tại
             let data = snapshot.val();
             if(data){
               let company = [];
@@ -368,18 +367,18 @@ export default {
                     content:data[key].content,
                     });
                 });
-                this.companyInfo = company;
+                this.companyInfo = company;             //gán dữ liệu vừa nhận được vào companyInfo
             }
             else{
              this.companyInfo=[];
             }
           });
     },
-    getCategory(){
+    getCategory(){                                       //lấy danh sách danh mục ở firebase  
       const categoryRef = firebase.database().ref("Footer/categories/");
             categoryRef.on("value", snapshot => {
             let data = snapshot.val();
-            if(data){
+            if(data){                                     //nếu data tồn tại
               let category = [];
               Object.keys(data).forEach(key => {
                     category.push({
@@ -387,19 +386,19 @@ export default {
                     lable: data[key].lable,
                     });
                 });
-                this.categories = category;
-                this.getCategoryChild(this.categories[0].id);
+                this.categories = category;                //gán dữ liệu vừa nhận được vào categories
+                this.getCategoryChild(this.categories[0].id);//lấy thông tin danh mục con của categories đầu tiên
             }
             else{
              this.categories =[];
             }
           });
     },
-    getCategoryChild(id){
+    getCategoryChild(id){                                   //lấy thông tin danh mục con của categories
       this.cateID = id;
       firebase.database().ref("Footer/categories-child").orderByChild('cateId').equalTo(this.cateID).on("value", snapshot => {
             let data = snapshot.val();
-            if(data){
+            if(data){                                         //nếu data tồn tại
               let category = [];
               Object.keys(data).forEach(key => {
                     category.push({
@@ -409,26 +408,26 @@ export default {
                     cateId: data[key].cateId
                     });
                 });
-                this.childcategories = category;
+                this.childcategories = category;     //gán dữ liệu vừa nhận được vào childcategories
             }
             else{
              this.childcategories=[];
             }
           });
     },
-    addSocial(){
+    addSocial(){                                //thêm mới một mạng xã hội vào danh sách
       try{
        if(this.socialPic == '' || this.socialLink == '' || this.socialName == '') return;
-          const social = {
-                picture: this.socialPic,
-                socialName: this.socialName,
-                link: this.socialLink
+          const social = {                      //tạo một đối tượng xã hội 
+            picture: this.socialPic,
+            socialName: this.socialName,
+            link: this.socialLink
           };
-          firebase
+          firebase                              //thêm vào firebase 
             .database()
             .ref("Footer/socials/")
             .push(social);
-          this.socialPic  = '';
+          this.socialPic  = '';                 //reset dữ liệu
           this.socialLink = '';
           this.socialName = '';
           alert('Thêm thành công');
@@ -438,47 +437,47 @@ export default {
         console.log(err);
       }
     },
-    addCompanyInfo(){
+    addCompanyInfo(){                            //thêm mới một CompanyInfo vào danh sách
        if(this.lable == '') {alert("Vui lòng nhập đầy đủ"); return;}
-          const infor = {
+          const infor = {                        //tạo một đối tượng info 
                 lable: this.lable,
                 content:this.content,
           };
-          firebase
+          firebase                                //thêm vào firebase 
             .database()
             .ref("Footer/companyinfo/")
             .push(infor);
       alert("Thêm thành công");
-      this.lable = '';this.content = '' 
+      this.lable = '';this.content = '';            //reset dữ liệu
     },
-    addCategory(){
+    addCategory(){                                  //thêm mới một Category vào danh sách
       if(this.cateName == '') {alert("Vui lòng nhập đầy đủ"); return;}
-          const cate = {
+          const cate = {                              //tạo một đối tượng Category 
                 lable: this.cateName,
           };
-          firebase
+          firebase                                     //thêm vào firebase 
             .database()
             .ref("Footer/categories/")
             .push(cate);
       alert("Thêm thành công");
-      this.cateName= '';
+      this.cateName= '';                                 //reset dữ liệu
     },
-    addCategoryChild(){
+    addCategoryChild(){                                 //thêm mới một chile category vào danh sách
       if(this.childName == '') {alert("Vui lòng nhập đầy đủ"); return;}
-          const child = {
+          const child = {                               //tạo một đối tượng child category 
                 lable: this.childName,
                 link:this.childLink,
                 cateId: this.cateID
           };
-          firebase
+          firebase                                      //thêm vào firebase 
             .database()
             .ref("Footer/categories-child/")
             .push(child);
-      alert("Thêm thành công");
+      alert("Thêm thành công");                           //reset dữ liệu
       this.childName = '';this.childLink = '';
-      this.getCategoryChild(this.cateID); 
+      this.getCategoryChild(this.cateID);                 //tải danh sách child category của category hiện tại
     },
-    deleteSocial(id){
+    deleteSocial(id){                                     //xóa một mục mạng xã hội bằng id
       try{
         if(confirm('Bạn chắc chắn muốn xóa???')){
           firebase
@@ -490,8 +489,8 @@ export default {
       }
       catch(err){console.log(err)}
     },
-    deleteCompanyInfo(id){
-      try{
+    deleteCompanyInfo(id){                                //xóa một mục CompanyInfo bằng id
+      try{  
         if(confirm('Bạn chắc chắn muốn xóa???')){
         firebase
               .database()
@@ -502,7 +501,7 @@ export default {
       }
       catch(err){console.log(err)}
     },
-    deleteCategory(id){
+    deleteCategory(id){                                   //xóa một mục Categories bằng id
       try{
         if(confirm('Bạn chắc chắn muốn xóa???')){
         firebase
@@ -514,7 +513,7 @@ export default {
       }
       catch(err){console.log(err)}
     },
-    deleteCategoryChild(id){
+    deleteCategoryChild(id){                              //xóa một mục child Categories bằng id
       try{
         if(confirm('Bạn chắc chắn muốn xóa???')){
           firebase
@@ -526,67 +525,66 @@ export default {
       }
       catch(err){console.log(err)}
     },
-    updateSocial(id,name,link,picture){
+    updateSocial(id,name,link,picture){                    //update một mục mạng xã hội
       try{
        console.log(id,name,link,picture)
        firebase
             .database()
-            .ref("Footer/socials/"+ id)
-            .update({link: link, picture: picture , socialName: name});
+            .ref("Footer/socials/"+ id)                   //truy xuất phần tử có id = id được truyền vào 
+            .update({link: link, picture: picture , socialName: name});//update các thuộc tính của phần tử 
         alert("update thành công");
       }
       catch(err){
         console.log(err);
       }
     },
-    updateCompanyInfo(id,lable,content){
+    updateCompanyInfo(id,lable,content){                  //update một mục CompanyInfo 
        try{
        firebase
             .database()
-            .ref("Footer/companyinfo/"+ id)
-            .update({lable: lable, content: content });
+            .ref("Footer/companyinfo/"+ id)               //truy xuất phần tử có id = id được truyền vào 
+            .update({lable: lable, content: content });   //update các thuộc tính của phần tử 
         alert("update thành công");
       }
       catch(err){
         console.log(err);
       }
     },
-    updateCategory(id,lable){
+    updateCategory(id,lable){                             //update một mục Category
       try{
        firebase
             .database()
-            .ref("Footer/categories/"+ id)
-            .update({ lable: lable });
+            .ref("Footer/categories/"+ id)                //truy xuất phần tử có id = id được truyền vào 
+            .update({ lable: lable });                    //update các thuộc tính của phần tử 
         alert("update thành công");
       }
       catch(err){
         console.log(err);
       }
     },
-    updateCategoryChild(id,lable,link,cateId){
+    updateCategoryChild(id,lable,link,cateId){               //update một mục ChildCategory 
        try{
        firebase
             .database()
-            .ref("Footer/categories-child/"+ id)
-            .update({cateId: cateId, lable: lable, link: link});
+            .ref("Footer/categories-child/"+ id)              //truy xuất phần tử có id = id được truyền vào 
+            .update({cateId: cateId, lable: lable, link: link});//update các thuộc tính của phần tử
         alert("update thành công");
       }
       catch(err){
         console.log(err);
       }
-
     },
-    uploadLogo(picture){
+    uploadLogo(picture){                                     //update logo trên firebase                          
       try{
       firebase
             .database()
-            .ref("Footer/logo/").child('-McQ5jA7Ke_W69Loo1Jj')
+            .ref("Footer/logo/").child('-McQ5jA7Ke_W69Loo1Jj')  
             .update({ picture: picture });
       alert("update thành công");
       }
       catch(err){console.log(err)}
     },
-    uploadBanner(picture){
+    uploadBanner(picture){                                    //update banner trên firebase  
       try{
       firebase
         .database()
@@ -596,7 +594,7 @@ export default {
       }
       catch(err){console.log(err)}
     },
-    previewImage(event){
+    previewImage(event){                                      //hàm lấy thông tin hình ảnh trước khi nhấn vào input file
       if(this.isLogo)
         {
          this.logo=null;
@@ -609,49 +607,47 @@ export default {
       this.imageData = event.target.files[0];
     },
     onUpload(){
-      if(this.imageData == null)
+      if(this.imageData == null)                  //nếu không có hình ảnh
       {
-        if(this.isLogo)
+        if(this.isLogo)                           //nếu đang update logo thì thông báo chọn hình ảnh 
         {
           alert('Vui lòng chọn hình ảnh');
           return;
         }
-        else if(this.isBanner)
+        else if(this.isBanner)                     //nếu đang update banner thì thông báo chọn hình ảnh 
         {
           alert('Vui lòng chọn hình ảnh');
           return;
         }
-        this.addSocial();
+        this.addSocial();                       //thêm mới một mục mạng xã hội
         return;
       }
       const storageRef = firebase.storage().ref(`image/${this.imageData.name}`).put(this.imageData);
       storageRef.on(`state_change`, snapshot => {
       },error =>{console.log(error.message)},
       ()=> {
-        storageRef.snapshot.ref.getDownloadURL().then((url) => { 
-          if(this.isLogo && !this.isBanner)
+        storageRef.snapshot.ref.getDownloadURL().then((url) => {  //trả về url của ảnh
+          if(this.isLogo && !this.isBanner)                       //nếu đang update logo 
           {
-            this.logo=url;
-            this.uploadLogo(url);
-            return;
+            this.logo=url;                                         //gán url trả về vào logo
+            this.uploadLogo(url);                                  //update logo
+            return;                                                //thoát hàm
           }
-          else if(this.isBanner && !this.isLogo)
+          else if(this.isBanner && !this.isLogo)                  //nếu đang update banner
           {
-            this.banner=url;
-            this.uploadBanner(url);
-            return;
+            this.banner=url;                                      //gán url trả về vào banner
+            this.uploadBanner(url);                               //update banner
+            return;                                               //thoát hàm
           }
           else if(!this.isLogo && !this.isBanner){
-            this.socialPic=url;
-            this.addSocial();
+            this.socialPic=url;                                    //gán url trả về vào socialPic
+            this.addSocial();                                     //thêm mới một mục mạng xã hội
           }
           })
         }
       )
     },
-
-  },
-  
+  },  
 }
 </script>
 

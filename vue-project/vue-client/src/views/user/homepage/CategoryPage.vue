@@ -43,7 +43,6 @@
 		<div  v-show="show"  class="slider">
 			<Loading v-bind:storeNumber="18"/>
 		</div>
-		<!-- <div v-show="show" style="margin: 0 auto;" class="loader"></div> -->
       </div>
     </div>
 	 <div class="ship">
@@ -88,43 +87,42 @@ export default {
     },
 	data(){
 		return{
-		stores:[],
-		type: [],
-		pageOfItems: [],
-		customLabels,
-		customStyles,
-		show:true,
-		pageSize: 18,
-		lable: '',
-		loadingStoreDiscount: false,
-		discount: [],
-		discountList:[],
-		currDiscount:'',
-		clicked: false,
+			stores:[],			//danh sách quán
+			type: [],			//danh sách loại quán
+			pageOfItems: [], 	//danh sách quán theo trang
+			customLabels,		//custom jw-pagination
+			customStyles,
+			show:true, 			//
+			pageSize: 18,		//18 quán mỗi trang 
+			lable: '',			//tên của loại hình quán
+			loadingStoreDiscount: false,//biến load khi tải khuyến mãi của quán
+			discount: [], 				//danh sách tất cả khuyến mãi 
+			discountList:[], 			//danh sách khuyến mãi của quán
+			clicked: false, 			//biến cờ xác định đã click vào xem khuyến mãi hay chưa
 		}
 	},
 	mounted(){
 		this.onInit();
-		AnalystService.addVisitView();
+		AnalystService.addVisitView();//gọi api tăng lượt truy cập
 	},
 	props:{
 		categoryID: String,
 	},
 	methods:{
-		onChangePage(pageOfItems){
+		onChangePage(pageOfItems){ //thay đổi danh sách quán khi thay đổi trang 
 			this.pageOfItems = pageOfItems;
 		},
-		async onInit(){
+		async onInit(){    			//hàm khởi tạo
 			this.show = true;
-			const key = this.$route.query.key;
-			this.lable = await BussinessTypeService.getByID(key);
-			document.title = this.lable[0].businessTypeName;
-			this.type = await StoreService.getAllBussinessType();
+			const key = this.$route.query.key; 
+			this.lable = await BussinessTypeService.getByID(key); //Lấy tên của Loại hình quán đang xem 
+			document.title = this.lable[0].businessTypeName;      //set document title thành tên Loại hình quán đang xem
+			this.type = await StoreService.getAllBussinessType(); //danh sách loại hình quán
 			this.discount = await DiscountService.getAll();
 			if(sessionStorage.getItem('place')){
               let tempplace = JSON.parse(sessionStorage.getItem('place'));
-              //this.stores = await StoreService.getByBussinessType_distance(key,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
-			this.stores = await StoreService.getByBussinessType_distance(key,tempplace.lat,tempplace.lng);
+				//gọi api lấy danh sách quán theo lat lng của địa chỉ mới 
+			  this.stores = await StoreService.getByBussinessType_distance(key,tempplace.lat,tempplace.lng);
             }
 			else this.stores = await StoreService.getByBussinessType(key);
 			if(this.stores) this.show= false;
@@ -132,12 +130,14 @@ export default {
 		storeClicked(item) {
 			RouterService.storeClicked(item);
 		},
+		//Hàm cắt chuỗi
 		subString(index){
 			return index.toString().substring(0,20);
 		},
 		subString_address(index){
 			return index.toString().substring(0,12);
 		},
+		//hàm lấy tên doanh mục
 		getType(index){
 			try{
 				var temp='Unknown'
@@ -151,7 +151,8 @@ export default {
 				console.log(err);
 			}
 		},
-		openPopup(name,id) {
+		//Hàm mở Popup khuyến mãi
+		openPopup(name,id) { 	
         this.loadingStoreDiscount = true;
         // if(this.currDiscount){
         //   var popupcurr = document.getElementById(this.currDiscount);
@@ -159,20 +160,22 @@ export default {
         // }
         var popupnew = document.getElementById(name);
         popupnew.classList.toggle("show");
-        this.currDiscount = name;
+        // this.currDiscount = name;
         this.clicked = true;
         this.getDisCount(id);
       },
+	  //Đóng popup khuyến mãi
       closePopup(name) {
         if(this.clicked == true){
           this.discountList = [];
           this.loadingStoreDiscount = false;
-          this.currDiscount = '';
+        //   this.currDiscount = '';
           var popupnew = document.getElementById(name);
           popupnew.classList.toggle("show");
           this.clicked = false;
         }
       },
+	  //Lấy discount của quán 
       async getDisCount(id){
         try{
           this.discountList = [];
@@ -183,6 +186,7 @@ export default {
           console.log(err)
         }
       },
+	  //hàm lấy tên của discount theo id
       getDiscountName(id){
         let temp = ''
         this.discount.forEach(element => {

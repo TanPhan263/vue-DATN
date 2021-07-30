@@ -256,35 +256,33 @@ export default {
   name: 'Stores',
   data () {
     return {
-      primaryModal: false,
-      users: [],
-      keyword: '',
-      result: null,
-      provinces:[
+      primaryModal: false,              //biến mở modal thêm quán
+      users: [],                        //danh sách người dùng
+      keyword: '',                      //từ khóa để tim kiếm quán
+      result: null,                     //danh sách quán sau khi lọc bằng từ khóa
+      provinces:[                       //danh sách tỉnh
         {
           provinceID: String,
           provinceName: String
         }
       ],
-      provinceSelected: '',
-      districts:[],
-      districSelected:'',
-      businessTypes:[
+      districts:[],                     //danh sách quận
+      businessTypes:[                   //danh sách loại quán
         {
           businessTypeID: String,
           businessTypeName: String
         }
       ],
-      businessTypeSelected: '',
-      items: null,
-      fields: [
+      items: null,                      //danh sách quán 
+      fields: [                         //các trường trong bảng quán
         { key: 'storeName', label: 'Tên quán', _classes: 'font-weight-bold' },
         { key: 'storeAddress', label: 'Địa chỉ', _classes: 'font-weight-bold' },
         { key: 'openTime', label: 'Giờ mở cửa', _classes: 'font-weight-bold' },
         { key: 'cLoseTime', label: 'Giờ đóng cửa', _classes: 'font-weight-bold' },
         { key: 'ratePoint', label: 'Đánh giá', _classes: 'font-weight-bold' },
-        { key: 'status', label: 'status' },
+        { key: 'status', label: 'Trạng thái' },
       ],
+      //thuộc tính của quán
       storeName: '',
       storeAddress: '',
       storeOwner: '',
@@ -294,14 +292,16 @@ export default {
       storePicture: null,
       storeLat:'',
       storeLong:'',
-      activePage: 1,
-      active: false
+      provinceSelected: '',
+      districSelected:'',
+      businessTypeSelected: '',
+      activePage: 1,                          //trang hiển thị của bảng
     }
   },
   watch: {
     $route: {
       immediate: true,
-      handler (route) {
+      handler (route) {       //hàm thay đổi danh sách quán khi đổi trang trong bảng
         if (route.query && route.query.page) {
           this.activePage = Number(route.query.page)
         }
@@ -309,53 +309,53 @@ export default {
     }
   },
   methods: {
-    getBadge(status) {
+    getBadge(status) {      //hiện trạng thái quán 
       switch (status) {
-        case '2': return 'danger'
-        case '1': return 'primary'
+        case '2': return 'danger'   //bị ban
+        case '1': return 'primary'   //bình thường
       }
     },
-    rowClicked (item) {
+    rowClicked (item) {         //đến trang chi tiết quán
       this.$router.push({path: `store/${item.storeID}`})
     },
-    pageChange (val) {
+    pageChange (val) {          //thay đổi giá trị trang của bảng
       this.$router.push({ query: { page: val }})
     },
-    previewImage(event){
+    previewImage(event){        //hàm lấy thông tin hình ảnh trước khi nhấn vào input file
           this.storePicture=null;
           this.imageData= event.target.files[0];
     },
-    onUpload(){
+    onUpload(){                   //thêm quán mới 
       if(this.imageData == null)
       {
-        this.addStore();
+        this.addStore();           //nếu không có hình thì tiến hành thêm quán không cần ảnh
         return;
       }
-      const storageRef = firebase.storage().ref(`image/${this.imageData.name}`).put(this.imageData);
+      const storageRef = firebase.storage().ref(`image/${this.imageData.name}`).put(this.imageData);//tải ảnh lên firebase
       storageRef.on(`state_change`, snapshot => {
       },error =>{console.log(error.message)},
       ()=> {
-        storageRef.snapshot.ref.getDownloadURL().then((url) => { 
-          this.storePicture=url;
-          this.addStore();
+        storageRef.snapshot.ref.getDownloadURL().then((url) => {  //trả về url của ảnh
+          this.storePicture=url;                                  //gán url mới nhận vào hình ảnh của quán
+          this.addStore();                                        //tiến hành thêm quán
         })
         }
       )
     },
-    async getProvince(){
+    async getProvince(){                                          //lấy danh sách tỉnh
       this.provinces = await ProvinceService.getAll();
     },
-     async getDistrict(id){
+     async getDistrict(id){                                       //lấy danh sách quận
       this.districts = await ProvinceService.getDistrictByID(id);
     },
-    async getBussinessType(){
+    async getBussinessType(){                                      //lấy danh sách loại quán
       this.businessTypes = await StoreService.getAllBussinessType();
     },
-    async addStore(){
+    async addStore(){                                               //hàm thêm quán
       const token =  Storage.getItem('isAuthen');
-      let response = await StoreService.createMenu();
-      const store = {
-        storeAddress: this.storeAddress,
+      let response = await StoreService.createMenu();               //tạo menu của quán
+      const store = {                                               //tạo một đối tượng quán với dữ liệu người dùng nhập vào             
+        storeAddress: this.storeAddress,  
         storeName:this.storeName,
         storePicture: this.storePicture,
         openTime: this.openTime,
@@ -368,23 +368,21 @@ export default {
         ratePoint: '0',
         khoangcach: '0'
       }
-      const response2 = await StoreService.addStore(store, token);
-      alert(response2);
-      this.active= false;
-      this.onInit()
+      const response2 = await StoreService.addStore(store, token);//gọi api thêm quán
+      alert(response2);                                           //thông báo kết quả
+      this.onInit();                                              //load lại thông tin
     },
-    onChange(key){
-      if(key == '' || key == null)
-        return this.result=this.items;
+    onChange(key){                                                //tìm kiếm quán theo từ khóa
+      if(key == '' || key == null)                          
+        return this.result=this.items;                            //nếu từ khóa rỗng thì không tìm trả về danh sách ban đầu
       else {
-        this.result = this.items.filter(function(item){
+        this.result = this.items.filter(function(item){           //lọc những quán có tên chứa từ khóa
         return item.storeName.toLowerCase().includes(key.toLowerCase());
       })
       console.log(this.result)}
     },
-    async openAddStore(){
-        // this.active=true;
-      this.storeAddress = ''
+    async openAddStore(){                                         //hàm mở của sổ thêm quán               
+      this.storeAddress = ''                                      //set các giá trị thành rỗng trước khi mở                                
       this.storeName = ''
       this.storePicture = ''
       this.openTime = ''
@@ -393,17 +391,18 @@ export default {
       this.provinceSelected = ''
       this.districSelected = ''
       this.businessTypeSelected = ''
-      this.primaryModal = true;
-      this.users = await UserService.getAll(localStorage.getItem('isAuthen'));
+      this.primaryModal = true;                                   //mở hộp thoại thêm
+      this.users = await UserService.getAll(localStorage.getItem('isAuthen'));//lấy danh sách người dùng
     },
     onInit(){
+      //lấy danh sách quán 
       this.$http.get(url,{ headers: {'Content-Type': 'application/json' ,"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
-              this.items = response.data;
-              this.result= this.items;
+        this.items = response.data;
+        this.result= this.items;
       }); 
     },
-    closeModal(status, evt, accept) { if (accept) { 
-      this.onUpload();
+    closeModal(status, evt, accept) { if (accept) { //hàm đóng modal thêm quán
+      this.onUpload();                              //nếu nhấn ok thì sẽ thêm quán
       } 
     },
   },

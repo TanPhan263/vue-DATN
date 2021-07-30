@@ -76,83 +76,91 @@ import AuthService from '@/services/AuthService.js'
 export default {
     data(){
       return{
-        user:{
+        user:{                          //thông tin user
           userID: '',
           userName:'',
           userPIc:''
         },
-        storeList:[],
-        message: null,
-        messages: [],
-        show : false,
-        roomID:'',
-        storeClickedID:'',
-        senderPic:'',
-        ownerID: '',
-        isLogin: false,
+        storeList:[],                   //danh sách quán trong hộp thư
+        message: null,                  //tin nhắn
+        messages: [],                   //danh sách tin nhắn
+        show : false,                   //biến kiểm tra đã co user hay không để hiện mà hình chat
+        roomID:'',                      //Id của phòng chat
+        storeClickedID:'',              //quán đang chat
+        senderPic:'',                   //hình ảnh của quán đang nhắn tin
+        ownerID: '',                    //ID của chủ quán
+        isLogin: false,                 //biến kiểm tra có loggin hay không
       }
     },
     props:{
-      isOpen : Boolean
+      isOpen : Boolean //biến xác đinh hộp thư có đang mở hay không
     },
     created(){
-      this.$root.$refs.chatUser = this;
+      this.$root.$refs.chatUser = this; //khai báo để sử dụng ở các component khác 
     },
     methods:{
-        stringCut(index){
-          if(index.length > 19)
-            return index.slice(0,19)+'...';
+        stringCut(index){ //hàm cắt chuỗi nếu dài quán 17 kí tự
+          if(index.length > 17)
+            return index.slice(0,17)+'...';
           else return index;
         },
-        getDate(sec){
+        getDate(sec){ //hàm lấy thời gian bằng timestamp
          const monthNames = ["January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
           ];
           var date = new Date(sec);
           var currdate = new Date();
-          if(date.getDate() == currdate.getDate())
+          if(date.getDate() == currdate.getDate()) //nếu cùng một ngày thì hiển thị giờ phút
             return ' ' +date.getHours() + ':' + date.getMinutes();
-          else 
+          else                                    //khác ngày thì hiển thị ngày tháng
             return ' ' + monthNames[date.getMonth() +1] + ' ' + date.getDate();
         },
-        openChat(){
-            if(this.validateEmail(this.user.userName)){
-              this.user.userID = this.user.userName.slice(0,this.user.userName.indexOf('@'));
-              sessionStorage.setItem('chatUser',JSON.stringify(this.user));
-              this.fectchInboxes(this.user.userID);
-              this.fetchMessage();
+        openChat(){//hàm tạo user sau khi người dùng nhập email
+            if(this.validateEmail(this.user.userName)){ //kiểm tra email có đúng định dạng hay k 
+              this.user.userID = this.user.userName.slice(0,this.user.userName.indexOf('@')); //lấy chuỗi từ @ trở về trk để làm ID vì firebase không thể tạo ID có kí tự đặc biệt 
+              sessionStorage.setItem('chatUser',JSON.stringify(this.user)); //lưu vào sessionStorage
+              this.fectchInboxes(this.user.userID);//Load hộp thư cưa user
+              this.fetchMessage();//load các tin nhắn
               this.show = true;
           }
           else{
             alert("email không đúng, vui lòng nhập lại!!");
           }
         },
-        async checkLogin(){
+        async checkLogin(){ //Hàm kiểm tra user có đang login hay k 
           try{
             const token = localStorage.getItem('isAuthen')
             if(!token) return;
-            let respone = await UserService.getInfo(token);
+            let respone = await UserService.getInfo(token);// lấy thông tin người dùng
             if(respone[0] != 'Bạn cần đăng nhập'){
+              sessionStorage.removeItem('chatUser');
               this.isLogin = true;
-              this.user.userID = respone[0].userID;
+              this.user.userID = respone[0].userID;        //thiết lập thông tin user
               this.user.userName = respone[0].userName;
               this.user.userPIc = respone[0].picture;
-              this.show = true;
-              this.fectchInboxes(this.user.userID);
-              this.fetchMessage();
+              this.show = true; 
+              this.fectchInboxes(this.user.userID);        //load hộp thư
+              this.fetchMessage();                          //Load tin nhắn
             }
             else{
-              this.show = false;
+              if(sessionStorage.getItem('chatUser')){       //kiểm tra trong sessionStorage có user đăng nhập thì lấy thông tin user ra
+                this.user = JSON.parse(sessionStorage.getItem('chatUser'));
+                this.fectchInboxes(this.user.userID);
+                this.fetchMessage();
+                this.show = true;
+              }
+              else
+                this.show = false;
             }
           }
           catch{
           }
         },
-        createInbox(id,name,picture,owner){
+        createInbox(id,name,picture,owner){//tạo một inbox mới 
           if(id && name && owner){
             this.storeClickedID = id;
             this.ownerID = owner;
-            this.createInboxes(id,name,picture,owner);
+            this.createInboxes(id,name,picture,owner);//hàm tạo inbox 
             this.fetchMessage();
           }
         },
@@ -160,18 +168,18 @@ export default {
           try{
           if(storeId && storeName && storeOwner && this.user.userID){
             this.storeClickedID = storeId;
-            this.roomID = this.storeClickedID + this.user.userID;
+            this.roomID = this.storeClickedID + this.user.userID;//tạo id phòng chat bằng cách ghép hai ID của quán và người dùng lại
             firebase
               .database()
               .ref("Messages/inboxes/users/").child(this.user.userID).orderByChild('roomID').equalTo(this.roomID).on("value",snapshot => {
-                if (snapshot.exists()){
+                if (snapshot.exists()){ //nếu inbox đã tồn tại thì thông báo đã tồn tại và thoát
                   const userData = snapshot.val();
                   console.log("exists!", userData);
                   return;
                 }
                 else{
-                  var today = new Date();
-                  const inboxRecipent = {
+                  var today = new Date(); 
+                  const inboxRecipent = {       //tạo inbox của người nhận (quán)
                     recipentID: storeId,
                     roomID: this.roomID,
                     senderID: this.user.userID,
@@ -182,7 +190,7 @@ export default {
                     lastMsg: '',
                     seen: ''
                   };
-                  const inboxSender = {
+                  const inboxSender = {    //Tạo inbox của ng gửi ƠUser)
                     recipentID: this.user.userID,
                     roomID: this.roomID,
                     senderID: storeId,
@@ -193,19 +201,19 @@ export default {
                     lastMsg: '',
                     seen: ''
                   };
-                  if(this.ownerID == 'none'){
-                    firebase
+                  if(this.ownerID == 'none'){        //Nếu có ID chủ quán là store
+                    firebase                        //THêm vào firebase hòm thư của quán nhận
                     .database()
                     .ref("Messages/inboxes/users/" + this.storeClickedID).child(this.user.userID)
-                    .set(inboxRecipent);
+                    .set(inboxRecipent); 
                   } 
-                  else{
-                    firebase
+                  else{                               //Không có chủ quán thì là user
+                    firebase                          //THêm vào firebase hòm thư của user nhận
                     .database()
                     .ref("Messages/inboxes/stores/" + storeOwner).child(storeId).child(this.user.userID)
                     .set(inboxRecipent);
                   }
-                  firebase
+                  firebase                            //THêm vào firebase hòm thư của user gửi
                     .database()
                     .ref("Messages/inboxes/users/" + this.user.userID).child(storeId)
                     .set(inboxSender);
@@ -216,7 +224,7 @@ export default {
           }
           catch{}
         },
-        saveMessage(){
+        saveMessage(){ //lưu tin nhắn
           try{
             if(this.message && this.roomID && this.storeClickedID && this.user.userID && this.ownerID){
               var today = new Date();
@@ -226,25 +234,25 @@ export default {
                 msg: this.message,
                 date: today.toString().slice(0,21)
               };
-              firebase
+              firebase                            //lưu tin nhắn vào firebase
                 .database()
                 .ref("Messages/chatMessages/")
                 .push(mess);
               if(this.ownerID == 'none')
               {
-                firebase
-                .database()
+                firebase                          //update hòm thư của người/quán nhận
+                .database()                         //seen == false là chưa xem tin nhắn, lastMsg là tin vừa nhắn 
                 .ref("Messages/inboxes/users/" + this.storeClickedID).child(this.user.userID)
                 .update({seen:'false',time:today.getTime(),lastMsg:this.message});
               }
               else{
-                firebase
+                firebase                            //update hòm thư của người/quán nhận
                 .database()
                 .ref("Messages/inboxes/stores/"+ this.ownerID).child(this.storeClickedID).child(this.user.userID)
                 .update({seen:'false',time:today.getTime(),lastMsg:this.message});
               }
               firebase
-                .database()
+                .database()                         //update hòm thư của người/quán gửi
                 .ref("Messages/inboxes/users/"+ this.user.userID).child(this.storeClickedID)
                 .update({seen:'true',time:today.getTime(),lastMsg:this.message});
               this.message = "";
@@ -257,9 +265,9 @@ export default {
               console.log(err);
             }
         },
-        fetchMessage(){
+        fetchMessage(){                         //lấy danh sách tin nhắn theo roomID
           try{
-            if(this.roomID  && this.user.userID && this.storeClickedID){
+            if(this.roomID && this.user.userID && this.storeClickedID){
               firebase.database().ref("Messages/chatMessages/").orderByChild('roomID').equalTo(this.roomID).on("value", snapshot => {
                 if(snapshot.exists())
                 {
@@ -275,13 +283,13 @@ export default {
                     });
                   });
                   if(messages[messages.length - 1].senderID == this.storeClickedID && this.isOpen == true)
-                  {
+                  {       //nếu đang nhắn với quán thi update hòm thư của mình là đã xem seen = true
                     firebase
                     .database()
                     .ref("Messages/inboxes/users/"+ this.user.userID).child(this.storeClickedID)
                     .update({seen: 'true'});
                   }
-                  if(this.roomID == messages[0].roomID){
+                  if(this.roomID == messages[0].roomID){ //chỉ fetch tin nhắn của phòng hiện tại
                     this.messages = messages;
                   }
                 }
@@ -293,40 +301,41 @@ export default {
             console.log(err);
           }
         },
-        fectchInboxes(id){
+        fectchInboxes(id){                            //Load hòm thư của người dùng
           try{
               firebase.database().ref("Messages/inboxes/users/"+ id).on("value", snapshot => {
               if(snapshot.exists())
               {
-                  let data = snapshot.val();
-                  let inboxes = [];
-                  Object.keys(data).forEach(key => {
-                  if(data[key].seen == 'false'){
-                      this.$notify({
-                      title:'Có tin nhắn mới từ '+ data[key].senderName,
-                      text: data[key].lastMsg
-                    });
-                  }
-                  inboxes.push({
-                      id: key,
-                      recipentID: data[key].recipentID,
-                      roomID: data[key].roomID,
-                      senderID: data[key].senderID,
-                      senderName:  data[key].senderName,
-                      senderPic: data[key].senderPic,
-                      ownerID:  data[key].ownerID,
-                      time: data[key].time,
-                      lastMsg: data[key].lastMsg,
-                      seen : data[key].seen
-                    });
+                let data = snapshot.val();
+                let inboxes = [];
+                Object.keys(data).forEach(key => {
+                if(data[key].seen == 'false')
+                {
+                  this.$notify({
+                    title:'Có tin nhắn chưa xem từ '+ data[key].senderName,
+                    text: data[key].lastMsg,
                   });
-                  this.storeList = inboxes;
-                  if(this.storeClickedID == ''){
-                    this.storeClickedID = inboxes[0].senderID;
-                    this.roomID = inboxes[0].roomID;
-                    this.ownerID = inboxes[0].ownerID;
-                    this.fetchMessage();
-                  }
+                }
+                inboxes.push({
+                  id: key,
+                  recipentID: data[key].recipentID,
+                  roomID: data[key].roomID,
+                  senderID: data[key].senderID,
+                  senderName:  data[key].senderName,
+                  senderPic: data[key].senderPic,
+                  ownerID:  data[key].ownerID,
+                  time: data[key].time,
+                  lastMsg: data[key].lastMsg,
+                  seen : data[key].seen
+                });
+                });
+                this.storeList = inboxes;
+                if(this.storeClickedID == ''){ //nếu là lần đầu mở thì mở tin nhắn của quán đầu tiên
+                  this.storeClickedID = inboxes[0].senderID;
+                  this.roomID = inboxes[0].roomID;
+                  this.ownerID = inboxes[0].ownerID;
+                  this.fetchMessage();
+                }
               }
               else this.storeList = [];
             }); 
@@ -335,23 +344,23 @@ export default {
             console.log(err);
           }
         },
-        storeClicked(idRoom,idStore,idOwner,seen,senderPic){
+        storeClicked(idRoom,idStore,idOwner,seen,senderPic){// thay đổi dữ liệu Khi nhấn vào một quán trong inbox
           this.messages = [];
           this.senderPic = senderPic;
           this.roomID = idRoom;
           this.storeClickedID = idStore;
           this.ownerID = idOwner;
-          if(seen == 'false' && this.user.userID)
+          if(seen == 'false' && this.user.userID) //nếu quán này chưa xem tin nhắn thì update lại thành đã xem 
             {
               firebase
               .database()
               .ref("Messages/inboxes/users/"+ this.user.userID).child(idStore)
               .update({seen: 'true'});
             }
-          this.fetchMessage(idRoom);
+          this.fetchMessage(idRoom); //load tin nhắn
         },
-        exitChat(){
-          if(confirm('Bạn muốn đăng xuất phòng Chat?')){
+        exitChat(){ //đăng xuất khỏi phòng chat
+          if(confirm('Bạn muốn đăng xuất phòng Chat?')){  //reset lại các biến
             sessionStorage.removeItem('chatUser');
             this.user = {
                 userID: '',
@@ -365,36 +374,18 @@ export default {
             this.show = false;
           }
         },
-        validateEmail(mail) 
+        validateEmail(mail) //hàm kiểm tra email có đúng định dạng k
         {
           if(mail == '') return false;
           var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-              if (mail.match(validRegex)) {
-                return true;
-              } else {
-                return false;
-            }
-        },
-        getStoreName(id){
-          if(this.storeList)
-          {
-            let temp = ''
-            this.storeList.forEach(element => {
-              if(element.senderID == id)
-                temp = element.senderName;
-            });
-            return temp;
+            if (mail.match(validRegex)) {
+              return true;
+            } else {
+              return false;
           }
         },
-        onInit(){
-          if(sessionStorage.getItem('chatUser')){
-            this.user = JSON.parse(sessionStorage.getItem('chatUser'));
-            this.fectchInboxes(this.user.userID);
-            this.fetchMessage();
-            this.show = true;
-          }
-          else
-            this.checkLogin();
+        onInit(){ //Hàm khởi tạo
+          this.checkLogin();
         },
       },
     mounted(){
@@ -465,7 +456,7 @@ export default {
 .unseen_chat_user {
   float: left;
   padding: 0 0 0 5px;
-  width: 83%;
+  width: 82%;
 }
 
 .chat_people_user{ overflow:hidden; clear:both;}
@@ -562,7 +553,6 @@ export default {
   border: none;
   height: 40px;
   border-radius: 5px;
-  color: white;
   padding: 10px;
   margin: 0;
   position: absolute;

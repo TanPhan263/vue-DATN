@@ -10,14 +10,14 @@
     <Navbar/>
    <div class="container light-style flex-grow-1 container-p-y" style="margin-bottom: 50px;">
       <h4 class="font-weight-bold py-3 mb-1 titl">
-        Account settings
+        Cài đặt tài khoản
       </h4>
       <div id="app" class="card overflow-hidden">
         <div class="row no-gutters row-bordered row-border-light">
           <div class="col-md-3 pt-0">
             <div class="list-group list-group-flush account-settings-links">
-              <a v-bind:class="'list-group-item list-group-item-action ' + active1"  v-on:click="changeTabs('generals')"    data-toggle="list">General</a>
-              <a  v-bind:class="'list-group-item list-group-item-action ' + active2"  v-on:click="changeTabs('info')"        data-toggle="list">Info</a>
+              <a v-bind:class="'list-group-item list-group-item-action ' + active1"  v-on:click="changeTabs('generals')"    data-toggle="list">Thông tin tổng quan</a>
+              <a  v-bind:class="'list-group-item list-group-item-action ' + active2"  v-on:click="changeTabs('info')"        data-toggle="list">Thông tin chi tiết</a>
               <a class="list-group-item list-group-item-action"   href="/forgetpass"       data-toggle="list">Đổi mật khẩu</a>
             </div>
           </div>
@@ -28,22 +28,21 @@
                   <img :src="picture" alt="" class="d-block ui-w-80">
                   <div class="media-body ml-4">
                     <label class="btn btn-outline-primary">
-                      Upload new photo
+                      Tải ảnh mới
                       <input  type="file"
                         v-on:change="previewImage" class="account-settings-fileinput">
                     </label> &nbsp;
-                    <button type="button" v-on:click="onInit" class="btn btn-default md-btn-flat">Reset</button>
+                    <button type="button" v-on:click="onInit" class="btn btn-default md-btn-flat">Hủy</button>
                   </div>
                 </div>
                 <hr class="border-light m-0">
-  
                 <div class="card-body">
                   <div class="form-group">
-                    <label class="form-label">Username</label>
+                    <label class="form-label">Tên người dùng</label>
                     <input type="text" class="form-control mb-1" v-model="userName">
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Address</label>
+                    <label class="form-label">Địa chỉ</label>
                     <input type="text" class="form-control" v-model="address">
                   </div>
                   <div class="form-group">
@@ -51,7 +50,7 @@
                     <input type="text" class="form-control mb-1" v-model="email">
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Sex</label>
+                    <label class="form-label">Giới tính</label>
                     <input type="text" class="form-control mb-1" v-model="sex">
                   </div>
                 </div>
@@ -60,11 +59,11 @@
               <div class="tab-pane fade active show" id="account-info" v-if="tabSelected ==='info'">
                 <div class="card-body pb-2">
                   <div class="form-group">
-                    <label class="form-label">Birthday</label>
+                    <label class="form-label">Ngày sinh</label>
                     <input type="text" class="form-control" v-model="birthday">
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Country</label>
+                    <label class="form-label">Quốc gia</label>
                     <select class="custom-select">
                       <option selected >Việt Nam</option>
                     </select>
@@ -72,10 +71,9 @@
                 </div>
                 <hr class="border-light m-0">
                 <div  class="card-body pb-2">
-  
-                  <h6 class="mb-4">Contacts</h6>
+                  <h6 class="mb-4">Liên Hệ</h6>
                   <div class="form-group">
-                    <label class="form-label">Phone</label>
+                    <label class="form-label">Số điện thoại</label>
                     <input type="text" class="form-control" v-model="phone">
                   </div>
                   <div class="form-group">
@@ -89,7 +87,7 @@
         </div>
       </div>
       <div class="text-right mt-3">
-        <button type="button" v-on:click="onUpload" class="btn btn-primary">Save changes</button>&nbsp;
+        <button type="button" v-on:click="onUpload" class="btn btn-primary">Lưu thay đổi</button>&nbsp;
       </div>
     </div>
     <Footer/>
@@ -119,11 +117,11 @@ export default {
     data(){
         return{
           loading: false,
-          active1: 'active',
-          active2: false,
-          tabSelected: 'generals',
+          active1: 'active',      //biến dùng để bind class 
+          active2: false,         //biến dùng để bind class 
+          tabSelected: 'generals',//tab được chọn
           imageData: null,
-          id: '',
+          id: '',                 //các biến thông tin của user
           userName: '',
           phone: '',
           address: '',
@@ -137,27 +135,27 @@ export default {
     },
     mounted(){
       this.onInit();
-      AnalystService.addVisitView();
+      AnalystService.addVisitView(); //gọi api tăng lượt truy cập
     },
     methods: {
           async onInit(){
             try{
             document.title = 'Thông tin cá nhân';
-            this.user = await UserService.getInfo(localStorage.getItem("isAuthen"));
-            this.userName = this.user[0].userName;
-            this.phone = this.user[0].phone;
-            this.email = this.user[0].email;
-            this.address = this.user[0].address;
-            this.picture = this.user[0].picture;
-            this.sex = this.user[0].sex;
-            this.birthday = this.user[0].birthday;
-            this.userTypeID = this.user[0].userTypeID;
+            var user = await UserService.getInfo(localStorage.getItem("isAuthen"));//lấy thông tin user
+            this.userName = user[0].userName;
+            this.phone = user[0].phone;
+            this.email =user[0].email;
+            this.address = user[0].address;
+            this.picture = user[0].picture;
+            this.sex = user[0].sex;
+            this.birthday = user[0].birthday;
+            this.userTypeID = user[0].userTypeID;
             }
             catch{
               this.$router.push('/');
             }
           },
-          changeTabs(tab){
+          changeTabs(tab){          //hàm thay đổi qua lại giữa các tab
             this.tabSelected=tab;
             switch(tab){
               case 'generals' : 
@@ -174,7 +172,7 @@ export default {
               this.picture=null;
               this.imageData= event.target.files[0];
           },
-          onUpload(){
+          onUpload(){             //hàm upload hình ảnh lên firebase
             this.loading = true;
             if (this.imageData == null){
                this.update();
@@ -192,7 +190,7 @@ export default {
             }
             )
           },
-          async update(){
+          async update(){                 //update thông tin user
             try{
               const credentials = {
               userID: this.id,
@@ -206,7 +204,7 @@ export default {
               birthday: this.birthday,
               userTypeID: this.userTypeID
               };
-              localStorage.setItem('userInfor',credentials.toString())
+              //gọi api update thông tin user
               axios.post("https://api.viefood.info/api/User/EditByID" , credentials ,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{ 
                 this.loading= false;
                 alert(respone.data)

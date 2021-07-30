@@ -1,5 +1,5 @@
 <template>
- <div class="d-flex align-items-center min-vh-100">
+ <div class="d-flex align-items-center min-vh-100" style=" background-image: url('https://wallpaperaccess.com/full/1631410.jpg');">
   <CContainer >
     <CAlert
       style="width:100%"
@@ -18,12 +18,14 @@
     </div>
     </div>
   </div>
-      <h2 style="text-align: center;">ĐĂNG KÍ QUÁN</h2>
+      <h2 style="text-align:center;color:white;font-size:30px">ĐĂNG KÍ QUÁN</h2>
       <CRow  fluid v-if="page1" class="justify-content-center animation">
+        
         <CCol md="7">
           <CCard class="mx-4 mb-0">
             <CCardBody class="p-4">
               <CForm>
+                <a href="/"> <img class="imglogo" :src="logo" alt="viefood.info"></a>
                 <h1>Thông tin của bạn</h1>
                 <p class="text-muted">Create your account to manage your store</p>
                 <CInput
@@ -41,6 +43,11 @@
                   placeholder="Email"
                   autocomplete="email"
                   v-model="mail"
+                />
+                 <CInput
+                  placeholder="Password"
+                  v-model="pass"
+                  type="password"
                 />
                 <CButton class="btn_right" v-on:click="gotoNextPage(1)" block>Tiếp theo <i class="fas fa-arrow-right"></i></CButton>
               </CForm>
@@ -154,40 +161,41 @@ export default {
   name: 'Store',
   data () {
     return {
-      registered: false,
-      page1: true,
-      page2: false,
-      page3: false,
-      districts:[],
-      bussinessType:[],
-      msg: '',
-      showErr: false,
-//Store
-      storeName:'',
-      districtSelected:'',
-      bussinessTypeSelected:'',
-      Store_address:'',
+      registered: false,        //biến hiển thông báo đã đăng kí 
+      page1: true,              //biến hiển thị trang 1
+      page2: false,             //biến hiển thị trang 2
+      page3: false,             //biến hiển thị trang 3
+      districts:[],             //danh sách quận/huyện
+      bussinessType:[],         //danh sách loại quán
+      msg: '',                  //biến lưu nội dung thông báo 
+      showErr: false,           //biến hiển thị Lỗi 
+                                //thuộc tính của quán
+      storeName:'',             
+      districtSelected:'',      //id quận
+      bussinessTypeSelected:'', //id loại quán 
+      Store_address:'',         
       imageData: null,
       picture:'',
       openTime:'',
       closeTime:'',
-//User
-      name: '',
+                                //thuộc tính của user
+      name: '', 
       phone: '',
       mail: '',
       type: '-MO5VWchsca2XwktyNAw' ,
+      pass:'',
     }
   },
   methods: {
-    async signUpStore(){
+    async signUpStore(){        //hàm đăng kí quán
       try {
-        if(this.checkPage1() && this.checkPage2())
+        if(this.checkPage1() && this.checkPage2()) //kiểm tra hai trang đầu đã điền đầy đủ thông tin hay chưa
         {
-          const credentials = {
+          const credentials = {                    //tạo một đối tượng người dùng với dữ liệu người dùng nhập vào
             userName: this.name,
             phone: this.phone,
             address: '',
-            password: '1',
+            password: this.pass,
             email: this.mail,
             picture: '',
             sex: '',
@@ -195,8 +203,8 @@ export default {
             userTypeID: this.type,
             status:'-1'
           };
-          let ownerID = await AuthService.registerOwner(credentials);
-          const credentialsStore = {
+          let ownerID = await AuthService.registerOwner(credentials); //đăng kí user mới với vai trò lad chủ quán và api trả về id của user
+          const credentialsStore = {              //tạo một đối tượng quán với dữ liệu người dùng nhập vào
             storeAddress: this.Store_address,
             storeName: this.storeName,
             storePicture:this.picture,
@@ -207,22 +215,19 @@ export default {
             businessTypeID: this.bussinessTypeSelected,
             ratePoint: '0',
             khoangcach: '0',
-            status:'-1'
+            status:'-1'                           //status = -1 là quán đang chờ xác nhận
           };
-          const response = await StoreService.registerStore(credentialsStore)
-          this.registered=true;
-          this.reset();
+          const response = await StoreService.registerStore(credentialsStore) //đăng kí quán mới
+          this.registered=true;                   //hiện thông báo đk thành công 
+          this.reset();                           //reset lại các biến 
         }else {
-          this.showErr = true;
+          this.showErr = true;                    //không thành công hiện thông báo lỗi 
         }
       }catch (error) {
         console.log(error);
       }
     },
-    goBack() {
-      this.usersOpened ? this.$router.go(-1) : this.$router.push({path: '/'})
-    },
-    previewImage(event){
+    previewImage(event){                        //hàm lấy thông tin hình ảnh trước khi nhấn vào input file
         this.picture=null;
         this.imageData= event.target.files[0];
     },
@@ -230,35 +235,35 @@ export default {
       this.picture='';
       if(this.imageData == null)
       {
-        this.signUpStore();
+        this.signUpStore();                      //nếu không có hình thì tiến hành đăng kí quán không cần ảnh
         return;
       }
-      const storageRef = firebase.storage().ref(`image/${this.imageData.name}`).put(this.imageData);
+      const storageRef = firebase.storage().ref(`image/${this.imageData.name}`).put(this.imageData); //tải ảnh lên firebase
       storageRef.on(`state_change`, snapshot => {
       },error =>{console.log(error.message)},
       ()=> {
-        storageRef.snapshot.ref.getDownloadURL().then((url) => { 
-          this.picture=url;
-          this.signUpStore();
+        storageRef.snapshot.ref.getDownloadURL().then((url) => { //trả về url của ảnh
+          this.picture=url;                                      //gán url mới nhận vào hình ảnh của quán
+          this.signUpStore();                                    //tiến hành đăng kí quán
           })
         }
       )
     },
-    checkPage1(){
+    checkPage1(){                                               //hàm kiểm tra trang đầu tiên xem người dùng có nhập đầy đủ thông tin hay không
       if(this.name== '' || this.phone ==''|| this.email=='')
         {
             this.msg = 'Vui lòng nhập đầy đủ thông tin của bạn!'
             return false;
         }
       else{
-        if(!this.ValidateEmail(this.mail)){
+        if(!this.ValidateEmail(this.mail)){                     //kiểm tra mail có đúng định dạng hay không
           this.msg="Email không hợp lệ";
           return false;
         }
         return true;
       }
     },
-    checkPage2(){
+    checkPage2(){                                                  //hàm kiểm tra trang thứ 2 xem người dùng có nhập đầy đủ thông tin hay không
       if(this.openTime == '' || this.closeTime =='' || this.Store_address =='' || this.storeName == ''||
        this.bussinessTypeSelected=='' || this.districtSelected == '')
        {
@@ -267,7 +272,7 @@ export default {
        }
       return true;
     },
-    ValidateEmail(mail) 
+    ValidateEmail(mail)                                           //kiểm tra mail có đúng định dạng hay không
     {
        var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
           if (mail.match(validRegex)) {
@@ -276,7 +281,7 @@ export default {
             return false;
         }
     },
-    reset(){
+    reset(){                                                      //reset các biến trở lại như ban đầu
       this.openTime == ''; 
       this.closeTime ==''; 
       this.Store_address ==''; 
@@ -289,24 +294,23 @@ export default {
       this.picture ='';
       this.page1 = true; this.page2 = false; this.page3= false;
     },
-    gotoNextPage(index){   
+    gotoNextPage(index){                                          //thay đổi trang khi người dùng nhập xong dữ liệu 
       this.showErr = false;   
       switch(index){
-        case 1: if(!this.checkPage1()){ this.showErr=true; return;} 
-                this.page1 = false; this.page2 = true; this.page3= false; break;
-        case 2: if(!this.checkPage2()){ this.showErr=true; return;} 
-                this.page1 = false; this.page2 = false; this.page3 = true; break;
+        case 1: if(!this.checkPage1()){ this.showErr=true; return;} //kiểm tra đã điền đầy đủ chưa  
+                this.page1 = false; this.page2 = true; this.page3= false; break;//mở trang 2
+        case 2: if(!this.checkPage2()){ this.showErr=true; return;} //kiểm tra đã điền đầy đủ chưa  
+                this.page1 = false; this.page2 = false; this.page3 = true; break; //mở trang 3
       }
     },
-    async onInit(){
-      this.next = false;
-      this.districts = await ProvinceService.getAllDistrict();
-      this.districtSelected = this.districts[0].districtID;
-      this.bussinessType = await BussinessTypeService.getAll();
+    async onInit(){                                               //hàm khởi tạo
+      this.districts = await ProvinceService.getAllDistrict();    //lấy danh sách các quận
+      this.districtSelected = this.districts[0].districtID;       //set mặc định là quận đầu tiên trong danh sách
+      this.bussinessType = await BussinessTypeService.getAll();   //lấy danh sách các quận
     }
   },
    mounted(){
-     this.onInit();
+     this.onInit();                                               
   }
 }
 </script>

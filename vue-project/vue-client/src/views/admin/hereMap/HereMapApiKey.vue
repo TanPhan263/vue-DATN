@@ -52,19 +52,19 @@ export default {
     data(){
         return{
             //add
-            render: false,
-            apikeyName:'',
+            render: false,          //biến render component HereMap
+            apikeyName:'',          // thuộc tính cua apikey
             apikeyValue:'',
-            addModal: false,
-            apiKey:'',
-            listApikey:[],
+            addModal: false,        //biến mở hộp thoại add apikey 
+            apiKey:'',              //apikey đang được dùng
+            listApikey:[],          //danh sách apikey
         }
     },
     mounted(){
-        this.getKeys();
+        this.getKeys();             //lấy danh sách apikey từ firebase
     },
     methods: {
-        getKeys:_.debounce(function(){
+        getKeys:_.debounce(function(){   //lấy danh sách apikey từ firebase
             this.apiKey = '';
             const apiRef = firebase.database().ref("HereMap/ListApi/");
             apiRef.on("value", snapshot => {
@@ -72,21 +72,21 @@ export default {
             if(data){
             let apikeys = [];
             Object.keys(data).forEach(key => {
-                if(data[key].status == 1){this.apiKey = {
-                    id : key,
+                if(data[key].status == 1){this.apiKey = { //nếu status = 1 thì là key đang sử dụng
+                    id : key,                              //gán dữ liệu vào biến apiKey
                     name: data[key].name,
                     apikey: data[key].apikey,
                     status: data[key].status
                     }
                 }
-                apikeys.push({
+                apikeys.push({                                              
                     id : key,
                     name: data[key].name,
                     apikey: data[key].apikey,
                     status: data[key].status
                     });
                 });
-                this.listApikey = apikeys
+                this.listApikey = apikeys                  //gán danh sách apikey vừa lấy được vào ListApikey
             }
             else{
                 this.listApikey='';
@@ -94,10 +94,10 @@ export default {
           });
            this.render = true;
         },1000),
-        updateKey(newid){
+        updateKey(newid){                                   //update apikey mới thành đang sử dụng
             try{
             this.render = false;
-            if(this.apiKey.id){
+            if(this.apiKey.id){                             //update status của apikey cũ thành 0 là không sử dụng
             firebase
                 .database()
                 .ref("HereMap/ListApi/" + this.apiKey.id)
@@ -106,7 +106,7 @@ export default {
             firebase
                 .database()
                 .ref("HereMap/ListApi/" + newid)
-                .update({status: 1 });
+                .update({status: 1 });                      //update status của apikey mới thành 1 là đang sử dụng
             alert("sử dụng thành công");
             this.getKeys();
             }
@@ -114,27 +114,27 @@ export default {
                 console.log(err);
             }
         },
-        addKey(){
+        addKey(){                                           //thêm apikey mới 
             try{
-                const apikey = {
+                const apikey = {                            //tạo một đối tượng apikey
                     name: this.apikeyName,
                     apikey: this.apikeyValue,
                     status: 0
                 };
-                firebase
+                firebase                                    //thêm vào firebase
                     .database()
                     .ref("HereMap/ListApi/")
                     .push(apikey);
                 alert('Thêm thành công');
                 this.getKeys();
-                this.apikeyValue = '';
+                this.apikeyValue = '';                     //reset các biến
                 this.apikeyName = '';
             }
             catch(err){
                 console.log(err);
             }
         },
-        deleteKey(id){
+        deleteKey(id){                                      //xóa apikey bằng id
             if(confirm('Bạn chắc chắn muốn xóa???')){
             firebase
                 .database()
@@ -144,9 +144,13 @@ export default {
             }
             else return;
         },
-        closeModal(status, evt, accept) { if (accept) { 
-            this.addKey();
-        } 
+        closeModal(status, evt, accept) { if (accept) {  //hàm bắt sự kiện khi modal đóng
+            this.addKey();                                //nếu oke thì tiến hành add key
+            }
+            else{
+            this.apikeyValue = '';                     //reset các biến
+            this.apikeyName = '';
+            } 
         },
     },
 }

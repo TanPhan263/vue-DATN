@@ -257,60 +257,59 @@ export default {
   components: { CChartLineSimple, CChartBarSimple },
   data(){
     return{
-      user: [],
-      store:[],
-      comments:[],
-      dishes:[],
-      ready: false,
-      onlineUser: 0,
-      faceUser: 0,
-      ggUser:0,
-      rate1:0,
-      rate2:0,
-      rate3:0,
-      rate4:0,
-      rate5:0,
-      bussiness : [],
-      storePerDistrict:[],
+      user: [],             //danh sách người dùng
+      store:[],             //danh sách quán
+      comments:[],          //danh sách comment
+      dishes:[],            //danh sách món ăn
+      ready: false,         //biến cho biết đã tải xong 
+      onlineUser: 0,        //số người dùng đang ol
+      faceUser: 0,          //số người dùng đăng nhập bằng facebook
+      ggUser:0,             //số người dùng đăng nhập bằng google
+      rate1:0,              //số lượng đánh giá 1 sao
+      rate2:0,              //số lượng đánh giá 2 sao
+      rate3:0,              //số lượng đánh giá 3 sao
+      rate4:0,              //số lượng đánh giá 4 sao
+      rate5:0,              //số lượng đánh giá 5 sao
+      bussiness : [],       //danh sách thống kê quán theo từng loại quán
+      storePerDistrict:[],  //danh sách thống kê quán theo từng quận
     }
   },
   created(){
-    this.onInit();
+    this.onInit();          //hàm khởi tạo 
   },
   methods: {
      async onInit(){
-      this.user = await UserService.getAll(localStorage.getItem('isAuthen'));
-      this.getGoogleUser(this.user);
-      this.getFacebookUser(this.user);
-      this.store = await StoreService.getAll(); 
-      this.getComments();
-      this.dishes =  await StoreService.getAllDish(); 
-      this.getOnlineUser();
-      this.getStorePerBussinessType();
-      this.getStorePerDistrict();
-      this.ready = true;
+      this.user = await UserService.getAll(localStorage.getItem('isAuthen'));//lấy danh sách người dùng
+      this.getGoogleUser(this.user);                                         //hàm lọc ra người dùng google
+      this.getFacebookUser(this.user);                                       //hàm lọc ra người dùng facebook
+      this.store = await StoreService.getAll();                              //lấy tất cả các quán
+      this.getComments();                                                    //lấy danh sách các comment và tính toán đánh giá
+      this.dishes =  await StoreService.getAllDish();                        //lấy danh sách tất cả các món ăn
+      this.getOnlineUser();                                                  //lấy số người đang online
+      this.getStorePerBussinessType();                                       //lấy danh sách thống kê quán theo từng loại quán                          
+      this.getStorePerDistrict();                                            //lấy danh sách thống kê quán theo từng quận
+      this.ready = true;                                                     //tải hoàn tất
     },
-    async getOnlineUser(){
+    async getOnlineUser(){                                                   //hàm lấy số người đang online
       this.onlineUser = await UserService.getOnlineUser();
     },
-    getFacebookUser(array){
-      for(let i = 0; i< array.length ; i++){
-        console.log(array[i])
-        if(array[i].idFacebook)
+    getFacebookUser(array){                                                  //hàm lọc ra người dùng facebook  
+      for(let i = 0; i< array.length ; i++){  
+        if(array[i].idFacebook)                                              //nếu có thuộc tính idFacebook thì tăng số lượng người dùng facebook lên
           this.faceUser = this.faceUser +1;
       }
     },
-    getGoogleUser(array){
+    getGoogleUser(array){                                                     //hàm lọc ra người dùng google  
       for(let i = 0; i< array.length ; i++){
-        if(array[i].idGoogle)
+        if(array[i].idGoogle)                                                 //nếu có thuộc tính idFacebook thì tăng số lượng người dùng google lên
           this.ggUser = this.ggUser + 1;
       }
     },
-    async getComments(){
+    async getComments(){                                                      //lấy danh sách các comment và tính toán đánh giá
 		try{
-      this.rate1=0; this.rate2=0; this.rate3=0; this.rate4=0;this.rate5=0;
-			this.comments = await CommentService.getAll();
-			this.comments.forEach(element => {
+      this.rate1=0; this.rate2=0; this.rate3=0; this.rate4=0;this.rate5=0;    //đưa các biến đếm về 0 trước khi tính 
+			this.comments = await CommentService.getAll();                          //lấy danh sách tất cả comments
+			this.comments.forEach(element => {                                      //đếm số lượng từng loại đánh giá trong danh sách
         switch(parseInt(element.ratePoint)){
           case 1: this.rate1+=1; break;
           case 2: this.rate2+=1; break;
@@ -322,10 +321,10 @@ export default {
 		}
 		catch(err){console.log(err)}
 		},
-    async getStorePerBussinessType(){
+    async getStorePerBussinessType(){                                         //gọi api lấy danh sách thống kê quán theo từng loại quán
       this.bussiness = await AnalystService.getStorePerBussinessType();
     },
-    async getStorePerDistrict(){
+    async getStorePerDistrict(){                                              //gọi api lấy danh sách thống kê quán theo từng quận của tp hồ chí minh
       this.storePerDistrict = await AnalystService.getStorePerDistrict('-MO5b_1K2_tF_C4GVDo3');
     },
   },

@@ -4,7 +4,7 @@ export default [
     _children: [
       {
         _name: 'CSidebarNavItem',
-        name: 'Dashboard',
+        name: 'Bảng điều khiển',
         to: '/manage/overview',
         icon: 'cil-speedometer',
       },
@@ -15,7 +15,7 @@ export default [
       {
         _name: 'CSidebarNavItem',
         name: 'Cập nhật thông tin',
-        to: '/manage/update',
+        to: '/manage/profile',
         icon: 'cil-pencil'
       },
       // {

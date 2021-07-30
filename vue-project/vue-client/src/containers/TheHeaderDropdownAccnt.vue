@@ -3,8 +3,7 @@
     inNav
     class="c-header-nav-items"
     placement="bottom-end"
-    add-menu-classes="pt-0"
-  >
+    add-menu-classes="pt-0">
     <template #toggler>
       <CHeaderNavLink >
         <div class="c-avatar">
@@ -20,19 +19,19 @@
       <strong>{{user[0].userName}}</strong>
     </CDropdownHeader>
     <CDropdownItem v-if="getRole() === true" @click="gotoProfile()">
-      <i class="fas fa-user dropdownItem"></i> Profile
+      <i class="fas fa-user dropdownItem"></i> Cài đặt tài khoản
     </CDropdownItem>
      <CDropdownItem v-else href="/thong-tin-tai-khoan">
-      <i class="fas fa-user dropdownItem"></i> Profile
+      <i class="fas fa-user dropdownItem"></i> Cài đặt tài khoản
     </CDropdownItem>
     <CDropdownItem href="/doi-mat-khau">
-      <i class="fa fa-lock dropdownItem" aria-hidden="true"></i> Change password
+      <i class="fa fa-lock dropdownItem" aria-hidden="true"></i> Đổi mật khẩu
     </CDropdownItem>
-    <CDropdownItem @click="openChat" v-if="getRole() === false" >
-      <i class="fas fa-comments"></i> Contact admin
+    <CDropdownItem @click="openChat" v-if="user[0] && user[0].userTypeID !== '-MO5VBnzdGsuypsTzHaV'" >
+      <i class="fas fa-comments"></i> Liên hệ hỗ trợ - góp ý
     </CDropdownItem>
     <CDropdownItem @click="logout">
-      <i class="fas fa-sign-out-alt dropdownItem"></i> Logout
+      <i class="fas fa-sign-out-alt dropdownItem"></i> Đăng xuất
     </CDropdownItem>
     </div>
   </CDropdown>
@@ -58,21 +57,21 @@ export default {
    this.getUser();
   },
   methods: {
-    async getUser(){
+    async getUser(){  //lấy thông tin người dùng
         const token = localStorage.getItem('isAuthen')
         this.user = await UserService.getInfo(token);
         if(this.user[0].picture != '')
           this.picture = this.user[0].picture;
     },
-    logout() {
+    logout(){ //hàm đăng xuất
       AuthService.logout();
     },
     async created() {
-    if (!this.$store.getters.isLoggedIn) {
-      this.$router.push('/login');
-    }
+      if (!this.$store.getters.isLoggedIn) {
+        this.$router.push('/login');//đến trang login
+      }
   },
-  getRole(){
+  getRole(){ //lấy quyền của người dùng để hiển thị menu theo từng loại
     if(this.user[0].userTypeID == '-MO5VBnzdGsuypsTzHaV' || this.user[0].userTypeID == '-MO5VWchsca2XwktyNAw'   )
       return true;
     else return false;
@@ -83,8 +82,8 @@ export default {
     gotoUserInfor(){
       this.$router.push('/userinformation')
     },
-    openChat(){
-      this.$root.$refs.Footer.openChat('-M_UX0kqNgaXGTYa2_FJ','Nguyễn Ngọc Đại- Admin','','none');
+    openChat(){//mở hộp thoại chat Liên hệ hỗ trợ - góp ý
+      this.$root.$refs.Footer.openChat('-M_UX0kqNgaXGTYa2_FJ','Support Team','','none');
     },
   }
 }

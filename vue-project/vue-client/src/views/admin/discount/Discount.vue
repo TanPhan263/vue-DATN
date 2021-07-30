@@ -8,15 +8,20 @@
       @update:show="closeModal"
     >
     <CRow>
-    <CCol sm="8">
+    <CCol sm="4">
       <CInput
       label="Tên Khuyến mãi"
       v-model="discountName"
       />
-    </CCol>
-    <CCol sm="4">
       <p>Hình đại diện</p>
       <input type="file" @change="previewImage">
+    </CCol>
+    <CCol sm="8">
+      <CTextarea
+        label="Nội dung"
+        placeholder="Mừng khai trương giảm giá 30%"
+        rows="5"
+        v-model="discountContent"/>
     </CCol>
     </CRow>
      </CModal>
@@ -33,10 +38,20 @@
         <input type="file" @change="previewImage">
       </CCol>
       <CCol sm="8">
+        <CRow>
+          <CCol sm="4">
       <CInput
         label="Tên Khuyến mãi"
         v-model="discountName"
         />
+          </CCol>
+            <CCol sm="8">
+      <CInput
+        label="Nội dung"
+        v-model="discountContent"
+        />
+            </CCol>
+        </CRow>
       <p>Thêm quán vào khuyến mãi</p>
       <div class="modal-body" style="height:300px;overflow-y:scroll;overflow-x:hidden">
             <div v-for="result in stores" v-bind:key="result.storeID" style=" width: 100%;
@@ -194,7 +209,7 @@
               <CIcon name="cil-settings" />
             </template>
             <CDropdownItem @click="deleteDiscount(discount.discountTypeID)">Xóa</CDropdownItem>
-            <CDropdownItem @click="discountClicked(discount.discountTypeID,discount.discountTypeName,discount.discountTypePicture)">Chỉnh sửa</CDropdownItem>
+            <CDropdownItem @click="discountClicked(discount.discountTypeID,discount.discountTypeName,discount.discountTypePicture,discount.content)">Chỉnh sửa</CDropdownItem>
             <CDropdownItem @click="getDiscountStore(discount.discountTypeID)">Danh sách cửa hàng</CDropdownItem>
           </CDropdown>
         </template>
@@ -228,71 +243,60 @@ export default {
   },
     data(){
         return{
-            primaryModal: false,
-            successModal: false,
-            warningModal: false,
-            stores:[],
-            discounts: [],
-            token: '',
-            imageData: null,
-            active: false, 
-            // active2: false,
-            // active3: false,
-            discountID: '',
+            primaryModal: false,      //biến mở modal thêm Khuyến mãi
+            successModal: false,      //biến mở modal chỉnh sửa Khuyến mãi
+            warningModal: false,      //biến mở modal xem danh sách quán cảu khuyến mãi
+            stores:[],                //danh sách quán chưa có khuyến mãi
+            discounts: [],            //danh sách khuyến mãi
+            token: '',                //token của người dùng
+            imageData: null,          
+            discountID: '',           //các biến thông tin của discount
             discountName: '',
+            discountContent:'',
             discountPicture: null,
-            create: false,
-            // deleteID:'',
-            discountStore: [],
-            discountStoreID:''
+            create: false,            //biến cho biết có đang tao mới khuyến mãi hay không 
+            discountStore: [],        //danh sách các của hàng có trong khuyến mãi
+            discountStoreID:''        //id của khuyến mãi đang xem danh sách quán
         }
     },
     methods:{
-        async getDiscounts(){
-            this.discounts = await DiscountService.getAll();
+        async getDiscounts(){         //lấy danh sách khuyến mãi do admin tạo
+            this.discounts = await DiscountService.getByAdmin();
         },
-        async deleteDiscount(id){
+        async deleteDiscount(id){     //xóa khuyến mãi
             try {
             if(confirm('Bạn chắc chắn muốn xóa???')){
               const response = await DiscountService.deleteDiscount(id,this.token);
               this.getDiscounts();
               alert(response);
-            // this.active2=false;
               }
             }
             catch(err){
               console.log(err);
             }
         },
-        // getDeleteDiscount(id){
-        //   this.deleteID = id;
-        // },
-        isCreate(){
+        isCreate(){                 //mở modal thêm khuyến mãi
           this.discountID = '';
           this.discountName ='';
           this.discountPicture = '';
+          this.discountContent ='';
           this.create= true;
-          // this.active = true;
           this.primaryModal = true;
-        },
-        isClose(){
-          this.create= false;
-          // this.active = false;
         },
         previewImage(event){
           this.discountPicture=null;
           this.imageData= event.target.files[0];
         },
-        onUpload(){
-          if(this.imageData == null) this.submitDiscount();
+        onUpload(){                //hàm upload hình ảnh lên firebase
+          if(this.imageData == null) this.submitDiscount();  //Không có hình ảnh thì trực chạy submitDiscount
           else{
-            const storageRef = firebase.storage().ref(`image/comment/${this.imageData.name}`).put(this.imageData);
+            const storageRef = firebase.storage().ref(`image/discount/${this.imageData.name}`).put(this.imageData);//đưa hình ảnh lên firebase
             storageRef.on(`state_change`, snapshot => {
             },error =>{console.log(error.message)},
             ()=> {
-              storageRef.snapshot.ref.getDownloadURL().then((url) => {
-                this.discountPicture = url;
-                this.submitDiscount();
+              storageRef.snapshot.ref.getDownloadURL().then((url) => { //trả về url của ảnh
+                this.discountPicture = url;                            //gán url trả về vào hình anh của khuyến mãi
+                this.submitDiscount();                                 //tiến hành update/edit khuyến mãi
                 })
               }
             )
@@ -300,17 +304,18 @@ export default {
         },
         async submitDiscount(){
           try{
-            const discount =  {
+            const discount =  {  //tạo một đối tượng discount
               discountTypeID: this.discountID,
               discountTypeName: this.discountName,
               discountTypePicture: this.discountPicture,
-              storeID: "",
+              discountRule: "",
+              content:this.discountContent
             };
-            if(!this.create){
+            if(!this.create){   //nếu không phải tạo mới thì gọi api cập nhật
               const response = await DiscountService.editDitscount(this.discountID,discount,this.token);
               alert(response);
             }
-            else{
+            else{               //gọi api tạo khuyến mãi mới 
               const response = await DiscountService.createDiscount(discount,this.token);
               alert(response);
               this.create= false;
@@ -319,27 +324,28 @@ export default {
           }
           catch(err){ console.log(err);}
         },
-        discountClicked(id, name, picture){
+        discountClicked(id, name, picture,content){ //hiện hộp thoại chỉnh sửa Khuyến mãi
           this.create = false;
           this.successModal = true;
           this.discountPicture= picture;
           this.discountName=name;
           this.discountID=id;
-          this.getAddStore(id);
+          this.discountContent = content;
+          this.getAddStore(id);                     //Lấy danh sách quán chưa có khuyến mãi này
         },
-        async addStoreToDiscount(id){
+        async addStoreToDiscount(id){               //thêm quán vào khuyến mãi sau khi thêm thì trang chi tiết của quán sẽ có khuyến mãi này
           try{
-          const discount = {
+            const discount = {                      //tạo một đối tượng khuyến mãi chứa id quán và id loại khuyến mãi
               iDStore: id,
               iDDiscountType: this.discountID
-          }
-          const response = await DiscountService.addStoreToDiscount(discount,this.token);
-          alert(response);
-          }
-          catch(err){console.log(err);}
+            }
+            const response = await DiscountService.addStoreToDiscount(discount,this.token);//gọi api thêm quán vào khuyến mãi
+            alert(response);                                                                //thông báo kết quả
+            }
+            catch(err){console.log(err);}
         },
-        async removeStoreToDiscount(idStore){
-          try{
+        async removeStoreToDiscount(idStore){          //xóa quán khỏi khuyến mãi
+          try{                                        //gọi api xóa quán ra khỏi khuyến mãi hiện tai
           const response = await DiscountService.removeStoreToDiscount(idStore,this.discountStoreID,this.token);
           this.getDiscountStore(this.discountStoreID);
           alert(response);
@@ -348,21 +354,20 @@ export default {
             alert('Lỗi rồi: ' + err)
           }
         },
-        async getDiscountStore(id){
+        async getDiscountStore(id){                     //lấy ra danh sách các quán có trong khuyến mãi bằng id của khuyến mãi
           this.discountStoreID = id;
-          // this.active3=true;
           this.warningModal = true;
           this.discountStore = await DiscountService.getStore(id);
         },
-        async getAddStore(id){
+        async getAddStore(id){                          //Lấy danh sách quán không có id của khuyến mãi này
           let array = await StoreService.getAll();
           let array2 = await DiscountService.getStore(id);
           this.stores = array.filter(x => !array2.includes(x));
         },
-        closeModal(status, evt, accept) { if (accept) { 
-            this.onUpload();
+        closeModal(status, evt, accept) { if (accept) { //hàm bắt sự kiện khi modal đóng
+            this.onUpload();                            //nếu oke thì tiến hành upload dữ liệu 
          }
-         else{
+         else{                                          //không thì reset lại dữ liệu khuyến mãi
             this.discountID = '';
             this.discountName ='';
             this.discountPicture = '';

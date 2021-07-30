@@ -1,12 +1,41 @@
 <template>
   <CRow>
+    <CModal
+      title="Thêm Món"
+      :show.sync="addDishModal"
+      color="primary"
+      @update:show="closeModal"
+    >
+    <CRow>
+    <CCol sm="6">
+     <CInput
+        label="Tên món ăn"
+        placeholder="Cơm chiên"
+        v-model ="dishName"
+      />
+      </CCol>
+      <CCol sm="6">
+        <CInput
+          label="Giá"
+           placeholder="25,000"
+        v-model="dishPrice"
+      />
+      </CCol>
+       </CRow>
+      <CRow>
+        <CCol sm="10">
+        <p>Hình ảnh món ăn</p>
+        <input type="file"  @change="previewImage">
+        </CCol>
+      </CRow>
+    </CModal>
     <CCol >
       <CCard class="center_div" style="padding: 20px;">
         <CCardHeader>
             <strong style="font-size:22px">Thực đơn
               </strong> 
-            <CButton style="float: right" color="primary" @click="active=true">Thêm Món</CButton>
-            <transition v-if="active">
+            <CButton style="float: right" color="primary" @click="addDishModal=true">Thêm Món</CButton>
+            <!-- <transition v-if="active">
               <div class="modal-mask">
               <div class="modal-wrapper">
                 <div class="modal-container">
@@ -47,7 +76,7 @@
                 </div>
               </div>
               </div>
-            </transition>
+            </transition> -->
         </CCardHeader>
         <CCardBody>
         <div class="row">
@@ -119,89 +148,86 @@ export default {
     next();
   },
   props:{
-    menuID: String,
+    menuID: String,                       //biến được truyền vào từ component cha
   },
   data(){
     return{
-      user:'',
-      storeOpened:[],
-      menus:[],
-      //add dish
+      addDishModal: false,                //mở hộp thoại thêm món ăn
+      user:'',                            //thông tin người dùng
+      storeOpened:[],                     //quán đang mở 
+      menus:[],                           //danh sách món ăn
+      //add dish                           //thuộc tính của món ăn
       dishName:'',
       dishPrice:'',
       dishPicture:null,
       imageData: null,
-      fields: [
-        { key: 'dishName', label: 'Tên món', _classes: 'font-weight-bold' },
-        { key: 'dishPrice', label: 'Giá', _classes: 'font-weight-bold' },
-        { key: 'dishPicture', label: 'Hình ảnh', _classes: 'font-weight-bold' },
-      ],
-      dishTypes:[],
-      dishTypeSelected: '',
-      activePage:1,
-      active: false
+      dishTypeSelected: '',               //id loại món ăn
     }
   },
-    methods:{
-        rowClicked(item) {
-            this.$router.push({path: `/manage/managestores/managemenu/${item.dish_ID}`})
-        },
-        getMenus(){
-            this.$http.get('https://api.viefood.info/api/Dish/GetByIDStore?id=' + this.menuID).then(response => {
-              this.menus = response.data
-          });
-        },
-        changeMenus(id){
-            this.$http.get('https://api.viefood.info/api/Dish/GetByIDStore?id=' + id).then(response => {
-              this.menus = response.data
-          });
-        },
-        previewImage(event){
-          this.dishPicture=null;
-          this.imageData= event.target.files[0];
-        },
-        onUpload(){
-          this.dishPicture="";
-          if(this.imageData == null)
-          {
-            this.addDish();
-            return;
-          }
-          const storageRef = firebase.storage().ref(`image/${this.imageData.name}`).put(this.imageData);
-          storageRef.on(`state_change`, snapshot => {
-          },error =>{console.log(error.message)},
-          ()=> {
-            storageRef.snapshot.ref.getDownloadURL().then((url) => {
-              this.dishPicture=url; this.addDish();
-            })
-          }
-        )
-      },
-      async addDish(){
-        const dish = {
-          dishName: this.dishName,
-          dishPrice: this.dishPrice,
-          dishPicture: this.dishPicture,
-          dishType_ID: this.dishTypeSelected,
-          menu_ID: this.menuID
-        }
-        const respone = await StoreService.addDish(dish,localStorage.getItem('isAuthen'));
-        alert(respone)
-        this.active= false;
-        this.getMenus();
-      },
-      pageChange (val) {
-      this.$router.push({ query: { page: val }})
+  methods:{
+    rowClicked(item) {
+        this.$router.push({path: `/manage/managestores/managemenu/${item.dish_ID}`})//đến trang chi tiết món ăn
+    },
+    getMenus(){                                                                     //lấy danh sách món ăn theo id menu
+        this.$http.get('https://api.viefood.info/api/Dish/GetByIDStore?id=' + this.menuID).then(response => {
+          this.menus = response.data
+      });
+    },
+    changeMenus(id){                                                                //thay đổi danh sách món ăn khi người dùng đổi quán
+        this.$http.get('https://api.viefood.info/api/Dish/GetByIDStore?id=' + id).then(response => {
+          this.menus = response.data
+      });
+    },
+    previewImage(event){                                                           //hàm lấy thông tin hình ảnh trước khi nhấn vào input file
+      this.dishPicture=null;
+      this.imageData= event.target.files[0];
+    },
+    onUpload(){
+      this.dishPicture="";
+      if(this.imageData == null)                                                   //nếu không có hình ảnh 
+      {
+        this.addDish();                                                             //thêm món ăn với hình ảnh = ''
+        return;
       }
+      const storageRef = firebase.storage().ref(`image/${this.imageData.name}`).put(this.imageData);//tải ảnh lên firebase
+      storageRef.on(`state_change`, snapshot => {
+      },error =>{console.log(error.message)},
+      ()=> {
+        storageRef.snapshot.ref.getDownloadURL().then((url) => {//trả về url của ảnh
+          this.dishPicture=url; this.addDish();                 //gán url vào hình ảnh của món và thêm món
+        })
+      }
+    )
     },
-    created(){
-      this.$root.$refs.MangeMenu = this;
-      this.user=localStorage.getItem('userInfor');
-      this.user= JSON.parse(this.user);
-    },
-    mounted(){
+    async addDish(){                                             //tạo món mới
+      const dish = {                                             //tạo đối tượng món với dữ liệu người dùng nhập vào
+        dishName: this.dishName,
+        dishPrice: this.dishPrice,
+        dishPicture: this.dishPicture,
+        dishType_ID: this.dishTypeSelected,
+        menu_ID: this.menuID
+      }
+      //gọi api thêm món
+      const respone = await StoreService.addDish(dish,localStorage.getItem('isAuthen'));
+      alert(respone)      //thông báo kết quả
       this.getMenus();
+      this.dishName='';   //reset các biến 
+      this.dishPrice ='';
+      this.dishPicture = '';
+    },
+    closeModal(status, evt, accept) { if (accept) { //đóng modal thêm món 
+          this.onUpload();                          //nếu nhấn oke thì thêm món
+      }
     }
+  },
+  created(){  
+    this.$root.$refs.MangeMenu = this;              //khai báo để sử dụng ở các component khác 
+    this.user=localStorage.getItem('userInfor');     //lấy thông tin user
+    this.user= JSON.parse(this.user);
+  },
+  mounted(){
+    this.getMenus();                                //lấy danh sách món ăn
+  }
 }
 </script>
 

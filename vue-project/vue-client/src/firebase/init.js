@@ -1,7 +1,7 @@
 import firebase from 'firebase'
 import Vue from 'vue'
 
-export default firebase.initializeApp({
+export default firebase.initializeApp({//khởi tạo firebase 
     apiKey: "AIzaSyDNRD7rcNybO5pVkC8POMiMhYYwmfreUVQ",
     authDomain: "tlcn-1a9cf.firebaseapp.com",
     databaseURL: "https://tlcn-1a9cf.firebaseio.com",
@@ -38,25 +38,25 @@ export default firebase.initializeApp({
             });
           });
         }
-        else if(user.userTypeID == '-MO5VBnzdGsuypsTzHaV')
-        {
-          let notified = sessionStorage.getItem('notified')
-          notified = JSON.parse(notified);
-          let data = snapshot.child('users').child(user.userID).val();
-          Object.keys(data).forEach(key => {
-            if(data[key].seen == 'false')
-            {
-              if(!notified.includes(key + data[key].time)){
-                Vue.notify({
-                  title: 'Bạn có tin nhắn mới từ ' + data[key].senderName,
-                  text: data[key].lastMsg,
-                });
-                notified.push(key+data[key].time);
-                sessionStorage.setItem('notified',JSON.stringify(notified));
-              }
-            }
-          });
-        }
+        // else if(user.userTypeID == '-MO5VBnzdGsuypsTzHaV')
+        // {
+        //   let notified = sessionStorage.getItem('notified')
+        //   notified = JSON.parse(notified);
+        //   let data = snapshot.child('users').child(user.userID).val();
+        //   Object.keys(data).forEach(key => {
+        //     if(data[key].seen == 'false')
+        //     {
+        //       if(!notified.includes(key + data[key].time)){
+        //         Vue.notify({
+        //           title: 'Bạn có tin nhắn mới từ ' + data[key].senderName,
+        //           text: data[key].lastMsg,
+        //         });
+        //         notified.push(key+data[key].time);
+        //         sessionStorage.setItem('notified',JSON.stringify(notified));
+        //       }
+        //     }
+        //   });
+        // }
       }
     }
   }); 

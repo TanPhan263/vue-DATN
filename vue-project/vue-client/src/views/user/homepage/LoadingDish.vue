@@ -9,6 +9,7 @@
 
 <script>
 export default {
+     //Component loading khi đang tải các món ăn
     name: 'loadingComponent',
     data(){
         return{

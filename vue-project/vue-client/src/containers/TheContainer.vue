@@ -36,7 +36,7 @@ export default {
     this.getUser()
   },
   methods:{
-    async getUser(){
+    async getUser(){//lấy thông tin người dùng qua token
       try{
         const token = localStorage.getItem('isAuthen')
         this.user = await UserService.getInfo(token);

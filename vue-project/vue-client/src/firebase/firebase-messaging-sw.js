@@ -1,7 +1,7 @@
 importScripts('https://www.gstatic.com/firebasejs/8.2.7/firebase-app.js')
 importScripts('https://www.gstatic.com/firebasejs/8.2.7/firebase-messaging.js')
 
-export default firebase.initializeApp({
+export default firebase.initializeApp({//khởi tạo firebase 
     apiKey: "AIzaSyDNRD7rcNybO5pVkC8POMiMhYYwmfreUVQ",
     authDomain: "tlcn-1a9cf.firebaseapp.com",
     databaseURL: "https://tlcn-1a9cf.firebaseio.com",

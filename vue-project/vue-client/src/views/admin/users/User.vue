@@ -198,16 +198,16 @@ export default {
   },
   beforeRouteEnter(to, from, next) {
     next(vm => {
-      AuthService.checkUser(localStorage.getItem('isAuthen'));
-      AuthService.checkAdmin(localStorage.getItem('isAuthen'));
+      AuthService.checkUser(localStorage.getItem('isAuthen'));//kiểm tra có đăng nhập hay không 
+      AuthService.checkAdmin(localStorage.getItem('isAuthen'));//kiểm tra quyền có là admin hay khong 
       next();
       vm.usersOpened = from.fullPath.includes('users')
     })
   },
   data () {
     return {
-        keyword: '',  
-        userID: this.userID,
+        keyword: '',                    //từ khóa để tim kiếm quán
+        //thuộc tính của người dùng           
         userTypes: null,
         userID: '',
         userName: '',
@@ -221,10 +221,10 @@ export default {
         birthday: '',
         userTypeID: '',
         status: '',
-        items: [],
-        result:[],
-        activePage: 1,
-         fields: [
+        items: [],                    //danh sách quán mà người dùng làm chủ
+        result:[],                    //danh sách quán sau khi lọc bằng từ khóa
+        activePage: 1,                //trang hiển thị của bảng
+        fields: [                     //các trường trong bảng quán
         { key: 'storeName', label: 'Tên quán', _classes: 'font-weight-bold' },
         { key: 'storeAddress', label: 'Địa chỉ', _classes: 'font-weight-bold' },
         { key: 'openTime', label: 'Giờ mở cửa', _classes: 'font-weight-bold' },
@@ -237,10 +237,11 @@ export default {
   },
   methods: {
     async onInit(){
-      const token = localStorage.getItem('isAuthen');
-      const id = this.$route.params.id;
-      const userData = await UserService. getUserbyID(id,token);
-      this.userTypes = await UserService.getUserType(localStorage.getItem('isAuthen'));
+      const token = localStorage.getItem('isAuthen');//lấy token
+      const id = this.$route.params.id;//lấy id người dùng 
+      const userData = await UserService. getUserbyID(id,token); //lấy thông tin người dùng
+      this.userTypes = await UserService.getUserType(localStorage.getItem('isAuthen'));//lấy loại người dùng 
+      //gán thông tin cho các biến thuộc tính 
       this.userID = userData[0].userID;
       this.userName = userData[0].userName;
       this.phone = userData[0].phone;
@@ -257,33 +258,34 @@ export default {
       this.items = await StoreService.getByUser(this.userID,token);
       this.result = this.items;
     },
-    goBack() {
+    goBack() {//hàm trở về trang user
       this.usersOpened ? this.$router.go(-1) : this.$router.push({path: '/users'})
       },
-      previewImage(event){
+      previewImage(event){ //hàm lấy thông tin hình ảnh trước khi nhấn vào input file
           this.picture=null;
           this.imageData= event.target.files[0];
       },
       onUpload(){
         if(this.imageData != null){
-        const storageRef = firebase.storage().ref(`image/${this.imageData.name}`).put(this.imageData);
+        const storageRef = firebase.storage().ref(`image/${this.imageData.name}`).put(this.imageData);//tải ảnh lên firebase
         storageRef.on(`state_change`, snapshot => {
           this.uploadValue=(snapshot.bytesTransfered/snapshot.totalBytes)*100;
         },error =>{console.log(error.message)},
         ()=> {
           this.uploadValue=100;
-          storageRef.snapshot.ref.getDownloadURL().then((url) => {
-            this.picture=url;
-              this.update();
+          storageRef.snapshot.ref.getDownloadURL().then((url) => { //trả về url của ảnh
+            this.picture=url;                                      //gán url mới nhận vào hình ảnh của người dùng
+              this.update();                                       //tiến hành update
             })
           }
         )
         }
-        else{ this.update();}
+        else{ this.update(); //nếu không có hình thì tiến hành update không cần ảnh
+        }
       },
-      update(){
-        const id = this.$route.params.id;
-        const credentials = {
+      update(){                                 //update thông tin user
+        const id = this.$route.params.id;       //lấy id user
+        const credentials = {                   //tạo một đối tượng người với dữ liệu người dùng nhập vào             
         userName: this.userName,
         phone: this.phone,
         address: this.address,
@@ -294,54 +296,54 @@ export default {
         userTypeID: this.userTypeID,
         status : this.status.toString()
         };
-        console.log(this.status);
+        //gọi api update thông tin người dùng
         axios.post("https://api.viefood.info/api/User/EditByID?id=" + id, credentials ,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(respone =>{ 
           alert(respone.data)})
       },
-      async deleteAccount(){
-        const response = await UserService.delete(this.userID,localStorage.getItem('isAuthen'))
-        alert(response);
+      async deleteAccount(){                                          //xóa tai khoản
+        const response = await UserService.delete(this.userID,localStorage.getItem('isAuthen'))//gọi api xóa
+        alert(response);                                                                        //hiển thị thông báo
       },
-      async confirmAccount(){
+      async confirmAccount(){                                         //xác nhận tài khoản
         const id = this.$route.params.id;
-        const response =  await UserService.block(localStorage.getItem('isAuthen'), id, '1');
-        alert(response);
-        this.onInit();
+        const response =  await UserService.block(localStorage.getItem('isAuthen'), id, '1');//gọi api đổi status 
+        alert(response);                                                                      //hiển thị thông báo
+        this.onInit();                                                                        //load lại tài khoản
       },
-      async unblockAccount(){
+      async unblockAccount(){                                          //kích hoạt tài khoản
         const id = this.$route.params.id;
-        const response = await UserService.block(localStorage.getItem('isAuthen'), id, '1');
-        alert(response);
-        this.onInit();
+        const response = await UserService.block(localStorage.getItem('isAuthen'), id, '1');//gọi api đổi status 
+        alert(response);                                                                    //hiển thị thông báo
+        this.onInit();                                                                      //load lại tài khoản
       },
-      async blockAccount(){
+      async blockAccount(){                                           //chặn hoạt tài khoản
         const id = this.$route.params.id;
-        const response = await UserService.block(localStorage.getItem('isAuthen'), id, '2');
-        alert(response);
-        this.onInit();
+        const response = await UserService.block(localStorage.getItem('isAuthen'), id, '2');//gọi api đổi status 
+        alert(response);                                                                    //hiển thị thông báo
+        this.onInit();                                                                      //load lại tài khoản
       },
-      openChat(){
+      openChat(){                                                      //hàm chuyển đến trang chat                        
       this.$router.push('/manage/chats')
-      this.$root.$refs.chatAdmin.createInbox(this.userID, this.userName, this.picture,'none');
+      this.$root.$refs.chatAdmin.createInbox(this.userID, this.userName, this.picture,'none');//gọi hàm tạo inbox mới ở component chatAdmin
       },
-      onChange(key){
-      if(key == '' || key == null)
-        return this.result = this.items;
-      else {
-        this.result = this.items.filter(function(item){
-        return item.storeName.toLowerCase().includes(key.toLowerCase());
-      })
-      console.log(this.result)}
+      onChange(key){                                                    //tìm kiếm quán theo từ khóa
+        if(key == '' || key == null)                                    //nếu từ khóa rỗng thì không tìm trả về danh sách ban đầu
+          return this.result = this.items;
+        else {
+          this.result = this.items.filter(function(item){               //lọc những quán có tên chứa từ khóa
+          return item.storeName.toLowerCase().includes(key.toLowerCase());
+        })
+        console.log(this.result)}
       },
-      rowClicked (item) {
+      rowClicked(item) {                                                //đi đến trang chi tiết quán khi nhấn vào quán trong bảng
        this.$router.push({path: `/manage/store/${item.storeID}`})
       },
-      pageChange (val) {
+      pageChange (val) {                                                  //bắt sự kiện thay đổi trang của bảng
         this.$router.push({ query: { page: val }})
       },
     },
     mounted(){
-      this.onInit();
+      this.onInit();                            //khởi tạo và gán data
   } 
 }
 </script>

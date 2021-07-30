@@ -99,7 +99,7 @@ export default {
     var isAuthen = localStorage.getItem('isAuthen');
     if( isAuthen != null)
     {
-      next('/userinformation');
+      next('/thong-tin-tai-khoan');
       return;
     }
     else {next();}
@@ -107,10 +107,11 @@ export default {
   name: "Register",
   data() {
     return {
-      loading: false,
-      msg:'plaplaspl',
-      showErr: false,
-      showSuccess: false,
+      loading: false,       //biến loading khi đang đăng kí 
+      msg:'',               //nội dung thông báo
+      showErr: false,       //hiện thông báo lỗi 
+      showSuccess: false,   //hiện thông báo thành công
+                            //thuộc tính của người dùng
       id: '',
       name: '',
       address: '',
@@ -122,26 +123,26 @@ export default {
       retypepass:'',
       sex: '',
       type: '-MO5VYNnWIjXtvJO4AXi',
-      logo:'',
+      logo:'',              //logo của trang web
     };
   },
   mounted() {
-    this.getLogo();
+    this.getLogo(); //lấy url ảnh logo từ firebase
   },
   methods: {
-    signUp() {
+    signUp() {//hàm đăng kí 
       try {
         this.showErr=false;
         this.showSuccess= false;
-        if(!this.ValidateEmail(this.mail)){
+        if(!this.ValidateEmail(this.mail)){//kiểm tra định dạng email
           this.msg="Email không hợp lệ";
           this.showErr = true;
           return;
         }
-        if(this.check())
+        if(this.check()) //kiểm tra thông tin có trống hay không, pass có đúng hay không
         {
-          this.loading = true;
-          const credentials = {
+          this.loading = true;//hiện màn hình load 
+          const credentials = { //tạo một đối tượng user
           userName: this.name,
           phone: this.phone,
           address: this.address,
@@ -152,6 +153,7 @@ export default {
           birthday: this.birth,
           userTypeID: this.type
           };
+          //gọi api đăng kí user 
           axios.post("https://api.viefood.info/api/User/RegisterUser", credentials).then(respone =>{ 
               this.msg="Bạn đã đăng kí thành công, vui lòng đăng nhập"
               this.showSuccess = true;
@@ -167,13 +169,13 @@ export default {
         this.showErr = true;
       }
     },
-    check(){
+    check(){ //kiểm tra thông tin có trống hay không 
       if(this.name == '' || this.mail == '' || this.pass =='' || this.retypepass =='')
       {
         this.msg='Vui lòng nhập đầy đủ thông tin';
         return false;
       }
-      else{   
+      else{   //kiểm tra mật khẩu và mật khẩu nhập lại có trùng nhau hay không 
         if(this.pass == this.retypepass) return true;
         else{
           this.msg = 'Password không trùng khớp, vui lòng nhập lại';
@@ -181,7 +183,7 @@ export default {
         }
       }
     },
-    reset(){
+    reset(){ //reset thông tin
       this.name='';
       this.phone='';
       this.address='';
@@ -193,7 +195,7 @@ export default {
       this.retypepass = '';
       this.loading=false;
     },
-    ValidateEmail(mail) 
+    ValidateEmail(mail) //kiểm tra thông tin có đầy đủ hay không 
     {
        var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
           if (mail.match(validRegex)) {
@@ -202,15 +204,15 @@ export default {
             return false;
         }
     },
-     loginGoogle(){
+     loginGoogle(){//đăng nhập bằng Google
       AuthService.loginGoogle();
       this.loading=false;
     },
-    loginFacebook(){
+    loginFacebook(){ //đăng nhập bằng Google
        AuthService.loginFacebook();
        this.loading=false;
     },
-    getLogo(){
+    getLogo(){ //lấy url ảnh logo từ firebase
 		  try{
       		const socialRef = firebase.database().ref("Footer/logo/");
             socialRef.on("value", snapshot => {
@@ -223,7 +225,7 @@ export default {
                       picture: data[key].picture,
                     });
                 });
-                this.logo = logo[0].picture;
+                this.logo = logo[0].picture;//gán logo bằng dât nhận được
             }
             else{
              this.logo='';

@@ -20,14 +20,14 @@
   <CCard v-if="!page2" class="col-md-12">
     <CCardHeader> <strong>Đổi mật khẩu</strong>
     <div class="card-header-actions">
-              <a 
-                href="/login" 
-                class="card-header-action" 
-                rel="noreferrer noopener" 
-              >
-                <small class="text-muted">Go to <strong>Login</strong></small>
-              </a>
-            </div>
+      <a 
+        href="/login" 
+        class="card-header-action" 
+        rel="noreferrer noopener" 
+      >
+        <small class="text-muted">Go to <strong>Login</strong></small>
+      </a>
+    </div>
     </CCardHeader>
     <CForm novalidate class="animation" >
       <CCardBody>
@@ -64,7 +64,7 @@
             valid-feedback="Input is valid."
             invalid-feedback="Please provide at least 4 characters."
             placeholder="Valid value"
-            v-model="code2"
+            v-model="code"
             />
           <CInput
             type="password"
@@ -109,28 +109,29 @@ export default {
   },
     data(){
         return{
-          msg: '',
-          showErr: false,
-          showSuccess: false,
-          email:'',
-          code: '',
-          pass: '',
+          msg: '',                  //biến tin nhắn
+          showErr: false,           //hiện msg error khi có lỗi         
+          showSuccess: false,       //hiện msg success      
+          email:'',                 //email người dùng  
+          pass: '',                 
           retypepass:'',
-          code2: '',
-          page2: false,
+          code: '',                 //code người dùng nhập sau khi nhận mail
+          page2: false,             //hiện page tiếp theo sau khi đã gửi mail
         }
     },
   mounted(){
-    AnalystService.addVisitView();
+    AnalystService.addVisitView();//gọi api tăng lượt truy cập
     document.title = "Đổi mật khẩu";
   },
   methods: {
-    validator(val) {
+    validator(val) {                
       return val ? val.length >= 4 : false
     },
+    //kiểm tra độ dài mật khẩu trên 8
     validator_pass (val) {
       return val ? val.length >= 8 : false
     },
+    //kiểm tra email đúng định dạng chưa
     ValidateEmail(mail) 
     {
        var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
@@ -140,8 +141,9 @@ export default {
             return false;
         }
     },
+    //kiểm tra thông tin trước khi goi api đổi mật khẩu
     check(){
-      if(this.pass=='' || this.retypepass == ''|| this.code2 =='')
+      if(this.pass=='' || this.retypepass == ''|| this.code =='')
       {
         this.msg='Bạn chưa nhập đầy đủ thông tin!'
         return false;
@@ -163,14 +165,12 @@ export default {
         }
       }
     },
-    sendCode(){
+    sendCode(){//gọi api gữi mã code cho email
       try{
         if(this.ValidateEmail(this.email))
         {
           axios.post("https://api.viefood.info/api/User/ForgetPass?Email="+ this.email).then(respone =>{ 
-            console.log(respone.data);
-            this.code=respone.data.code;
-            this.page2 = true;
+            this.page2 = true;//hiển thị page tiếp theo
           });
         }
         else {
@@ -181,13 +181,13 @@ export default {
         console.log(err);
       }
     },
-    isValid(){
+    isValid(){ //gọi api đổi mật khẩu
       this.showErr=false;
       this.showSuccess= false;
-      if(this.check())
+      if(this.check())//nếu check không có lỗi 
           { 
             try{ 
-              axios.post("https://api.viefood.info/api/User/ResetPass?Email=" + this.email +"&Password="+ this.pass + "&code=" + this.code2);
+              axios.post("https://api.viefood.info/api/User/ResetPass?Email=" + this.email +"&Password="+ this.pass + "&code=" + this.code);
               this.showSuccess=true;
               this.msg='Đổi mật khẩu thành công';
             }
@@ -201,7 +201,7 @@ export default {
             this.showErr=true;
       }
     },
-    gotoHome(){
+    gotoHome(){//về trang chủ
       this.$router.push('/');
     }
   }

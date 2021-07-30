@@ -9,17 +9,15 @@
                 Thêm tỉnh
           </CButton>
           <CInput
-              style="margin-left: 0px;"
-                      v-model="keyword"
-                      placeholder="Tìm tỉnh"
-                      v-on:keyup="onProvinceSearch(keyword)"
-              />
+            style="margin-left: 0px;"
+              v-model="keyword"
+              placeholder="Tìm tỉnh"
+              v-on:keyup="onProvinceSearch(keyword)"/>
           <CModal
             title="Thêm tỉnh"
             :show.sync="primaryModal"
             color="primary"
-            @update:show="closeModal"
-          >
+            @update:show="closeModal">
         <CInput label="Tên tỉnh" v-model="provinceName"/>
         </CModal>
         </CCardHeader>
@@ -56,17 +54,16 @@
             @update:show="closeModalDistrict"
           >
           <p>Tỉnh</p>
-                    <select
-                        id="province"
-                        class="country fl_left selectBox"
-                        vertical
-                        v-model="provinceSelected"
-                        placeholder="chọn tỉnh"
-                        >
-                        <option v-for="province in provinces" v-bind:key="province.provinceID" :value="province.provinceID">
-                            {{province.provinceName}}
-                        </option>
-                    </select>
+            <select
+                id="province"
+                class="country fl_left selectBox"
+                vertical
+                v-model="provinceSelected"
+                placeholder="chọn tỉnh">
+                <option v-for="province in provinces" v-bind:key="province.provinceID" :value="province.provinceID">
+                    {{province.provinceName}}
+                </option>
+            </select>
           <CInput label="Tên tỉnh" v-model="districtName"/>
         </CModal>
         </CCardHeader>
@@ -112,121 +109,115 @@ export default {
   name: 'manageNavBar',
   data(){
       return{
-        keyword: '',
-        token: '',
-        provinces: [],
-        result:[],
-        districts:[],
-        provinceSelected: '',
-        districtSelected:'',
-        provinceName:'',
-        districtName:'',
-        collapse: false,
-        cardCollapse: true,
-        innerCollapse: false,
-        accordion: 0,
-        primaryModal: false,
-        primaryModalDistrict: false
+        keyword: '',                //keywork tìm kiếm quán
+        token: '',                  //token của người dùng
+        provinces: [],              //danh sách quán
+        result:[],                  //danh sách kết quả các quán sau khi lọc 
+        districts:[],               //danh sách quận/huyện
+        provinceSelected: '',       //id của tỉnh được chọn
+        districtSelected:'',        //id của quận được chọn
+        provinceName:'',            //tên tỉnh được chọn
+        districtName:'',            //tên quận được chọn
+        collapse: false,            //biến hiển thị hộp thoại chỉnh sửa tỉnh
+        accordion: 0,               //biến hiển thị hộp thoại chỉnh sửa quận huyện
+        primaryModal: false,        //biến hiển thị modal thêm tỉnh 
+        primaryModalDistrict: false //biến hiển thị modal thêm quận 
       }
   },
   methods:{
-    async onInit(){
-      this.token = localStorage.getItem('isAuthen')
-      this.provinces = await ProvinceService.getAll();
-      this.result = this.provinces;
-      this.provinceSelected= this.provinces[0].provinceID;
-      this.getDistrict(this.provinceSelected);
+    async onInit(){                  //hàm khởi tạo
+      this.token = localStorage.getItem('isAuthen')         //lấy token từ localStorage
+      this.provinces = await ProvinceService.getAll();      //lấy danh sách tỉnh
+      this.result = this.provinces;                         //gán danh sách tỉnh sang biến result để lọc 
+      this.provinceSelected= this.provinces[0].provinceID;  //lấy id của tỉnh đầu tiên để hiển thị
+      this.getDistrict(this.provinceSelected);              //lấy danh sách quận theo id của tỉnh đầu tiên
     },
-    async getDistrict(id){
+    async getDistrict(id){                                  //lấy danh sách quận theo id của tỉnh
       this.districts = await ProvinceService.getDistrictByID(id);
     },
-    onProvinceClicked(id,name){
+    onProvinceClicked(id,name){                             //hàm hiển thị thông tin của tỉnh  
       this.collapse = id;
       this.provinceName = name;
       this.provinceSelected = id;
-      this.getDistrict(id);
+      this.getDistrict(id);                                 //lấy danh sách quận theo id của tỉnh
     },
-    onProvinceModalClicked(id,name){
-      this.provinceSelected =id;
-      this.provinceName = name;
-    },
-    onDistrictClicked(name,id){
+    onDistrictClicked(name,id){                             //hàm hiển thị thông tin của quận 
       this.accordion = id;
       this.districtName = name;
       this.districtSelected = id;
     },
-    async onUpdateProvince(){
-      const province = {
+    async onUpdateProvince(){                                //cập nhật thông tin của tỉnh
+      const province = {                                     //tạo một đối tượng tỉnh với dữ liệu người dùng nhập
         provinceID: this.provinceSelected,
         provinceName: this.provinceName,
-      }
-      const response = await ProvinceService.updateProvince(this.token,province,this.provinceSelected);
-      alert(response);
-      this.onInit();
+      }                                                         
+      const response = await ProvinceService.updateProvince(this.token,province,this.provinceSelected);//gọi api cập nhật thông tin của tỉnh
+      alert(response);                                        //thông báo kết quả
+      this.onInit();                                          //load lại thông tin
     },
-    async onUpdateDistrict(){
-      const district = {
+    async onUpdateDistrict(){                                  //cập nhật thông tin của quận
+      const district = {                                       //tạo một đối tượng quận với dữ liệu người dùng nhập
         districtID: this.districtSelected,
         districtName: this.districtName,
         provinceID: this.provinceSelected
       }
-      const response = await ProvinceService.updateProvince(this.token,district,this.districtSelected);
-      alert(response);
-      this.getDistrict(this.provinceSelected);
+      const response = await ProvinceService.updateProvince(this.token,district,this.districtSelected);//gọi api cập nhật thông tin của quận
+      alert(response);                                        //thông báo kết quả
+      this.getDistrict(this.provinceSelected);                //load lại thông tin
     },
-    async onDelete(id){
+    async onDelete(id){                                         //xóa tỉnh theo id và token
       try{
         if(confirm("Bạn chắc chắn muốn xóa???")){
-          const response = await ProvinceService.deleteProvince(id,this.token);
-          alert(response);
-          this.onInit();
+          const response = await ProvinceService.deleteProvince(id,this.token);//gọi api xóa tỉnh 
+          alert(response);                                                     //thông báo kết quả
+          this.onInit();                                                       //load lại thông tin
         }
         else return;
       }
       catch{}
     },
-    async onDeleteDistrict(id){
+    async onDeleteDistrict(id){                                //xóa quận theo id và token
       try{
         if(confirm("Bạn chắc chắn muốn xóa???")){
-        const response = await ProvinceService.deleteDistrict(id,this.token);
-        alert(response);
-        this.getDistrict(this.provinceSelected);
+        const response = await ProvinceService.deleteDistrict(id,this.token);//gọi api xóa quận 
+        alert(response);                                                     //thông báo kết quả
+        this.getDistrict(this.provinceSelected);                             //load lại thông tin
         }
         else return;
       }
       catch{}
     },
-    async onAddDistrict(){
-      const district = {
+    async onAddDistrict(){                                      //hàm thêm quận 
+      const district = {                                         //tạo một đối tượng quận với dữ liệu người dùng nhập
         districtName: this.districtName,
         provinceID: this.provinceSelected
       }
-      const response = await ProvinceService.addDistrict(this.token,district);
-      alert(response);
-      this.getDistrict(this.provinceSelected);
+      const response = await ProvinceService.addDistrict(this.token,district);//gọi api thêm mới quận
+      alert(response);                                                        //thông báo kết quả
+      this.getDistrict(this.provinceSelected);                                //load lại thông tin
     },
-    async onAddProvince(){
-        const province = {
+    async onAddProvince(){                                       //hàm thêm tỉnh
+        const province = {                                       //tạo một đối tượng tỉnh với dữ liệu người dùng nhập
         provinceName: this.provinceName,
       }
-      const response = await ProvinceService.addProvince(this.token,province);
-      alert(response);
+      const response = await ProvinceService.addProvince(this.token,province);//gọi api thêm mới tỉnh
+      alert(response);                                                         //thông báo kết quả
     },
-    async onProvinceSearch(key){
-      if(key == '' || key == null)
+    async onProvinceSearch(key){                                              //tìm kiếm tỉnh theo từ khóa
+      if(key == '' || key == null)                                            //nếu từ khóa rỗng thì không tìm 
         return this.result=this.provinces;
       else {
-        this.result = this.provinces.filter(function(item){
+        this.result = this.provinces.filter(function(item){                   //lọc những tỉnh có tên chứa từ khóa
         return item.provinceName.toLowerCase().includes(key.toLowerCase());
       })
     }
     },
-    closeModal(status, evt, accept) { if (accept) { 
-      this.onAddProvince();
+    closeModal(status, evt, accept) { if (accept) {                           //hàm đóng modal thêm tỉnh
+      this.onAddProvince();                                                   //nếu nhấn ok thì sẽ thêm tỉnh 
       } 
     },
-    closeModalDistrict(status, evt, accept) { if (accept) { 
-      this.onAddDistrict();
+    closeModalDistrict(status, evt, accept) { if (accept) {                   //hàm đóng modal thêm quận
+      this.onAddDistrict();                                                   //nếu nhấn ok thì sẽ thêm quận 
     } }
   },
   mounted() {

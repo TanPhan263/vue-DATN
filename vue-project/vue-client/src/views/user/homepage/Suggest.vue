@@ -22,33 +22,33 @@
 <script>
 export default {
     props: {
-        results: Array
+        results: Array                                      //biến nhận vào là danh sách quán 
     },
     created(){
-      this.$root.$refs.Suggest = this;
+      this.$root.$refs.Suggest = this;                      //khai báo để sử dụng ở các component khác 
     },
     methods:{
-        storeClicked: function(Id){
+        storeClicked: function(Id){                         //đi đến trang chi tiết quán
           this.$emit('click-store', Id);
-        },
-        subString(index){
+        },                                                
+        subString(index){                                   //hàm cắt chuỗi nếu quá dài
           return index.toString().substring(0,40);
         },
-        getActiveTime(open,close){
-		    const today = new Date();
-        const hour = today.getHours();
-        const min = today.getMinutes();
-        let openHour = parseInt((open+'').substring(0,2));
-        let openMin = parseInt((open+'').substring(3,5));
-        let closeHour = parseInt((close+'').substring(0,2));
-        let closeMin = parseInt((close+'').substring(3,5));
-        if( openHour < hour && hour < closeHour)
-            return true;
-        else if( hour == closeHour && min < closeMin)
-            return true;
-        else if(hour == openHour && min >= openMin)
-            return true;
-        else return false;
+        getActiveTime(open,close){                         //hàm kiểm tra quán có trong thời gian hoạt động hay không 
+          const today = new Date();
+          const hour = today.getHours();
+          const min = today.getMinutes();
+          let openHour = parseInt((open+'').substring(0,2));
+          let openMin = parseInt((open+'').substring(3,5));
+          let closeHour = parseInt((close+'').substring(0,2));
+          let closeMin = parseInt((close+'').substring(3,5));
+          if( openHour < hour && hour < closeHour)
+              return true;
+          else if( hour == closeHour && min < closeMin)
+              return true;
+          else if(hour == openHour && min >= openMin)
+              return true;
+          else return false;
         },
     }
 }

@@ -73,10 +73,10 @@
     <div class="sub-menu-ship">
         <ul>
           <li v-for="(dish, index) in dishes" v-bind:key="index" style="height:90px;width:100px;"  @click="dishClicked(dish.dishName)">
-          <a :href="'/search?key='+ dish.dishName" style="border:none">
+          <a :href="'/search?key='+ dish.dishName" style="border:none;height:90px">
             <img v-lazy="dish.dishPicture" style="border-radius:10px 10px 10px 10px; width:102px; height:90px;cursor: pointer;"/>
           </a>
-          <div @click="dishClicked(dish.dishName)" style="margin: 0 auto;text-align:center; background-color:#f6f6f6; width: 80px; padding-bottom: 20px;"> 
+          <div @click="dishClicked(dish.dishName)" style="margin: 0 auto;text-align:center; width: 80px; padding-bottom: 20px;"> 
               <p style="margin-top: 3px; font-size:17px; font-weight:bold; word-break:keep-all; background: transparent;">{{dish.dishName}}</p></div>
           </li>
         </ul>
@@ -102,7 +102,7 @@
         <ul v-if="!show">
           <li v-for="(store, index ) in rates" v-bind:key="index"  style="position: relative">
               <div v-if="store.discount === true" class="top-left">
-                <div class="popup"  @click="openPopup('danhgiacao'+ store.storeID,store.storeID)"
+                <div class="popup" @click="openPopup('danhgiacao'+ store.storeID,store.storeID)"
                  @mouseleave="closePopup('danhgiacao'+ store.storeID)">
                     <span class="fa-stack fa-lg">
                         <i class="fa fa-certificate fa-stack-2x"></i>
@@ -141,7 +141,7 @@
           <div class="ship">
             <div class="menu-ship">
               <div class="hero" style="width:100%">
-                <p @click="viewMore_Search('Đánh giá cao')">XEM THÊM <i class="fa fa-chevron-right" style="font-size: 16px;"></i></p>
+                <p @click="viewMoreGantoiDanhgiacao('Đánh giá cao')">XEM THÊM <i class="fa fa-chevron-right" style="font-size: 16px;"></i></p>
               </div>
             </div>
           </div>  
@@ -193,7 +193,7 @@
           <div class="ship">
             <div class="menu-ship">
               <div class="hero" style="width:100%">
-                <p  @click="viewMore_Search('Quán gần bạn')" >XEM THÊM <i class="fa fa-chevron-right" style="font-size: 16px;"></i></p>
+                <p  @click="viewMoreGantoiDanhgiacao('Quán gần bạn')" >XEM THÊM <i class="fa fa-chevron-right" style="font-size: 16px;"></i></p>
               </div>
             </div>
           </div>  
@@ -214,8 +214,8 @@
                 <div class="popup"  @click="openPopup('myPopup'+ store.storeID,store.storeID)"
                  @mouseleave="closePopup('myPopup'+ store.storeID)">
                     <span class="fa-stack fa-lg">
-                        <i class="fa fa-certificate fa-stack-2x"></i>
-                        <i class="fa fa-tag fa-stack-1x fa-inverse"></i>
+                      <i class="fa fa-certificate fa-stack-2x"></i>
+                      <i class="fa fa-tag fa-stack-1x fa-inverse"></i>
                     </span>
                     <span class="popuptext" :id="'myPopup'+ store.storeID">
                        <div v-show="loadingStoreDiscount" style="margin: 0 auto;" class="loader-small"></div>
@@ -278,101 +278,98 @@ export default {
     data() {
         return {
           margin: 150,
-          loading: false,
-          loadingDiscount: false,
-          loadingStoreDiscount: false,
-          index: 0,
-          stores: [],
-          provinceID: '',
-          //Search data
-          nearest: [],
-          rates: [],
-          type: [],
-          loadMoreList: [],
-          dishes: [],
-          discount:[],
-          active:false,
-          discountStore: [],
-          show: true,
-          discountName:'',
-          discountImg:'',
-          discountList:[],
-          currDiscount:'',
-          clicked: false,
+          loading: false,               //biến load khi tải trang 
+          loadingDiscount: false,       //biến load khi tải khuyến mãi ở slide
+          loadingStoreDiscount: false,  //biến load khi tải khuyến mãi của quán
+          index: 0,                     //biến index khi tải danh sách quán theo danh mục
+          stores: [],                   //danh sách quán ăn
+          provinceID: '',               
+          nearest: [],                  //danh sách quán ăn gần tôi
+          rates: [],                    //danh sách quán ăn đánh giá cao
+          type: [],                     //danh sách loại quán
+          loadMoreList: [],             //danh sách quán theo danh mục
+          dishes: [],                   //danh sách món ăn
+          discount:[],                  //danh sách khuyến mãi
+          active:false,                 //biến mở modal khuyến mãi
+          clicked: false,               //biến cờ xác định đã click vào xem khuyến mãi hay chưa
+          show: true,                   //biến cờ cho biết đã tải các quán xong chưa
+          discountStore: [],            //danh sách quán theo khuyến mãi
+          discountList:[],              //danh sách khuyến mãi của mỗi quán
+          discountName:'',              //tên Khuyến mãi đang chọn
+          discountImg:'',               //ảnh khuyến mãi đang chọn
         }
       },
       created(){
-        this.$root.$refs.Homebody = this;
+        this.$root.$refs.Homebody = this;   
         this.onInit();
-        this.$http.get(baseUrl + 'Dish/GetAll').then(response => {
+        this.$http.get(baseUrl + 'Dish/GetAll').then(response => { //lấy danh sách món ăn
             this.dishes = response.data;
             this.dishes = this.dishes.filter(function(dish){
-              return dish.dishName.length < 20;
+              return dish.dishName.length < 20;               
             })
-            let x = Math.floor(Math.random()*(this.dishes.length-10))
+            let x = Math.floor(Math.random()*(this.dishes.length-10)) //chọn món random
             this.dishes = this.dishes.slice(x,x+10);
         })
       },
       mounted(){
-        AnalystService.addVisitView();
+        AnalystService.addVisitView();//gọi api tăng lượt truy cập
       },
       methods:{
         async onInit(){
           try{
-            this.discount = await DiscountService.getAll();
-            this.type = await StoreService.getAllBussinessType();
+            this.discount = await DiscountService.getByAdmin();              //lấy danh sách khuyến mãi
+            this.type = await StoreService.getAllBussinessType();       //lấy danh sách loại quán
             var id = localStorage.getItem('provinceId');
             this.provinceID = id;
-            if(sessionStorage.getItem('place')){
+            if(sessionStorage.getItem('place')){                         //nếu có địa điểm mới đc thay đổi
               let tempplace = JSON.parse(sessionStorage.getItem('place'));
-              // this.stores = await StoreService.getByProvince_distance(id,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
-              // this.rates = await StoreService.getByProvince_distance(id,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
+              //gọi api lấy danh sách quán theo quận và lat lng của địa chỉ mới 
               this.stores = await StoreService.getByProvince_distance(id,tempplace.lat,tempplace.lng);
-              // this.rates = await StoreService.getByProvince_distance(id,tempplace.lat,tempplace.lng);
             }
             else{
+              //không thì gọi api với địa chỉ mặc định là HCMUTE
               this.stores = await StoreService.getByProvince(id)
-              // this.rates = await StoreService.getByProvince(id);
             }
-            this.rates = this.stores.filter(function compare(store) {
+            this.rates = this.stores.filter(function compare(store) { //lọc quán trên 4sao
                 return parseFloat(store.ratePoint) >= 4;
             });
-            this.rates.sort(function compare( a, b ) {
+            this.rates.sort(function compare( a, b ) {                //sắp xếp từ điểm cao đến thấp
                 return parseFloat(b.ratePoint) - parseFloat(a.ratePoint);
             });
-            this.nearest = this.stores.slice(0,12);
-            this.rates = this.rates.slice(0,12);
+            this.nearest = this.stores.slice(0,12);                    
+            this.rates = this.rates.slice(0,12);                        
             this.show = false;
           }catch(err){console.log(err)}
         },
-        storeClicked(item) {
+        storeClicked(item) {                          //đi đến trang chi tiết quán
           RouterService.storeClicked(item);
         },
-        dishClicked (item) {
+        dishClicked (item) {                          //tìm quán theo món
           localStorage.setItem("keyword", item);
           RouterService.dishClicked(item);
         },
-        dishViewMore(){
+        dishViewMore(){                              //đến trang xem thêm món
            RouterService.dishViewMore();
         },
-        viewMore_Search(index){
-          RouterService.viewMore_Search(index)
+        viewMoreGantoiDanhgiacao(index){             //đến trang xem thêm quán gần tôi/đánh giá cao
+          RouterService.viewMoreGantoiDanhgiacao(index)
         },
-        changeProvince(index){
+        changeProvince(index){                       //load quán khi thay đổi tỉnh
           this.$http.get(baseUrl+ 'GetByIDProvince?id=' + index).then(response => {
             this.stores= response.data
           });
         },
-        async changePlace(lat,long){
+        async changePlace(lat,long){                  //load quán khi thay đổi địa điểm
           try{
             this.loadMoreList =[];
             this.index=0;
             var id = localStorage.getItem('provinceId');
+            //gọi api lấy danh sách quán theo quận và lat lng của địa chỉ mới 
             this.stores = await StoreService.getByProvince_distance(id, lat,long);
-            this.rates = this.stores.filter(function compare(store) {
+            this.rates = this.stores.filter(function compare(store) { //lọc quán trên 4sao
                 return parseFloat(store.ratePoint) > 4;
             });
-            this.rates.sort(function compare( a, b ) {
+            this.rates.sort(function compare( a, b ) {                 //sắp xếp từ điểm cao đến thấp
                 return parseFloat(b.ratePoint) - parseFloat(a.ratePoint);
             });
             this.nearest = this.stores.slice(0,12);
@@ -382,7 +379,7 @@ export default {
             console.log(err);
           }
         },
-        getType(index){
+        getType(index){                                 //lấy tên loại quán ăn theo id
           try{
           var temp='Unknown'
           this.type.forEach(element => {
@@ -393,6 +390,7 @@ export default {
           }
           catch(err){console.log(err)}
         },
+        //cắt chuỗi
         subString(index){
           if(index.length>17)
             return index.toString().substring(0,17)+'...';
@@ -403,19 +401,19 @@ export default {
             return index.toString().substring(0,20)+'...';
           return index;
         },
-      loadMore(){
+      loadMore(){                                   //tải thêm danh sách quán theo danh mục
         try{
           this.loading = false;
           setTimeout(() =>{
-            if(this.index < this.type.length){
+            if(this.index < this.type.length){      //khi chưa duyệt hết danh sách loại quán
                 let id = this.type[this.index].businessTypeID;
-                var store = this.stores.filter(function(store) {
+                var store = this.stores.filter(function(store) {//lọc quán theo id danh mục
                     return store.businessTypeID === id });
-                // var store = await StoreService.getByBussinessType(id);
-                if(store.length >= 12){
+                if(store.length >= 12){             //chỉ lấy danh mục có số quán >= 12
                     store = store.slice(0,12);
-                  this.loadMoreList.push(store);}
-                this.index = this.index + 1;
+                  this.loadMoreList.push(store);
+                }
+                this.index = this.index + 1;        //tăng biến đếm lên 1 cho lần duyêt sau
                 this.loading = false;
                 this.margin = 150;
               }
@@ -426,24 +424,24 @@ export default {
         }
         catch(err){console.log(err)}
       },
-      viewMore(id){
+      viewMore(id){                                 //đến trang xem thêm quán theo danh mục
         this.$router.push('/viewmore?key=' + id).catch(()=>{});
       },
-      async getDiscountStore(id,name,img){
+      async getDiscountStore(id,name,img){          //lấy danh sách quán theo khuyến mãi
         this.loadingDiscount = true;
-        this.discountName = name;
+        this.discountName = name;                    //lấy thông tin khuyến mãi đang chọn để hiển thị
         this.discountImg = img;
         this.active=true;
-        this.discountStore = await DiscountService.getStore(id)
-        this.discountStore = this.discountStore.filter(function(item){
+        this.discountStore = await DiscountService.getStore(id) //gọi api lấy danh sách quán 
+        this.discountStore = this.discountStore.filter(function(item){ //lọc quán trong bán kính <= 5km
           return parseFloat(item.khoangcach) <= 5;
         })
-        this.discountStore.sort(function(a,b){
+        this.discountStore.sort(function(a,b){                        //sắp xếp quán từ gần đến xa
           return parseFloat(a.khoangcach) - parseFloat(b.khoangcach);
         })
         this.loadingDiscount = false;
       },
-      getActiveTime(open,close){
+      getActiveTime(open,close){                        //hàm kiểm tra quán có trong thời gian hoạt động hay không 
         const today = new Date();
         const hour = today.getHours();
         const min = today.getMinutes();
@@ -459,29 +457,23 @@ export default {
             return true;
         else return false;
       },
-      openPopup(name,id) {
+      openPopup(name,id) {                              //Hàm mở Popup khuyến mãi
         this.loadingStoreDiscount = true;
-        // if(this.currDiscount){
-        //   var popupcurr = document.getElementById(this.currDiscount);
-        //   popupcurr.classList.toggle("show");
-        // }
         var popupnew = document.getElementById(name);
         popupnew.classList.toggle("show");
-        this.currDiscount = name;
         this.clicked = true;
         this.getDisCount(id);
       },
-      closePopup(name) {
+      closePopup(name) {                                  //Hàm đóng Popup khuyến mãi
         if(this.clicked == true){
           this.discountList = [];
           this.loadingStoreDiscount = false;
-          this.currDiscount = '';
           var popupnew = document.getElementById(name);
           popupnew.classList.toggle("show");
           this.clicked = false;
         }
       },
-      async getDisCount(id){
+      async getDisCount(id){                              //Lấy discount của quán 
         try{
           this.discountList = [];
           this.discountList = await DiscountService.getDiscountbyStore(id);
@@ -491,7 +483,7 @@ export default {
           console.log(err)
         }
       },
-      getDiscountName(id){
+      getDiscountName(id){                                 //hàm lấy tên của discount theo id
         let temp = ''
         this.discount.forEach(element => {
           if(element.discountTypeID == id)
@@ -500,8 +492,6 @@ export default {
         return temp;
       },
     },
-    updated(){
-    }
 }
 </script>
 

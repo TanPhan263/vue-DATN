@@ -180,15 +180,9 @@ export default {
       console.log(this.result)}
     },
     async onInit(){
-     
-      // this.$http.get(url,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
-      //         this.items = response.data;
-      //         console.log(this.items)
-      //         this.result= this.items;
-      // });
-        const token = localStorage.getItem('isAuthen');
-        this.items = await StoreService.getConfirmStore(token);
-        this.result = this.items;
+      const token = localStorage.getItem('isAuthen');
+      this.items = await StoreService.getConfirmStore(token);
+      this.result = this.items;
     }
   },
   mounted() {

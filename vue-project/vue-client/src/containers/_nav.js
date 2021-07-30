@@ -4,7 +4,7 @@ export default [
     _children: [
       {
         _name: 'CSidebarNavItem',
-        name: 'Dashboard',
+        name: 'Bảng điều khiển',
         to: '/manage/dashboard',
         icon: 'cil-speedometer',
       },
@@ -82,7 +82,7 @@ export default [
       },
       {
         _name: 'CSidebarNavItem',
-        name: 'HereMap',
+        name: 'Here Map',
         icon: 'cil-puzzle',
         to: '/manage/heremap'
       },

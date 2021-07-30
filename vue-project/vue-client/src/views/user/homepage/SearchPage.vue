@@ -6,7 +6,7 @@
         <div class="menu-artical" >
           <div class="menu-left">
             <div @click="active=true" class="filter" style="padding: 10px;">
-				<p style="float: left; font-size: 17px;"><strong>Sắp xếp:</strong> {{sortmode}} </p>
+				<p style="float: left; font-size: 17px;"><strong>Bộ lọc:</strong> {{sortmode}} , {{optionDG}}, {{optionGT}} </p>
 				<i style="font-size: 20px; float:right" class="fa fa-sliders"></i>
 			</div>
           </div>
@@ -14,23 +14,50 @@
 		<transition v-if="active">
 		<div class="modal-mask">
 			<div class="modal-wrapper">
-				<div class="modal-container" style="padding: 10px; width: 30%">
-					<i v-on:click="active=false" class="fas fa-times" style="float: right; font-size: 20px;"></i>
-					<h4 style="text-align: center; border-bottom: 1px solid #eee; padding-bottom: 5px;">Sắp xếp kết quả</h4>
+				<div class="modal-container" style="padding: 10px; width: 40%">
+					<i v-on:click="closeModal" class="fas fa-times" style="float: right; font-size: 20px;"></i>
+					<h4 style="text-align: center; border-bottom: 1px solid #eee; padding-bottom: 5px;">Bộ lọc kết quả</h4>
 					<slot name="body">
+						<CCard>
+						<CCardHeader>
 						<i class="fa fa-map-marker" style="float: right; font-size: 20px; margin-right: 3px;"></i> 
 					  	<label class="container-search">Gần tôi
-						<input  @click="sortmode='Gần tôi'" type="radio" :checked="checked1" name="radio">
+						<input  @click="sortmode='Gần tôi'" type="radio" :checked="checkedGT" name="radio">
 						<span class="checkmark"></span>
 						</label>
+						</CCardHeader>
+						<CCardBody>
+						<CInputRadioGroup
+							:options="optionsGanToi"
+							:custom="true"
+							:checked.sync="optionGT"
+							:inline="true"
+						/>
+						</CCardBody>
+						</CCard>
+						<CCard>
+						<CCardHeader>
 						<i class="fa fa-star" aria-hidden="true" style="float: right;font-size: 20px;"></i>
 						<label class="container-search">Đánh giá cao
-						<input @click="sortmode='Đánh giá cao'" :checked="checked2" type="radio" name="radio">
+						<input @click="sortmode='Đánh giá cao'" :checked="checkedDG" type="radio" name="radio">
 						<span class="checkmark"></span>
 						</label>
+						</CCardHeader>
+						<CCardBody>
+							<CRow>
+							<CInputRadioGroup
+ 							class="col-sm-12"
+							:options="optionsDanhGia"
+							:custom="true"
+							:checked.sync="optionDG"
+							:inline="true"
+						/>
+						</CRow>
+						</CCardBody>
+						</CCard>
 					</slot>
-					<div style=" width: 90%; color: white; margin: 0 auto">
-					<button v-on:click="sort(sortmode)" style="height:40px; border-radius: 5px;margin-top: 30px;width: 100%; background-color: red; color: white; border: none; font-size: 20px" @click="active=false">
+					<div style="width: 100%; color: white; margin: 0 auto;text-align:center">
+					<button v-on:click="sort(sortmode)" style="height:40px; border-radius: 5px;width: 50%; background-color: red; color: white; border: none; font-size: 20px" @click="active=false">
 						Hoàn tất
 					</button>
 					</div>
@@ -81,9 +108,9 @@
 		<!-- <div  v-show="show" style="margin: 0 auto;" class="loader"></div> -->
       </div>
     </div>
-		<div v-if="stores" class="ship">
+		<div v-if="result" class="ship">
 			<div class="text-center pb-0 pt-3" style="font-weight: bold;">
-				<jw-pagination :items="stores" @changePage="onChangePage" :pageSize="pageSize" :labels="customLabels"></jw-pagination>
+				<jw-pagination :items="result" @changePage="onChangePage" :pageSize="pageSize" :labels="customLabels"></jw-pagination>
 			</div>
 		</div>
 	</div>
@@ -109,111 +136,193 @@ export default {
         if (to.path === '/search') {
          this.onInit();
         }
-      }
+      },
     },
 	data(){
 		return{
-		active: false,
-		stores:[],
-		type: [],
-		sortmode: 'Gần tôi',
-		checked1: 'checked',
-		checked2: '',
-		show:true,
-		pageOfItems: [],
-		customLabels,
+		active: false,									//biến hiển thị hộp thoại lọc quán
+		result:[],										//danh sách các quán đã được lọc
+		stores:[],										//danh sách các quán ban đầu
+		type: [],										//danh sách loại hình quán
+		currOptions:{									//biến lưu lại trạng thái lọc quán, sắp sếp 
+			opsDG:'',
+			opsGT:'',
+			sortmode:''
+		},
+		sortmode: 'Gần tôi',							//chế độ sắp sếp 
+		checkedGT: 'checked',							//biến check để biết mode nào đang được sử dụng
+		checkedDG: '',
+		optionsDanhGia: ['từ 0 sao', 'từ 1 sao', 'từ 2 sao','từ 3 sao', 'từ 4 sao', '5 sao'],//các options lọc quán theo sao
+		optionDG:'từ 0 sao', 																//mặc định là 0sao
+		optionsGanToi: ['Không giới hạn', '5km', '2km','1km'],								//các options lọc quán khoảng cách
+		optionGT: 'Không giới hạn',															//mặc định là không giới hạn
+		show:true,										//biến cờ cho biết quán tải xong hay chưa
+		pageOfItems: [],								//danh sách quán theo trang
+		customLabels,									//custom jw-pagination
 		lable: '',
 		pageSize: 18,
-		loadingStoreDiscount: false,
-		discount: [],
-		discountList:[],
-		currDiscount:'',
-		clicked: false,
-		}
+		loadingStoreDiscount: false,					//biến load khi tải khuyến mãi của quán
+		discount: [],									//danh sách tất cả khuyến mãi 
+		discountList:[],								//danh sách khuyến mãi của quán
+		clicked: false,									//biến cờ xác định đã click vào xem khuyến mãi hay chưa
+	  }
 	},
 	created(){
-		this.$root.$refs.SearchPage = this;
+		this.$root.$refs.SearchPage = this; 			//khai báo để sử dụng ở các component khác 
 		this.show = true;
 	},
 	mounted(){
 		this.onInit();
-		AnalystService.addVisitView();
+		AnalystService.addVisitView();					//gọi api tăng lượt truy cập
 	},
 	methods:{
-		onChangePage(pageOfItems){
+		onChangePage(pageOfItems){						//thay đổi danh sách quán khi thay đổi trang 
 			this.pageOfItems = pageOfItems;
 		},
-		sort(index){
-			this.show = true;
-			console.log(this.stores)
+		sort(index){									//Hàm sắp xếp lọc quán
+			this.currOptions = {						//lưu lại lựa chọn của người dùng
+				opsDG:this.optionDG,
+				opsGT:this.optionGT,
+				sortmode:index
+			}
+			this.show = true;							//hiện loading
+			this.result = this.stores;					
 			switch(index){
-				case 'Gần tôi':
-					this.checked1 = 'checked';
-					this.checked2 = '';
+				case 'Gần tôi':							//sắp xếp quán từ gần đến xa
+					this.checkedGT = 'checked';
+					this.checkedDG = '';
 					setTimeout(() =>{
-						this.stores.sort(this.sortDistance);
+						this.result.sort(this.sortDistance);
 						this.show = false;
 					}, 1000);
-					console.log(this.stores)
 					break;
-				case 'Đánh giá cao': 
-					this.checked1 = '';
-					this.checked2 = 'checked';
+				case 'Đánh giá cao': 					//sắp xếp quán theo điểm từ cao xuống thấp
+					this.checkedGT = '';
+					this.checkedDG = 'checked';
 					setTimeout(() =>{
-					this.stores.sort(this.sortRate);
+					this.result.sort(this.sortRate);
 						this.show = false;
 					}, 1000);
-					console.log(this.stores)
 					break;
 			}
+			switch(this.optionGT){
+				case 'Không giới hạn':					//lọc quán theo khoảng cách
+					this.result = this.result.filter(function(store){ 
+						return store.khoangcach  > 0;
+					});
+					break;
+				case '5km': 
+					this.result = this.result.filter(function(store){
+						return store.khoangcach  <= 5;
+					});
+					break;
+				case '2km': 
+					this.result = this.result.filter(function(store){
+						return store.khoangcach  <= 2;
+					}); break;
+				case '1km': 
+					this.result = this.result.filter(function(store){
+						return store.khoangcach  <= 1;
+					}); break;
+				default:
+					this.result = this.result.filter(function(store){
+						return store.khoangcach  > 0;
+					});
+			}
+			switch(this.optionDG){						//lọc quán theo sao	
+				case 'từ 0 sao':	
+					this.result = this.result.filter(function(store){
+						return parseFloat(store.ratePoint)  >= 0;
+					});
+					break;
+				case 'từ 1 sao': 
+					this.result = this.result.filter(function(store){
+						return parseFloat(store.ratePoint)  >= 1;
+					});
+					break;
+				case 'từ 2 sao': 
+					this.result = this.result.filter(function(store){
+						return parseFloat(store.ratePoint)  >= 2;
+					}); break;
+				case 'từ 3 sao': 
+					this.result = this.result.filter(function(store){
+						return parseFloat(store.ratePoint)  >= 3;
+					}); break;
+				case 'từ 4 sao': 
+					this.result = this.result.filter(function(store){
+						return parseFloat(store.ratePoint)  >= 4;
+					}); break;
+				case 'từ 4 sao': 
+					this.result = this.result.filter(function(store){
+						return parseFloat(store.ratePoint) == 5;
+					}); break;
+				default: 
+					this.result = this.result.filter(function(store){
+						return parseFloat(store.ratePoint)  >= 0;
+					});
+			}
 		},
-		async onInit(){
-			this.show = true;
-			this.type = await StoreService.getAllBussinessType();
-			this.discount = await DiscountService.getAll();
+		async onInit(){									//hàm khởi tạo
+			this.show = true;				
+			this.sortmode = 'Gần tôi';
+			this.checkedGT = 'checked';
+			this.optionDG = 'từ 0 sao';
+			this.optionGT = 'Không giới hạn';
+			this.currOptions = {						//lưu lại lựa chọn mặc định, biến thay đổi khi người dùng nhấn hoàn tất
+				opsDG:this.optionDG,
+				opsGT:this.optionGT,
+				sortmode:this.sortmode
+			}
+			this.type = await StoreService.getAllBussinessType();	//lấy danh sách loại quán
+			this.discount = await DiscountService.getAll();			//lấy danh sách khuyến mãi
 			const key = this.$route.query.key
-			if(key == 'Quán gần bạn' || key =='Đánh giá cao') 
-			{
-				var id= localStorage.getItem('provinceId');
+			if(key == 'Quán gần bạn' || key =='Đánh giá cao') 		//nếu key là Quán gần bạn hoặc Đánh giá cao
+			{							
+				var id= localStorage.getItem('provinceId');			
 				if(sessionStorage.getItem('place')){
 					let tempplace = JSON.parse(sessionStorage.getItem('place'));
-					//this.stores = await StoreService.getByProvince_distance(id,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
-					this.stores = await StoreService.getByProvince_distance(id,tempplace.lat,tempplace.lng);
+					//gọi api lấy danh sách quán theo tỉnh và lat lng của địa chỉ mới 
+					this.stores = await StoreService.getByProvince_distance(id,tempplace.lat,tempplace.lng); 
             	}
+				//không thì gọi api với địa chỉ mặc định là HCMUTE
       			else this.stores = await StoreService.getByProvince(id);
 				if(key == 'Đánh giá cao') {
 					this.sortmode ='Đánh giá cao';
-					this.checked2=true;
-					this.stores.sort(this.sortRate);
+					this.checkedDG=true;
+					this.stores.sort(this.sortRate);		//sắp xếp theo sao
 				}
-				else this.stores.sort(this.sortDistance);
+				else this.stores.sort(this.sortDistance);	//sắp xếp theo khoảng cách
+				this.result = this.stores;
 				this.show = false;
 				this.lable= key;
 			}
-			else 
+			else 											//nếu là từ khóa
 			{
 				if(sessionStorage.getItem('place')){
 					let tempplace = JSON.parse(sessionStorage.getItem('place'));
 					console.log(tempplace)
-					//this.stores = await StoreService.searchStore_distance(key,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
+					//gọi api lấy danh sách quán theo từ khóa và lat lng của địa chỉ mới 
 					this.stores = await StoreService.searchStore_distance(key,tempplace.lat,tempplace.lng);
-				}
+				}	//không thì gọi api với từ khóa và địa chỉ mặc định là HCMUTE
 				else this.stores = await StoreService.searchStore(key);
 				if(this.stores != 'Không có kết quả tìm kiếm')
 				{
 					this.lable='';
-					this.stores.sort(this.sortDistance);
+					this.stores.sort(this.sortDistance); //sắp xếp theo khoảng cách
+					this.result = this.stores;
 					this.show = false;
 				}
 			}
 		},
+		//hàm cắt chuỗi nếu quá dài
 		subString(index){
 			return index.toString().substring(0,20);
 		},
 		subString_address(index){
 			return index.toString().substring(0,12);
 		},
-		getType(index){
+		//lấy tên loại quán ăn theo id
+		getType(index){ 			
 		try{
 			var temp='Unknown'
 			this.type.forEach(element => {
@@ -223,34 +332,33 @@ export default {
 			return temp;}
 		catch(err){console.log(err)}
 		},
-		sortDistance(a,b){
+		//các hàm sắp xếp
+		sortDistance(a,b){							//theo khoảng cách 
 			return parseFloat(a.khoangcach) - parseFloat(b.khoangcach);
 		},
-		sortRate(a, b){
+		sortRate(a, b){								//theo sao
 			return parseFloat(b.ratePoint) - parseFloat(a.ratePoint);
 		},
-		sortProvince(store){
+		sortProvince(store){						//theo tỉnh
 			return store.provinceID == localStorage.getItem('provinceId');
 		},
-		openPopup(name,id) {
+		openPopup(name,id) {						 //Hàm mở Popup khuyến mãi
 			this.loadingStoreDiscount = true;
 			var popupnew = document.getElementById(name);
 			popupnew.classList.toggle("show");
-			this.currDiscount = name;
 			this.clicked = true;
 			this.getDisCount(id);
 		},
-		closePopup(name) {
+		closePopup(name) {							 //Hàm đóng Popup khuyến mãi
 			if(this.clicked == true){
 			this.discountList = [];
 			this.loadingStoreDiscount = false;
-			this.currDiscount = '';
 			var popupnew = document.getElementById(name);
 			popupnew.classList.toggle("show");
 			this.clicked = false;
 			}
 		},
-		async getDisCount(id){
+		async getDisCount(id){						 //Lấy discount của quán 
 			try{
 			this.discountList = [];
 			this.discountList = await DiscountService.getDiscountbyStore(id);
@@ -260,7 +368,7 @@ export default {
 			console.log(err)
 			}
 		},
-		getDiscountName(id){
+		getDiscountName(id){						//hàm lấy tên của discount theo id
 			let temp = ''
 			this.discount.forEach(element => {
 			if(element.discountTypeID == id)
@@ -268,6 +376,12 @@ export default {
 			});
 			return temp;
 		},
+		closeModal(){								//đóng cửa sổ bộ lọc 
+			this.active = false;
+			this.sortmode = this.currOptions.sortmode;	//trả về cài đặt trước đó 
+			this.optionGT = this.currOptions.opsGT;
+			this.optionDG = this.currOptions.opsDG;
+		}
 	}
 }
 </script>
@@ -279,7 +393,7 @@ export default {
 }
 .filter{
 	padding: 15px;
-	width: 250px;
+	width: 320px;
 	height: 40px;
 	background-color:#ffffff;
 	border-radius: 5px;

@@ -9,13 +9,6 @@
                 <div class="recent_heading">
                 <h4>Store</h4>
                 </div>
-                <!-- <div class="srch_bar">
-                <div class="stylish-input-group">
-                    <input  v-model="keywordStore" type="text" class="search-bar"  placeholder="Search"   v-on:keyup="onChangeStore(keywordStore)" >
-                    <span class="input-group-addon">
-                    <button type="button"> <i class="fa fa-search" aria-hidden="true"></i> </button>
-                    </span> </div>
-                </div> -->
           </div>
           <div class="inbox_chat" v-if="resultStore" style="direction: ltr;">
             <div v-for="(store,index) in resultStore" v-bind:key="index" :class="[storeID === store.storeID? 'chat_list active_chat':'chat_list']" @click="storeClicked(store.storeID,store.storeName,store)">
@@ -207,7 +200,17 @@
                   <i class="fas fa-circle" style="font-size:15px;color:#f86c6b"></i> {{lableRed}}
               </div>
           </CCol>
-          <CCol sm="7" class="d-none d-md-block">
+          <CCol sm="5">
+            <CRow>
+            <CCol sm="3">
+            <strong>Chọn ngày</strong>
+            </CCol>
+            <CCol sm="8">
+             <date-picker v-model="date" valueType="format"></date-picker>
+            </CCol>
+            </CRow>
+          </CCol>
+          <CCol sm="2" class="d-none d-md-block">
             <CButtonGroup class="float-right mr-3">
               <CButton
                 color="outline-secondary"
@@ -277,6 +280,8 @@
 </template>
 
 <script>
+import DatePicker from 'vue2-datepicker';
+import 'vue2-datepicker/index.css';
 import CChartBarExample from '../admin/charts/CChartBarExample'
 import MainChartExample from '../admin/charts/MainChartExample'
 import WidgetsDropdown from '../admin/widgets/WidgetsDropdown'
@@ -298,7 +303,8 @@ export default {
     WidgetsDropdown,
     WidgetsBrand,
     CChartBarExample,
-    MangeMenu
+    MangeMenu,
+    DatePicker
   },
   created(){
      this.optionChanged(this.selected);
@@ -308,40 +314,42 @@ export default {
       this.getTotalView();
   },
   data () {
-    return {
-      loadPoint: false,
-      loaded: false,
-      rate1:0,
-      rate2:0,
-      rate3:0,
-      rate4:0,
-      rate5:0,
-      averageRate:0,
-      store:[],
-      resultStore: [],
-      storeID:'',
-      storeName:'',
-      storeChoosed:'',
-      keywordStore:'',
-      selected: 'Day',
-      // day: 0,
-      // month: 0,
-      // year: 0,
-      // user:'',
-      // store:'',
-      comments:'',
-      // dishes:'',
-      dataBlue: [],
-      dataGreen:[],
-      dataRed:[],
-      lable:[],
-      lableBlue:'Hôm nay',
-      lableGreen: 'Hôm qua',
-      lableRed: '2 ngày trước',
-      totalView:0,
-      totalDay:0,
-      totalMonth:0,
-      totalYear:0,
+    return {  
+      date: null,                   //biến chứa giá trị ngày
+      loaded: false,                //biến cờ hiện loading trong khi load dữ liệu cho biểu đồ
+      rate1:0,                      //số lượng đánh giá 1 sao
+      rate2:0,                      //số lượng đánh giá 2 sao
+      rate3:0,                      //số lượng đánh giá 3 sao
+      rate4:0,                      //số lượng đánh giá 4 sao
+      rate5:0,                      //số lượng đánh giá 5 sao
+      averageRate:0,                //điểm trung bình của quán
+      store:[],                     //danh sách quán
+      resultStore: [],              //danh sách quán sau khi lọc bằng từ khóa
+      storeID:'',                   //id quán đang xem
+      storeName:'',                 //tên quán dang xem
+      storeChoosed:'',              //thông tin quán đang xem 
+      keywordStore:'',              //từ khóa để tìm quán
+      selected: 'Day',              //biến chứa giá trị chế độ xem(Day,Month,Year)
+      comments:'',                  //danh sách bình luận của quán
+      dataBlue: [],                 //danh sách dữ liệu cho đường màu xanh nước trong bảng lượng truy cập
+      dataGreen:[],                 //danh sách dữ liệu cho đường màu xanh lá trong bảng lượng truy cập
+      dataRed:[],                   //danh sách dữ liệu cho đường màu đỏ trong bảng lượng truy cập
+      lable:[],                     //nhãn cho các cột trong biểu đồ 
+      lableBlue:'Hôm nay',          //nhãn cho đường màu xanh nước
+      lableGreen: 'Hôm qua',        //nhãn cho đường màu xanh lá
+      lableRed: '2 ngày trước',     //nhãn cho đường màu đỏ
+      totalView:0,                  //tổng lượt truy cập của quán
+      totalDay:0,                   //tổng lượt truy cập của quán trong ngày
+      totalMonth:0,                 //tổng lượt truy cập của quán trong tháng
+      totalYear:0,                  //tổng lượt truy cập của quán trong năm
+    }
+  },
+  watch:{
+    date(){                         //hàm bắt sự kiện khi giá trị biến date thay đổi
+      if(this.date != null){        //nếu biến date khác null
+        this.optionChanged('Day');  //tải dữ liệu lượng truy cập theo ngày với giá trị của biến date
+        // this.getData_date();
+      }
     }
   },
   methods: {
@@ -358,36 +366,76 @@ export default {
       }
       return $color;
     },
-    optionChanged(value){
-      this.selected=value;
-      if(value == 'Day'){
-        this.lableBlue = 'Hôm nay';
-        this.lableGreen = 'Hôm qua';
-        this.lableRed = '2 Ngày trước';
-        this.getData_date();
-      }
-      else if(value == 'Month')
+    optionChanged(value){         //hàm tải dữ liệu lượng truy cập thi thay đổi chế độ xem (Day,Month ,Year)
+      this.selected=value; 
+      if(value == 'Day'){         //chế độ xem là Day
+        if(this.date != null)
+        {
+          var d = new Date(this.date);                      //tạo một giá trị Date với dữ liệu người dùng chọn từ datepicker
+          this.lableBlue = d.toJSON().slice(0,10).split('-').reverse().join('/');//chuyển sang định dạng dd/mm/yyyy
+          d.setDate(d.getDate() - 1);                                             //lui về một ngày 
+          this.lableGreen = d.toJSON().slice(0,10).split('-').reverse().join('/');
+          d.setDate(d.getDate() - 1);                                             //lui về một ngày nữa
+          this.lableRed = d.toJSON().slice(0,10).split('-').reverse().join('/');
+        }
+        else{
+          var d = new Date();                               //khi biến date chưa có dữ liệu thì sẽ lấy ngày hôm nay
+          this.lableBlue = d.toJSON().slice(0,10).split('-').reverse().join('/')
+          d.setDate(d.getDate() - 1)
+          this.lableGreen = d.toJSON().slice(0,10).split('-').reverse().join('/')
+          d.setDate(d.getDate() - 1)
+          this.lableRed = d.toJSON().slice(0,10).split('-').reverse().join('/')
+        }
+        this.getData_date();                              //tải dữ liệu lượng truy cập theo ngày
+      } 
+      else if(value == 'Month')                               //chế độ xem là Month
       {
-        this.lableBlue = 'Tháng này';
-        this.lableGreen = 'Tháng trước';
-        this.lableRed = '2 Tháng trước';
-        this.getData_month();
+        if(this.date != null)
+        {
+          var d = new Date(this.date);                       //tạo một giá trị Date với dữ liệu người dùng chọn từ datepicker
+          this.lableBlue = d.toJSON().slice(0,7).split('-').reverse().join('/');//chuyển sang định dạng /mm/yyyy
+          d.setMonth(d.getMonth() - 1);                                         //lui về 1 tháng
+          this.lableGreen = d.toJSON().slice(0,7).split('-').reverse().join('/');
+          d.setMonth(d.getMonth() - 1);                                         //lui về 1 tháng nữa
+          this.lableRed = d.toJSON().slice(0,7).split('-').reverse().join('/');
+        }
+        else{
+          var d = new Date();                                 //khi biến date chưa có dữ liệu thì sẽ lấy ngày hôm nay
+          this.lableBlue = d.toJSON().slice(0,7).split('-').reverse().join('/');
+          d.setMonth(d.getMonth() - 1);
+          this.lableGreen = d.toJSON().slice(0,7).split('-').reverse().join('/');
+          d.setMonth(d.getMonth() - 1);
+          this.lableRed = d.toJSON().slice(0,7).split('-').reverse().join('/');
+        }
+        this.getData_month();                                 //tải dữ liệu lượng truy cập theo tháng
       }
       else
       {
-        this.lableBlue = 'Năm này';
-        this.lableGreen = 'Năm trước';
-        this.lableRed = '2 Năm trước'
-        this.getData_year();
+        if(this.date != null)
+        {
+          var d = new Date(this.date);                        //tạo một giá trị Date với dữ liệu người dùng chọn từ datepicker
+          this.lableBlue = d.getFullYear();                   //năm hiện tại
+          this.lableGreen = d.getFullYear()-1;                //lui về 1 năm
+          this.lableRed =d.getFullYear()-2;                   //lui về 2 năm
+        }else{
+          var d = new Date();                                  //khi biến date chưa có dữ liệu thì sẽ lấy ngày hôm nay
+          this.lableBlue = d.getFullYear();
+          this.lableGreen = d.getFullYear()-1;
+          this.lableRed =d.getFullYear()-2;
+        }
+        this.getData_year();                                  //tải dữ liệu lượng truy cập theo năm
       }
     },
     async getData_date(){
       this.loaded = false;
-      var d = new Date();
-      this.dataBlue = await AnalystService.getDateStore(this.storeID,d.getDate(),d.getMonth() + 1,d.getFullYear());
-      d.setDate(d.getDate() - 1)
+      if(this.date == null){
+        var d = new Date();                                   //khi biến date chưa có dữ liệu thì sẽ lấy ngày hôm nay
+      }
+      else d= new Date(this.date);                            //tạo một giá trị Date với dữ liệu người dùng chọn từ datepicker
+      this.dataBlue = await AnalystService.getDateStore(this.storeID,d.getDate(),d.getMonth() + 1,d.getFullYear()); //lấy dữ liệu lượng truy cập theo ngày
+      d.setDate(d.getDate() - 1);                                                                                   //lui về một ngày
       this.dataGreen = await AnalystService.getDateStore(this.storeID,d.getDate(),d.getMonth() + 1,d.getFullYear());
-      d.setDate(d.getDate() - 1)
+      d.setDate(d.getDate() - 1);                                                                                   //lui về một ngày nữa
       this.dataRed = await AnalystService.getDateStore(this.storeID,d.getDate(),d.getMonth() + 1,d.getFullYear());
       if(this.dataBlue.length >= this.dataGreen.length && this.dataBlue.length >=this.dataRed.length)
           this.setLable(this.dataBlue);
@@ -397,86 +445,82 @@ export default {
     },
     async getData_month(){
       this.loaded = false;
-      var d = new Date();
-      this.dataBlue = await AnalystService.getMonthStore(this.storeID,d.getMonth() + 1,d.getFullYear());
-      console.log(this.dataBlue);
-      d.setMonth(d.getMonth() - 1);
+      if(this.date == null){
+        var d = new Date();                                   //khi biến date chưa có dữ liệu thì sẽ lấy ngày hôm nay
+      }
+      else d= new Date(this.date);                            //tạo một giá trị Date với dữ liệu người dùng chọn từ datepicker
+      this.dataBlue = await AnalystService.getMonthStore(this.storeID,d.getMonth() + 1,d.getFullYear());//lấy dữ liệu lượng truy cập theo tháng
+      d.setMonth(d.getMonth() - 1);                                                                     //lui về một tháng
       this.dataGreen = await AnalystService.getMonthStore(this.storeID,d.getMonth() + 1,d.getFullYear());
-      d.setMonth(d.getMonth() - 1);
+      d.setMonth(d.getMonth() - 1);                                                                     //lui về một tháng nữa
       this.dataRed = await AnalystService.getMonthStore(this.storeID,d.getMonth() + 1,d.getFullYear());
-      if(this.dataBlue.length >= this.dataGreen.length && this.dataBlue.length >=this.dataRed.length)
+      if(this.dataBlue.length >= this.dataGreen.length && this.dataBlue.length >=this.dataRed.length)   //kiểm tra tháng nào có nhiều ngày nhất nhất sẽ lấy tháng đó làm nhãn cho các cột trong biểu đồ (vì độ dài các tháng không bằng nhau 28 30 31) 
           this.setLable(this.dataBlue);
       else if ((this.dataGreen.length >= this.dataBlue.length && this.dataGreen.length >=this.dataRed.length))
           this.setLable(this.dataGreen);
       else this.setLable(this.dataRed);
     },
-    async getData_year(){
+    async getData_year(){                                               
       this.loaded = false;
-      var d = new Date();
-      this.dataBlue = await AnalystService.getYearStore(this.storeID,d.getFullYear());
-      this.dataGreen = await AnalystService.getYearStore(this.storeID,d.getFullYear()-1);
-      this.dataRed = await AnalystService.getYearStore(this.storeID,d.getFullYear()-2);
-      this.setLable(this.dataBlue);
+      if(this.date == null){
+        var d = new Date();                                   //khi biến date chưa có dữ liệu thì sẽ lấy ngày hôm nay
+      }
+      else d= new Date(this.date);                            //tạo một giá trị Date với dữ liệu người dùng chọn từ datepicker
+      this.dataBlue = await AnalystService.getYearStore(this.storeID,d.getFullYear());    //lấy dữ liệu lượng truy cập theo năm hiện tại
+      this.dataGreen = await AnalystService.getYearStore(this.storeID,d.getFullYear()-1); //lấy dữ liệu lượng truy cập lui về 1 năm
+      this.dataRed = await AnalystService.getYearStore(this.storeID,d.getFullYear()-2);   //lấy dữ liệu lượng truy cập lui về 2 năm
+      this.setLable(this.dataBlue);                                                       //chọn năm đầu tiên làm nhãn cho các cột trong biểu đồ vì năm nào cũng có 12 tháng
     },
-    setLable(data)
+    setLable(data)                                             //hàm tạo danh sách lable cho các cột trong  biểu đồ 
     {
       this.lable=[];
-      for (let i = 1; i <= data.length; i++) {
+      for (let i = 1; i <= data.length; i++) { //VD tháng 2 lable = [1,2,3,...,28]
         this.lable.push(i)
       };
-      this.loaded = true;
+      this.loaded = true;                       //set lable xong thì hoàn thành tải dữ liệu và show biểu đồ 
     },
-    async fetchStore(){
-      var user = localStorage.getItem('userInfor');
-      user = JSON.parse(user);
-      const token = localStorage.getItem('isAuthen');
-      this.store = await StoreService.getByUser(user.userID,token);
-      this.storeChoosed = this.store[0];
-      this.resultStore = this.store;
-      this.storeID = this.store[0].storeID;
-      this.storeName=this.store[0].storeName;
-      this.totalView = this.store[0].numberView;
-      this.getComments(this.storeChoosed.storeID);
-      // const url = 'https://api.viefood.info/api/Store/GetAllManage'
-      // this.$http.get(url,{ headers: {"Authorization" : `Bearer ${localStorage.getItem('isAuthen')}`}}).then(response => {
-      //     this.store = response.data;
-      //     this.storeChoosed = this.store[0];
-      //     this.resultStore = this.store;
-      //     this.storeID = this.store[0].storeID;
-      //     this.storeName=this.store[0].storeName;
-      //     this.getComments(this.storeChoosed.storeID);
-      // });
-
+    async fetchStore(){                         //tải danh sách quán của user
+      var user = localStorage.getItem('userInfor');                 //lấy thông tin người dùng
+      user = JSON.parse(user);                
+      const token = localStorage.getItem('isAuthen');               //lấy token
+      this.store = await StoreService.getByUser(user.userID,token); //lấy danh sách quán của người dùng
+      this.storeChoosed = this.store[0];                            //set quán đang chọn la quán đầu tiên
+      this.resultStore = this.store;                                //danh sách kết quả tìm quán = danh sách quán vì lúc này người dùng chưa tìm kiếm
+      this.storeID = this.store[0].storeID;                         //gán dữ liệu id quán
+      this.storeName=this.store[0].storeName;                       //gán dữ liệu tên quán
+      this.totalView = this.store[0].numberView;                   //gán dữ liệu tổng lượt view của quán
+      this.averageRate = this.store[0].ratePoint;                   //lấy điểm của quán
+      this.getComments(this.storeChoosed.storeID);                  //lấy danh sách bình luận
     },
-    onChangeStore(key){
-          if(key == '' || key == null)
-            return this.resultStore=this.store;
-          else {
-            this.resultStore = this.store.filter(function(item){
-             return item.storeName.toLowerCase().includes(key.toLowerCase());
-          })
-        }    
+    onChangeStore(key){                                             //tìm kiếm quán theo từ khóa
+        if(key == '' || key == null)                              
+          return this.resultStore=this.store;                       //nếu từ khóa rỗng thì không tìm trả về danh sách ban đầu
+        else {
+          this.resultStore = this.store.filter(function(item){      //lọc những quán có tên chứa từ khóa 
+            return item.storeName.toLowerCase().includes(key.toLowerCase());
+        })
+      }    
     },
-    storeClicked(id,name,store){
-        this.storeChoosed = store;
-        this.storeID = id;
-        this.storeName = name;
-        this.selected = 'Day'
-        this.getData_date();
-        this.getComments(this.storeChoosed.storeID);
-        this.$root.$refs.MangeMenu.changeMenus(id);
+    storeClicked(id,name,store){                                    //hàm thay đổi dữ liệu Khi nhấn vào một quán trong inbox
+      this.storeChoosed = store;                                    //gán quán vừa chọn vào biến storeChoosed
+      this.storeID = id;                                            //Lấy id quán
+      this.storeName = name;                                        //lấy tên quán
+      this.averageRate = store.ratePoint;                           //lấy điểm quán
+      this.selected = 'Day'                                         //set lại chế độ xem lượng truy cập là ngày
+      this.getData_date();                                          //lấy thông tin lượng truy cập theo ngày
+      this.getComments(this.storeChoosed.storeID);                  //lấy danh sách comment
+      this.$root.$refs.MangeMenu.changeMenus(id);                   //gọi hàm thay đổi menu ở component MangeMenu
     },
-    openPopup() {
+    openPopup() {                                                   //hiện popup danh sách quán
         var popup = document.getElementById("myPopup");
         popup.classList.toggle("show");
 	  },
-    async getComments(id){
+    async getComments(id){                                          //lấy danh sách các comment và tính toán đánh giá
 			try{
-        this.loadPoint = false;
-        this.rate1=0; this.rate2=0; this.rate3=0; this.rate4=0;this.rate5=0;
-        this.comments = await CommentService.getCommentByStore(id);
+        this.rate1=0; this.rate2=0; this.rate3=0; this.rate4=0;this.rate5=0; //đưa các biến đếm về 0 trước khi tính 
+        this.comments = await CommentService.getCommentByStore(id);          //lấy danh sách tất cả comments
 				let rate = 0;
-				this.comments.forEach(element => {
+				this.comments.forEach(element => {                                   //đếm số lượng từng loại đánh giá trong danh sách
 						rate+=parseInt(element.ratePoint)
 						switch(parseInt(element.ratePoint)){
 							case 1: this.rate1 +=1; break;
@@ -486,24 +530,26 @@ export default {
 							case 5: this.rate5 +=1; break;
 						}
 						});
-        if(this.comments.length == 0)
-          this.averageRate = 0;
-				else this.averageRate = rate/this.comments.length;
-        this.loadPoint = true;
 			}
 			catch(err){console.log(err)}
 		},
-    async getTotalView(){
+    async getTotalView(){                   //thống kê lượt view của quán
       var d = new Date();
+      //lấy thống view trong ngày của quán
       let total = await AnalystService.getDateStore(this.storeID,d.getDate(),d.getMonth() + 1,d.getFullYear());
+      //tính tổng view trong ngày 
       total.forEach(element =>{
         this.totalDay += parseInt(element);
       })
+      //lấy thống view trong tháng của quán
       total = await AnalystService.getMonthStore(this.storeID,d.getMonth() + 1,d.getFullYear());
+      //tính tổng view trong tháng
       total.forEach(element =>{
         this.totalMonth += parseInt(element);
       });
+      //lấy thống view trong năm của quán
       total = await AnalystService.getYearStore(this.storeID,d.getFullYear());
+      //tính tổng view trong năm
       total.forEach(element =>{
         this.totalYear += parseInt(element);
       });

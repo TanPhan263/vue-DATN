@@ -21,7 +21,7 @@ import Notifications from 'vue-notification'
 sessionStorage.setItem('notified',JSON.stringify([]));
 Vue.use(VueChatScroll);
 Vue.use(Notifications);
-// lazyload image with options
+// lazyload image
 const loadimage = require('./assets/imgs/loading.gif')
 const errorimage = require('./assets/imgs/error.png')
 Vue.use(VueLazyload, {
@@ -40,9 +40,6 @@ Vue.use(infiniteScroll)
 import JwPagination from 'jw-vue-pagination';
 Vue.component('jw-pagination', JwPagination);
 
-//GoogleMap AIzaSyA4iGS3l6NH4Vreg4LJJX7gizkedG-9SvA
-//	 AIzaSyAcDDET59ANwEhTdub24KMtGk5C2-CNnDE
-//  AIzaSyDyqOswaIsfJyFeW4LscRzJqeC6r57buLI
 Vue.use(VueGoogleMaps, {
   load: {
     key: "AIzaSyDyqOswaIsfJyFeW4LscRzJqeC6r57buLI",

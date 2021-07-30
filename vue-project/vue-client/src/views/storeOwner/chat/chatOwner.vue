@@ -122,39 +122,40 @@ export default {
     },
     data(){
       return{
-        ownerID:'',
-        keyword:'',
-        keywordStore:'',
-        message: null,
-        messages: [],
-        result: [],
-        store:[],
-        resultStore: [],
-        inboxes: [],
-        inboxID:'',
-        inboxName:'',
-        storeClickedID:'',
-        roomID:''
+        ownerID:'',                             //id chủ quán
+        keyword:'',                             //từ khóa dùng để tìm inbox
+        keywordStore:'',                        //từ khóa dùng để tìm quán
+        message: null,                          //tin nhắn
+        messages: [],                           //danh sách tin nhắn
+        result: [],                             //danh sách inbox sau khi lọc bằng từ khóa
+        store:[],                               //danh sách quán
+        resultStore: [],                        //danh sách quán sau khi lọc bằng từ khóa
+        inboxes: [],                            //danh sách inbox của 1 quán
+        inboxID:'',                             //id của inbox
+        inboxName:'',                           //tên của inbox
+        storeClickedID:'',                      //quán đang chọn
+        roomID:''                               //id của phòng chat
       }
     },
     methods:{
+      //hàm cắt chuỗi khi quá dài
       stringcut(index){
         if(index.length > 20)
           return index.slice(0,12);
         return index;
       },
-      getDate(sec){
+      getDate(sec){                             //hàm lấy thời gian bằng timestamp
         const monthNames = ["January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
           ];
           var date = new Date(sec);
           var currdate = new Date();
           if(date.getDate() == currdate.getDate())
-            return date.getHours() + ':' + date.getMinutes();
+            return date.getHours() + ':' + date.getMinutes();                   //nếu cùng một ngày thì hiển thị giờ phút
           else 
-            return ' ' + monthNames[date.getMonth() +1] + ' ' + date.getDate();
+            return ' ' + monthNames[date.getMonth() +1] + ' ' + date.getDate(); //khác ngày thì hiển thị ngày tháng
         },
-      saveMessage(){
+      saveMessage(){                                                             //lưu tin nhắn
         try{
           if(this.message && this.roomID && this.inboxID && this.storeClickedID && this.ownerID){
             var today = new Date();
@@ -164,19 +165,19 @@ export default {
               msg: this.message,
               date: today.toString().slice(3,21)
             };
-            firebase
+            firebase                                                            //lưu tin nhắn vào firebase
               .database()
               .ref("Messages/chatMessages/")
               .push(mess);
-            firebase
-              .database()
+            firebase                                                             //update hòm thư của người gửi(quán)
+              .database()                                                        //seen == false là chưa xem tin nhắn, lastMsg là tin vừa nhắn 
               .ref("Messages/inboxes/stores/"+ this.ownerID).child(this.storeClickedID).child(this.inboxID)
               .update({seen:'true',time:today.getTime(),lastMsg:this.message});
             firebase
-              .database()
+              .database()                                                         //update hòm thư của người nhận
               .ref("Messages/inboxes/users/"+ this.inboxID).child(this.storeClickedID)
               .update({seen:'false',time:today.getTime(),lastMsg:this.message});
-            this.message = '';
+            this.message = '';                                                    //set tin nhắn lại thành rỗng
           }
           else alert('Errr')
         }
@@ -184,7 +185,7 @@ export default {
           console.log(err);
         }
       },
-      fetchMessage(){
+      fetchMessage(){                                                            //lấy danh sách tin nhắn theo roomID
         try{
           if(this.roomID && this.inboxID && this.storeClickedID){
             firebase.database().ref("Messages/chatMessages/").orderByChild('roomID').equalTo(this.roomID).on("value", snapshot => {
@@ -201,14 +202,14 @@ export default {
                     date: data[key].date
                   });
                 });
-                if(messages[messages.length -1].senderID == this.inboxID)
-                  {
+                if(messages[messages.length -1].senderID == this.inboxID)  //nếu đang nhắn với thi update hòm thư của mình là đã xem seen = true
+                  { 
                     firebase
                     .database()
                     .ref("Messages/inboxes/stores/"+ this.ownerID).child(this.storeClickedID).child(this.inboxID)
                     .update({seen: 'true'});
                   }
-                if(this.roomID == messages[0].roomID)
+                if(this.roomID == messages[0].roomID)                     //chỉ fetch tin nhắn của phòng hiện tại
                   this.messages = messages;
               }
           }); 
@@ -218,7 +219,7 @@ export default {
           console.log(err);
         }
       },
-      fectchInboxes(id){
+      fectchInboxes(id){                                                //Load hòm thư của quán
         try{
             firebase.database().ref("Messages/inboxes/stores/" + this.ownerID +"/"+ id).on("value", snapshot => {
             if(snapshot.exists())
@@ -238,14 +239,14 @@ export default {
                     seen: data[key].seen
                   });
                 });
-                if(inboxes[0].recipentID == this.storeClickedID){
+                if(inboxes[0].recipentID == this.storeClickedID){                 //chỉ tải inbox của quán đang xem
                   this.inboxes = inboxes;
                   this.result= this.inboxes;
                 }
-                if(this.inboxID == ''){
+                if(this.inboxID == ''){                                           //nếu là lần đầu mở thì mở tin nhắn của quán/người đầu tiên
                   this.inboxID = inboxes[0].senderID;
                   this.roomID = inboxes[0].roomID;
-                  this.fetchMessage();
+                  this.fetchMessage();                                              //load tin nhắn
                 }
             }
             else
@@ -257,15 +258,27 @@ export default {
           console.log(err);
         }
       },
-      async fetchStore(){
+      async fetchStore(){                                   //tải danh sách các quán có người nhắn tin
         try{
           var user = localStorage.getItem("userInfor");
           user = JSON.parse(user);
-          this.ownerID = user.userID
-          this.store = await StoreService.getByUser(this.ownerID,localStorage.getItem('isAuthen'));
-          this.resultStore= this.store;
-          this.storeClickedID = this.store[0].storeID;
-          this.fectchInboxes(this.store[0].storeID);
+          this.ownerID = user.userID;
+          this.store = await StoreService.getByUser(this.ownerID,localStorage.getItem('isAuthen'));//lấy danh sách quán mà người dùng làm chủ
+          firebase.database().ref("Messages/inboxes/stores/"+ this.ownerID).on("value", snapshot => {//tải danh sách quán có người nhắn tin trên firebase
+            if(snapshot.exists())
+            {
+              let data = snapshot.val();
+              Object.keys(data).forEach(key => {
+              this.store.forEach(el =>{
+                if(el.storeID == key && !this.resultStore.includes(el))                              //nếu quán có người nhắn tin và resultStore chưa cho quán này thì thêm vào
+                  this.resultStore.push(el);
+                })
+              });
+            }
+          }); 
+          //this.resultStore= this.store;
+          this.storeClickedID = this.resultStore[0].storeID;                                       
+          this.fectchInboxes(this.storeClickedID);                                                    //tải inbox của quán đầu tiên
         }
         catch{}
       },
@@ -278,50 +291,50 @@ export default {
         })
       }
     },
-    onChangeStore(key){
+    onChangeStore(key){                                                                                //hàm tim kiếm inbox theo tên
       if(key == '' || key == null)
-        return this.resultStore=this.store;
+        return this.resultStore=this.store;                                                            //nếu từ khóa rỗng thì không tìm trả về danh sách ban đầu
       else {
-        this.resultStore = this.store.filter(function(item){
+        this.resultStore = this.store.filter(function(item){                                           //lọc những quán có tên chứa từ khóa
           return item.storeName.toLowerCase().includes(key.toLowerCase());
         })
       }
     },
-    storeClicked(id){
-      this.inboxID = '';
+    storeClicked(id){                                                                                  //hàm chọn quán để xem tin nhắn
+      this.inboxID = '';                                                                                //reset các giá trị hiện tại
       this.inboxes = [];
       this.result =[];
       this.messages = [];
-      this.storeClickedID = id;
+      this.storeClickedID = id;                                                                         //gán id quán vùa  chọn
       this.roomID= '';
-      this.fectchInboxes(id);
+      this.fectchInboxes(id);                                                                           //tải inbox của quán
     },
-    inboxClicked(inbox){
+    inboxClicked(inbox){                                                                                //hàm chọn inbox để xem tin nhắn
       if(inbox){
         this.messages = [];
-        this.inboxID = inbox.id;
-        if(inbox.seen == 'false')
+        this.inboxID = inbox.id;                                                                        //gán id của inbox vừa chọn
+        if(inbox.seen == 'false')                                                                       //nếu inbox này chưa xem tin nhắn thì set lại thành đã xem
         {
           firebase
           .database()
           .ref("Messages/inboxes/stores/"+ this.ownerID).child(inbox.recipentID).child(inbox.id)
           .update({seen: 'true'});
         }
-        this.roomID = inbox.roomID;
-        this.fetchMessage();
+        this.roomID = inbox.roomID;                                                                     //gán id room của inbox vừa chọn
+        this.fetchMessage();                                                                            //tải tin nhắn
       }
     },
-    getUserName(id){
-      if(this.inboxes)
-      {
-        let temp = ''
-        this.inboxes.forEach(element => {
-          if(element.senderID == id)
-            temp = element.senderName;
-        });
-        return temp;
-      }
-    },
+    // getUserName(id){                                                      
+    //   if(this.inboxes)
+    //   {
+    //     let temp = ''
+    //     this.inboxes.forEach(element => {
+    //       if(element.senderID == id)
+    //         temp = element.senderName;
+    //     });
+    //     return temp;
+    //   }
+    // },
   },
   mounted(){
     this.fetchStore();

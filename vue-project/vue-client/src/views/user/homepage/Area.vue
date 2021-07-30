@@ -63,8 +63,8 @@ export default {
     data(){
       return{
         districtID: '-MZDgDz4jgm59Muy9bJ3',
-        districts: [],
-        stores:[],
+        districts: [],//danh sách quận/huyện
+        stores:[],//danh sách quán
         show: false
       }
     },
@@ -81,20 +81,21 @@ export default {
       this.onInit();
     },
     methods:{
-        openPopup(name,id){
-          this.$root.$refs.Homebody.openPopup(name,id);
+        openPopup(name,id){ 
+          this.$root.$refs.Homebody.openPopup(name,id); //gọi hàm openPopup ở component Homebody
         },
         closePopup(name){
           this.$root.$refs.Homebody.closePopup(name);
         },
-        getDiscountName(id){
-        let temp = ''
-        this.discount.forEach(element => {
-          if(element.discountTypeID == id)
-            temp = element.discountTypeName;
-        });
-        return temp;
+        getDiscountName(id){ //lấy tên của khuyến mãi bằng id
+          let temp = ''
+          this.discount.forEach(element => {
+            if(element.discountTypeID == id)
+              temp = element.discountTypeName;
+          });
+          return temp;
         },
+        // Các hàm cắt chuỗi khi quán độ dài quy định
         subString(index){
            if(index.length>17)
             return index.toString().substring(0,17)+'...';
@@ -105,6 +106,7 @@ export default {
             return index.toString().substring(0,20)+'...';
           return index;
         },
+        //Hàm lấy tên loại quán
         getType(index){
           var temp='Unknown'
           this.type.forEach(element => {
@@ -113,19 +115,20 @@ export default {
           });
           return temp;
         },
-        async onInit(){
+        async onInit(){//hàm khởi tạo
           try{
             this.show = true;
-            var id = localStorage.getItem('provinceId');
-            this.districts = await ProvinceService.getDistrictByID(id);
-            this.districtID = this.districts[0].districtID;
-            if(sessionStorage.getItem('place')){
+            var id = localStorage.getItem('provinceId');                //lấy id tỉnh 
+            this.districts = await ProvinceService.getDistrictByID(id);//lấy danh sách quận/huyện
+            this.districtID = this.districts[0].districtID;             //lấy id tỉnh đầu tiên
+            if(sessionStorage.getItem('place')){                        //nếu có địa điểm mới đc thay đổi
               let tempplace = JSON.parse(sessionStorage.getItem('place'));
-              //this.stores = await StoreService.getByDistrict_distance(this.districtID,tempplace.geometry.location.lat,tempplace.geometry.location.lng);
-               this.stores = await StoreService.getByDistrict_distance(this.districtID,tempplace.lat,tempplace.lng);
+              //gọi api lấy danh sách quán theo quận và lat lng của địa chỉ mới 
+              this.stores = await StoreService.getByDistrict_distance(this.districtID,tempplace.lat,tempplace.lng);
             }
+            //không thì gọi api với địa chỉ mặc định là HCMUTE
             else this.stores = await StoreService.getByDistrict(this.districtID);
-            this.stores.sort(function(a,b){
+            this.stores.sort(function(a,b){ //sắp xếp lại theo khoảng cách
               return parseFloat(a.khoangcach) - parseFloat(b.khoangcach);
             })
             this.stores = this.stores.slice(0,15);
@@ -133,10 +136,10 @@ export default {
           }
           catch(err){console.log(err)}
         },
-        async districtClicked(id){
+        async districtClicked(id){ //hàm đổi quán khi nhấn vào một quận huyện
           try{
-          this.districtID = id;
-          this.show= true;
+          this.districtID = id; //đổi ID 
+          this.show= true; //hiện loading
           if(sessionStorage.getItem('place')){
               let tempplace = JSON.parse(sessionStorage.getItem('place'));
               this.stores = await StoreService.getByDistrict_distance(this.districtID,tempplace.lat,tempplace.lng);
@@ -146,11 +149,11 @@ export default {
               return parseFloat(a.khoangcach) - parseFloat(b.khoangcach);
             })
           this.stores = this.stores.slice(0,15);
-          this.show=false;
+          this.show=false; //tắt loading
           }
           catch(err){console.log(err)}
         },
-        async changePlace(lat,long){
+        async changePlace(lat,long){//khi địa điểm thay đổi thì thay đổi danh sách quán theo
           this.stores = await StoreService.getByDistrict_distance(this.districtID,lat,long);
           this.stores = this.stores.slice(0,15);
         }
